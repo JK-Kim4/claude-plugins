@@ -1,0 +1,16 @@
+{
+  "name": "document-generator",
+  "version": "1.0.0",
+  "description": "작업 보고서·진행 추적·기술 설계·온보딩 가이드를 목적과 독자에 맞는 best-practice 형식으로 생성하는 스킬. Markdown·HTML 파일과 Notion 페이지 출력을 지원한다.",
+  "author": {
+    "name": "JK-Kim4"
+  },
+  "keywords": [
+    "documentation",
+    "report",
+    "markdown",
+    "notion",
+    "technical-writing"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "jongwan-plugins",
+  "owner": {
+    "name": "JK-Kim4"
+  },
+  "description": "jongwan의 Claude Code 플러그인 마켓플레이스",
+  "plugins": [
+    {
+      "name": "document-generator",
+      "source": "./",
+      "description": "작업 보고서·진행 추적·기술 설계·온보딩 가이드를 목적에 맞는 형식으로 생성. Markdown·HTML·Notion 출력 지원."
+    }
+  ]
+}
