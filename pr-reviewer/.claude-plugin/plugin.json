@@ -1,0 +1,16 @@
+{
+  "name": "pr-reviewer",
+  "version": "1.0.0",
+  "description": "지정한 GitHub PR을 컨벤션·코드(보안·동시성·로직) 두 축으로 분석해 P0~P2 우선순위 라벨을 단 단일 PR Review로 일괄 게시하는 스킬.",
+  "author": {
+    "name": "JK-Kim4"
+  },
+  "keywords": [
+    "github",
+    "pull-request",
+    "code-review",
+    "convention",
+    "security"
+  ],
+  "license": "MIT"
+}
