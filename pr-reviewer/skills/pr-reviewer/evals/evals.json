@@ -1,0 +1,69 @@
+{
+  "skill_name": "pr-reviewer",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "이 PR 리뷰해줘.",
+      "expected_output": "대상 PR 번호/URL이 없으므로 식별자를 요청하고 중단한다. 임의로 현재 브랜치 PR을 추정하지 않는다.",
+      "files": [],
+      "expectations": [
+        "대상 PR 번호 또는 URL을 사용자에게 요청한다",
+        "PR 식별자 없이 리뷰를 진행하지 않는다"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "PR #42 리뷰해서 코멘트 달아줘.",
+      "expected_output": "사전 점검(git·gh) 후 PR #42의 메타·diff를 수집하고, 컨벤션을 확정한 뒤 두 축(컨벤션·코드)으로 분석해 P0~P2 라벨을 단 단일 PR Review를 한 줄 고지 후 COMMENT로 제출한다.",
+      "files": [],
+      "expectations": [
+        "gh pr view/diff로 PR #42의 메타와 diff를 수집한다",
+        "컨벤션·코드(보안·동시성·로직) 두 축으로 분석한다",
+        "각 지적에 P0~P2 우선순위 라벨을 단다",
+        "단일 PR Review를 event=COMMENT로 제출하고 제출 직전 한 줄 고지한다"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "PR #7 컨벤션 점검해줘. (컨벤션 설정 없음, 레포에 CONTRIBUTING.md 존재)",
+      "expected_output": "컨벤션 설정 파일이 없어 스택을 탐지하고 인터뷰하며, 팀 컨벤션 문서(CONTRIBUTING.md)가 있으므로 conventionSource=doc로 그 문서를 최우선 기준으로 확정·저장하고 리뷰한다.",
+      "files": [],
+      "expectations": [
+        "컨벤션 설정이 없을 때 스택 탐지 후 컨벤션 문서 유무를 인터뷰한다",
+        "팀 컨벤션 문서를 최우선 리뷰 기준으로 삼는다",
+        "확정값을 .claude/pr-reviewer.json에 conventionSource=doc로 저장한다"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "PR #15 리뷰해줘. (컨벤션 설정·문서 모두 없음)",
+      "expected_output": "컨벤션 문서가 없으므로 탐지된 스택의 범용 컨벤션을 기준(conventionSource=universal)으로 확정·저장하고 리뷰한다.",
+      "files": [],
+      "expectations": [
+        "컨벤션 문서가 없으면 스택 범용 컨벤션을 기준으로 삼는다",
+        "확정값을 .claude/pr-reviewer.json에 conventionSource=universal로 저장한다"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "PR #100 리뷰해줘. (.claude/pr-reviewer.json 이미 존재)",
+      "expected_output": "설정 파일이 이미 있으므로 인터뷰 없이 그 컨벤션으로 바로 분석·게시한다.",
+      "files": [],
+      "expectations": [
+        "설정 파일이 있으면 컨벤션 인터뷰를 생략한다",
+        "저장된 컨벤션 기준으로 리뷰를 진행한다"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "https://github.com/o/r/pull/9 리뷰해줘. (라인 특정이 어려운 구조적 지적 포함)",
+      "expected_output": "URL로 대상 PR을 식별하고, 인라인 라인 매핑이 불가능한 구조적 지적은 인라인 대신 요약 본문에 모아 기재한 단일 Review를 제출한다.",
+      "files": [],
+      "expectations": [
+        "PR URL에서 대상 PR을 식별한다",
+        "라인 매핑 불가한 지적은 요약 본문에 모아 기재한다",
+        "단일 PR Review로 제출한다"
+      ]
+    }
+  ]
+}
