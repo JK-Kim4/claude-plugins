@@ -1,0 +1,16 @@
+{
+  "name": "architecture-reviewer",
+  "version": "1.0.0",
+  "description": "A Philosophy of Software Design·DDD 관점으로 코드의 아키텍처 품질(복잡도·모듈 깊이·정보 은닉·결합도)을 진단하고, 제안한 아키텍처 방향을 현 코드 기준으로 검증하는 스킬.",
+  "author": {
+    "name": "JK-Kim4"
+  },
+  "keywords": [
+    "architecture",
+    "code-review",
+    "software-design",
+    "modularity",
+    "refactoring"
+  ],
+  "license": "MIT"
+}

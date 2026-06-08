@@ -19,6 +19,11 @@
       "name": "pr-reviewer",
       "source": "./pr-reviewer",
       "description": "지정한 GitHub PR을 컨벤션·코드(보안·동시성·로직) 두 축으로 분석해 P0~P2 우선순위 라벨을 단 단일 PR Review로 일괄 게시. 리뷰 기준 컨벤션 레포당 1회 확정·저장."
+    },
+    {
+      "name": "architecture-reviewer",
+      "source": "./architecture-reviewer",
+      "description": "APoSD·DDD 관점으로 코드의 아키텍처 품질(복잡도·모듈 깊이·정보 은닉·결합도)을 7축 루브릭으로 진단하거나, 제안한 아키텍처 방향을 현 코드 기준으로 검증. 지적마다 P0~P2 + 개선 스케치."
     }
   ]
 }
