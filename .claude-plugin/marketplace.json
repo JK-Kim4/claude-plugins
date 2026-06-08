@@ -9,6 +9,11 @@
       "name": "document-generator",
       "source": "./document-generator",
       "description": "작업 보고서·진행 추적·기술 설계·온보딩 가이드를 목적에 맞는 형식으로 생성. Markdown·HTML·Notion 출력 지원."
+    },
+    {
+      "name": "pr-automator",
+      "source": "./pr-automator",
+      "description": "현재 브랜치 작업을 원격에 push하고 GitHub PR 생성을 자동화. 커밋 컨벤션 레포당 1회 확정·저장, 미커밋 커밋·브랜치 안전장치·기존 PR 갱신 처리."
     }
   ]
 }

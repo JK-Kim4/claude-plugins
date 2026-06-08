@@ -1,0 +1,16 @@
+{
+  "name": "pr-automator",
+  "version": "1.0.0",
+  "description": "현재 브랜치 작업을 원격에 push하고 GitHub PR을 생성하는 흐름(커밋 컨벤션 확정 → 커밋 → push → PR)을 자동화하는 스킬.",
+  "author": {
+    "name": "JK-Kim4"
+  },
+  "keywords": [
+    "git",
+    "github",
+    "pull-request",
+    "automation",
+    "workflow"
+  ],
+  "license": "MIT"
+}
