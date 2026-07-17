@@ -6,22 +6,25 @@ pr-reviewer가 분석 결과를 단일 PR Review로 게시할 때의 형식·절
 
 각 인라인 코멘트 본문:
 ```
-🔴 P0 [보안] <한 줄 요지>
+🔴 P1 [보안] <한 줄 요지>
 <근거·영향. 가능하면 수정 방향>
 ```
-- 라벨: `🔴 P0` / `🟠 P1` / `🟡 P2`
+- 라벨: `🔴 P1` / `🟠 P2` / `🟡 P3` / `🟢 P4` / `⚪ P5` (Pn 룰 — SKILL.md 4단계 표 참조)
 - 범주 태그: `[보안]` `[동시성]` `[로직]` `[컨벤션]`
+- **톤**: 명령형 지적 대신 질문형·제안형으로 쓴다 ("~하면 어떨까요?", "~한 이유가 있을까요?"). 사람이 아니라 코드에 대해 말한다.
 
 요약 본문(Review body):
 ```markdown
 ## 리뷰 요약
 | 우선순위 | 건수 |
 |----------|------|
-| 🔴 P0 | x |
-| 🟠 P1 | y |
-| 🟡 P2 | z |
+| 🔴 P1 | a |
+| 🟠 P2 | b |
+| 🟡 P3 | c |
+| 🟢 P4 | d |
+| ⚪ P5 | e |
 
-<총평 1~2문장. 가장 시급한 항목 언급.>
+<총평 1~2문장. 가장 시급한 항목 언급. 잘한 점이 눈에 띄면 한 줄로 함께 언급.>
 
 <인라인 매핑 불가한 지적이 있으면 여기에 목록으로 기재>
 ```
@@ -40,8 +43,8 @@ pr-reviewer가 분석 결과를 단일 PR Review로 게시할 때의 형식·절
 gh api repos/{owner}/{repo}/pulls/{number}/reviews \
   -f event=COMMENT \
   -f body="<요약 본문>" \
-  -F 'comments[][path]=src/foo.py' -F 'comments[][line]=42' -F 'comments[][side]=RIGHT' -F 'comments[][body]=🔴 P0 [보안] ...' \
-  -F 'comments[][path]=src/bar.py' -F 'comments[][line]=10' -F 'comments[][side]=RIGHT' -F 'comments[][body]=🟠 P1 [로직] ...'
+  -F 'comments[][path]=src/foo.py' -F 'comments[][line]=42' -F 'comments[][side]=RIGHT' -F 'comments[][body]=🔴 P1 [보안] ...' \
+  -F 'comments[][path]=src/bar.py' -F 'comments[][line]=10' -F 'comments[][side]=RIGHT' -F 'comments[][body]=🟠 P2 [로직] ...'
 ```
 
 - `{owner}/{repo}`는 `gh repo view --json owner,name` 또는 PR URL에서 얻는다.
@@ -55,7 +58,7 @@ gh api repos/{owner}/{repo}/pulls/{number}/reviews \
     "event": "COMMENT",
     "body": "<요약 본문>",
     "comments": [
-      {"path": "src/foo.py", "line": 42, "side": "RIGHT", "body": "🔴 P0 [보안] ..."}
+      {"path": "src/foo.py", "line": 42, "side": "RIGHT", "body": "🔴 P1 [보안] ..."}
     ]
   }
   ```
