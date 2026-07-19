@@ -158,6 +158,13 @@ figure.diagram figcaption {
   font-size: 0.88em;
   color: var(--fg-muted);
 }
+/* Before/After 비교 — 두 다이어그램을 나란히 (references/diagrams.md 6번) */
+.ba { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0; }
+.ba figure.diagram { margin: 0; }
+@media (max-width: 720px) {
+  .ba { grid-template-columns: 1fr; }
+}
+
 /* ASCII 폴백은 지양하되, 불가피할 때만 사용 */
 .diagram-ascii {
   background: var(--bg-subtle);
@@ -184,6 +191,6 @@ figure.diagram figcaption {
 @media print {
   body { padding: 0; max-width: none; font-size: 12pt; }
   h2 { page-break-after: avoid; }
-  pre, table, .callout, .proscons, figure.diagram, .diagram-ascii { page-break-inside: avoid; }
+  pre, table, .callout, .proscons, figure.diagram, .diagram-ascii, .ba { page-break-inside: avoid; }
   a { color: var(--fg); }
 }
