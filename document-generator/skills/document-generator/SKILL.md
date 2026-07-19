@@ -73,7 +73,7 @@ Claude Code로 작업하다 보면 결과를 보고하거나, 진행을 추적�
 
 **Notion 출력 분기:** 사용자가 **Notion**에 만들어 달라고 하면(예: "노션에 정리해줘", "노션 페이지로 만들어줘") `references/notion-output.md`를 읽고 따른다. 내용·구조는 종류별 템플릿을 그대로 따르되 표현을 Notion 블록(callout/columns/to-do/table 등)으로 입히고, `notion-create-pages`로 페이지를 만든다. 저장 위치(parent)는 모호하면 짧게 확인한다.
 
-**다이어그램/시각화:** 구조·흐름·상태·데이터 관계를 그림으로 보여줘야 하면 채널에 맞는 방식을 쓴다. **HTML이면 인라인 SVG**(`references/diagrams.md` — 외부 의존 없이 자기완결, 그리드 좌표 규칙으로 어긋남 방지), **Notion이면 mermaid 코드블록**(`references/notion-output.md` — Notion이 네이티브 렌더). 어느 쪽이든 ASCII 아트는 쓰지 않는다. 기술 설계 문서에서 특히 유용하다. **수치 비교·추이(측정 결과, 건수, 응답시간 등)**는 구조 다이어그램이 아니라 데이터 차트로 보여준다 — HTML이면 `references/diagrams.md`의 데이터 차트 절(막대/선 SVG), Markdown·Notion이면 표가 기본이다.
+**다이어그램/시각화:** 구조·흐름·상태·데이터 관계를 그림으로 보여줘야 하면 채널에 맞는 방식을 쓴다. **HTML이면 인라인 SVG**(`references/diagrams.md` — 외부 의존 없이 자기완결). HTML에서 SVG를 얻는 경로는 둘이고 표현 대상으로 갈린다: 아키텍처·시퀀스·상태·ER 등 graph 형태는 **Mermaid로 기술해 생성 시점에 정적 SVG로 렌더**하고(`references/mermaid-render.md`), 데이터 차트와 Before/After 쌍은 **손으로 작성**한다(`diagrams.md`). **Notion이면 mermaid 코드블록**(`references/notion-output.md` — Notion이 네이티브 렌더). 어느 쪽이든 ASCII 아트는 쓰지 않는다. 기술 설계 문서에서 특히 유용하다. **수치 비교·추이(측정 결과, 건수, 응답시간 등)**는 구조 다이어그램이 아니라 데이터 차트로 보여준다 — HTML이면 `references/diagrams.md`의 데이터 차트 절(막대/선 SVG), Markdown·Notion이면 표가 기본이다.
 
 작성 후, 어떤 유형으로 판단했고 어디에 저장했는지 한 줄로 요약해 사용자에게 알린다.
 

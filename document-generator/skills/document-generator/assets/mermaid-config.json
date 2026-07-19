@@ -1,0 +1,18 @@
+{
+  "_comment": "mermaid-cli 렌더 설정. references/mermaid-render.md 참조. theme=base 여야 themeVariables 가 적용되고, htmlLabels=false 여야 라벨이 foreignObject 대신 <text> 로 나와 인쇄/PDF 에서 깨지지 않는다. 색은 assets/document.css 팔레트와 일치시킨 값이다.",
+  "theme": "base",
+  "htmlLabels": false,
+  "flowchart": { "htmlLabels": false, "useMaxWidth": true },
+  "sequence": { "useMaxWidth": true },
+  "themeVariables": {
+    "primaryColor": "#f6f8fa",
+    "primaryBorderColor": "#d1d9e0",
+    "primaryTextColor": "#1f2328",
+    "secondaryColor": "#ddf4ff",
+    "tertiaryColor": "#ffffff",
+    "lineColor": "#59636e",
+    "textColor": "#1f2328",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
+    "fontSize": "14px"
+  }
+}
