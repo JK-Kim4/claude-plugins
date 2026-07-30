@@ -1,0 +1,8 @@
+{
+  "name": "llm-wiki",
+  "version": "0.1.0",
+  "description": "흩어진 마크다운·AI 세션 기록을 하나의 LLM wiki 로 만들고 유지하는 스킬 3종. Karpathy 3연산 — 통합(wiki-bootstrap) · 가공(wiki-digest) · 점검(wiki-lint). 상주 서버나 특정 도구에 묶이지 않는 순수 마크다운 구조를 만들고, python3 stdlib 만으로 동작한다.",
+  "author": {
+    "name": "JK-Kim4"
+  }
+}
