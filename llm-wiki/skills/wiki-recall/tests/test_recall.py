@@ -211,6 +211,63 @@ class Grouping(Base):
         self.assertEqual(len(g["sessions"]), 2)
 
 
+class Recent(Base):
+    """시간을 묻는 질문에는 검색할 키워드가 없다 — 이 모드가 없으면 스크립트가 우회된다."""
+
+    def test_orders_by_date_newest_first(self):
+        tree(self.root, {"sessions/2026-07-01-a.md": "x\n",
+                         "sessions/2026-07-30-b.md": "x\n",
+                         "sessions/2026-07-15-c.md": "x\n"})
+        got = [h["file"] for h in R.recent(self.root)]
+        self.assertEqual(got[0], "sessions/2026-07-30-b.md")
+        self.assertEqual(got[-1], "sessions/2026-07-01-a.md")
+
+    def test_undated_documents_are_excluded(self):
+        # "최근"을 말할 근거가 없는 문서는 뺀다 — 날짜를 지어내지 않는다.
+        tree(self.root, {"sessions/2026-07-30-a.md": "x\n", "projects/p/nodate.md": "x\n"})
+        self.assertEqual([h["file"] for h in R.recent(self.root)],
+                         ["sessions/2026-07-30-a.md"])
+
+    def test_project_scope_wins_over_recency(self):
+        tree(self.root, {"sessions/2026-07-30-other.md": "---\nproject: other\n---\nx\n",
+                         "sessions/2026-07-01-mine.md": "---\nproject: my-app\n---\nx\n"})
+        got = R.recent(self.root, scope={"my-app"})
+        self.assertEqual(got[0]["file"], "sessions/2026-07-01-mine.md")
+
+    def test_raw_is_excluded_here_too(self):
+        tree(self.root, {"raw/2026-07-30-dump.md": "x\n", "sessions/2026-07-01-a.md": "x\n"})
+        self.assertEqual([h["file"] for h in R.recent(self.root)], ["sessions/2026-07-01-a.md"])
+
+    def test_limit_is_respected(self):
+        tree(self.root, {f"sessions/2026-07-{d:02d}-a.md": "x\n" for d in range(1, 20)})
+        self.assertEqual(len(R.recent(self.root, n=3)), 3)
+
+
+class LogTail(Base):
+    def test_returns_last_headings_newest_first(self):
+        tree(self.root, {"log.md": "# Log\n\n## 하나\n본문\n\n## 둘\n본문\n\n## 셋\n본문\n"})
+        self.assertEqual(R.log_tail(self.root, 2), ["## 셋", "## 둘"])
+
+    def test_missing_log_is_not_an_error(self):
+        self.assertEqual(R.log_tail(self.root), [])
+
+
+class Flood(Base):
+    def test_warns_when_the_result_set_is_too_wide(self):
+        tree(self.root, {f"sessions/2026-07-30-d{i}.md": "신고\n" for i in range(R.FLOOD + 5)})
+        out = subprocess.run(
+            [sys.executable, os.path.join(SCRIPTS, "recall.py"), "신고", "--root", self.root],
+            capture_output=True, text=True, timeout=60).stdout
+        self.assertIn("너무 넓다", out)
+
+    def test_no_warning_at_normal_width(self):
+        tree(self.root, {"sessions/2026-07-30-a.md": "신고\n"})
+        out = subprocess.run(
+            [sys.executable, os.path.join(SCRIPTS, "recall.py"), "신고", "--root", self.root],
+            capture_output=True, text=True, timeout=60).stdout
+        self.assertNotIn("너무 넓다", out)
+
+
 class Cli(Base):
     def run_cli(self, *args):
         return subprocess.run([sys.executable, os.path.join(SCRIPTS, "recall.py"), *args],
@@ -260,6 +317,12 @@ class Cli(Base):
         tree(self.root, {"sessions/a.md": "---\nproject: my-app\n---\n신고\n"})
         out = self.run_cli("신고", "--root", self.root, "--project", "my-app").stdout
         self.assertIn("my-app 우선", out)
+
+    def test_recent_needs_no_query_term(self):
+        tree(self.root, {"sessions/2026-07-30-a.md": "x\n"})
+        r = self.run_cli("--recent", "--root", self.root)
+        self.assertEqual(r.returncode, 0)
+        self.assertIn("최근 문서", r.stdout)
 
     def test_flag_value_is_not_treated_as_a_query_term(self):
         tree(self.root, {"a.md": "신고\n"})

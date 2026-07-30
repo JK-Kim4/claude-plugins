@@ -8,6 +8,7 @@
     python3 recall.py <질의> --lines             # 매치 줄까지
     python3 recall.py <질의> --project my-app    # 프로젝트를 직접 지정
     python3 recall.py <질의> --all               # 프로젝트 우선순위 끄기
+    python3 recall.py --recent                   # 질의어 없이 최근 문서 (--limit 로 개수)
 
 **현재 프로젝트를 먼저 놓는다.** 실행 위치의 경로 조각을 문서의 `project` 와 대조해
 지금 어느 프로젝트 안인지 추론한다 — "가장 최근 작업"을 물으면 위키 전체 최신이 아니라
@@ -46,6 +47,10 @@ except ImportError:
 
 # raw/ 는 가공 전 원본이다. 인용 대상이 아니고 자격증명이 남아 있을 수 있다.
 NEVER = ("raw", "node_modules")
+
+# 이 이상 걸리면 목록 자체가 비싸진다. 실측에서 광역 질의 하나가 533건·32KB 를 냈다.
+# 좁히라고 알리고 상위만 보여준다.
+FLOOD = 60
 
 # 이보다 큰 문서는 통째로 열면 컨텍스트를 크게 먹는다. 실측에서 892건 중 14건이
 # 여기 걸리고 최대 248KB 였는데, 매치 밀도가 높아 상위에 잘 올라온다 —
@@ -140,6 +145,46 @@ def _neg(date):
     return "".join(chr(ord("9") - int(c)) if c.isdigit() else c for c in date)
 
 
+def recent(root, scope=None, n=10):
+    """질의어 없이 최근 문서를 날짜순으로.
+
+    "가장 최근 작업이 뭔가"에는 검색할 키워드가 없다. 이 모드가 없으면 에이전트가
+    스크립트를 우회해 `ls -t`·`head` 를 손으로 돌리게 되고, 그게 조회를 조사로 만든다.
+    """
+    hits = []
+    for path in walk_md(root):
+        rel = os.path.relpath(path, root)
+        if rel.split("/")[0] in NEVER:
+            continue
+        try:
+            with open(path, encoding="utf-8", errors="replace") as f:
+                head = f.read(900)
+        except OSError:
+            continue
+        d = meta(path, rel, head)
+        if not d["date"]:                      # 날짜 없으면 "최근"을 말할 수 없다
+            continue
+        d["matched"] = d["hits"] = 0
+        d["in_scope"] = bool(scope and d["project"] and d["project"].lower() in scope)
+        hits.append(d)
+    hits.sort(key=lambda h: (not h["in_scope"], _neg(h["date"])))
+    return hits[:n]
+
+
+def log_tail(root, n=5):
+    """`log.md` 는 턴당 한 항목으로 쌓이는 이력이라 꼬리가 곧 최신이다.
+    날짜 있는 문서보다 촘촘해서 "오늘 뭐 했나"에 더 잘 답한다."""
+    p = os.path.join(root, "log.md")
+    if not os.path.isfile(p):
+        return []
+    try:
+        with open(p, encoding="utf-8", errors="replace") as f:
+            heads = [l.strip() for l in f if l.startswith("## ")]
+    except OSError:
+        return []
+    return heads[-n:][::-1]
+
+
 def group(hits):
     by = collections.OrderedDict()
     for h in hits:
@@ -162,6 +207,9 @@ def report(root, terms, hits, limit, want_lines):
     if len(terms) > 1:
         full = sum(1 for h in hits if h["matched"] == len(terms))
         print(f"  질의어 전부 포함: {full}건 / 일부만: {len(hits) - full}건")
+    if len(hits) > FLOOD:
+        print(f"  ⚠ {len(hits)}건은 너무 넓다. 질의어를 더하거나 좁은 표현으로 바꾼다 — "
+              f"이 목록을 훑는 것 자체가 비싸다. 아래는 상위 일부다.")
     heavy = [h for h in hits if h["bytes"] >= HEAVY]
     if heavy and not want_lines:
         print(f"  ⚠ 통째로 열면 비싼 문서가 {len(heavy)}건 있다(30KB 이상, 최대 "
@@ -212,6 +260,24 @@ def configured_root():
         return None
 
 
+def report_recent(root, hits, scope_names):
+    tag = f" · {'·'.join(scope_names)} 우선" if scope_names else ""
+    print(f"{os.path.basename(root)} — 최근 문서 {len(hits)}건{tag} (날짜 있는 것만)")
+    tail = log_tail(root)
+    if tail:
+        print("\n[log.md] 최근 항목 — 턴당 하나로 쌓이는 이력이라 가장 촘촘하다.\n         **위키 전체 기준이라 프로젝트 스코프가 안 걸린다** — 아래 문서 목록과 달리\n         다른 프로젝트 작업이 섞여 있을 수 있다.")
+        for t in tail:
+            print(f"  {t[3:]}")
+    print()
+    for h in hits:
+        kb = h["bytes"] // 1024
+        out = "" if h["in_scope"] or not scope_names else " ↗"
+        proj = f" [{h['project']}]" if h["project"] else ""
+        print(f"  {h['date']}  {kb:>4}KB{out}{proj}  {h['title']}")
+        print(f"              {h['file']}")
+    print("\n날짜 없는 문서는 빠져 있다 — '최근'을 말할 근거가 없어서다.")
+
+
 def main():
     argv, args, opts = sys.argv[1:], [], {}
     i = 0
@@ -226,7 +292,7 @@ def main():
         else:
             args.append(a)
             i += 1
-    if not args:
+    if not args and not opts.get("--recent"):
         print(__doc__)
         sys.exit(1)
 
@@ -248,8 +314,12 @@ def main():
     else:
         scope = cwd_scope()
 
-    hits = search(root, terms, want_lines, scope)
-    report(root, terms, hits, limit, want_lines)
+    if opts.get("--recent"):
+        hits = recent(root, scope, int(opts.get("--limit") or 10))
+        report_recent(root, hits, sorted({h["project"] for h in hits if h["in_scope"]}))
+    else:
+        hits = search(root, terms, want_lines, scope)
+        report(root, terms, hits, limit, want_lines)
 
     if opts.get("--json"):
         with open(opts["--json"], "w", encoding="utf-8") as f:
