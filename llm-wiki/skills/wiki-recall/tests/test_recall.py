@@ -136,6 +136,29 @@ class Matching(Base):
         self.assertEqual(len(hits[0]["lines"]), 3)
 
 
+class ReadingCost(Base):
+    """스킬의 이득은 읽을 문서를 줄이는 데서 나온다 — 크기를 안 보여주면 그게 무너진다."""
+
+    def test_size_is_reported(self):
+        hits = self.find({"a.md": "신고\n"}, "신고")
+        self.assertEqual(hits[0]["bytes"], len("신고\n".encode()))
+
+    def test_heavy_document_is_flagged_in_output(self):
+        tree(self.root, {"projects/p/big.md": "신고\n" + "가" * R.HEAVY})
+        out = subprocess.run(
+            [sys.executable, os.path.join(SCRIPTS, "recall.py"), "신고", "--root", self.root],
+            capture_output=True, text=True, timeout=60).stdout
+        self.assertIn("⚠무거움", out)
+        self.assertIn("--lines 로 매치 줄만 먼저 본다", out)
+
+    def test_no_warning_when_everything_is_small(self):
+        tree(self.root, {"a.md": "신고\n"})
+        out = subprocess.run(
+            [sys.executable, os.path.join(SCRIPTS, "recall.py"), "신고", "--root", self.root],
+            capture_output=True, text=True, timeout=60).stdout
+        self.assertNotIn("⚠", out)
+
+
 class Grouping(Base):
     def test_groups_preserve_ranked_order(self):
         hits = self.find({"sessions/2026-07-30-a.md": "신고 " * 5,

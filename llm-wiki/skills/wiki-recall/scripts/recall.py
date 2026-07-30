@@ -40,6 +40,11 @@ except ImportError:
 # raw/ 는 가공 전 원본이다. 인용 대상이 아니고 자격증명이 남아 있을 수 있다.
 NEVER = ("raw", "node_modules")
 
+# 이보다 큰 문서는 통째로 열면 컨텍스트를 크게 먹는다. 실측에서 892건 중 14건이
+# 여기 걸리고 최대 248KB 였는데, 매치 밀도가 높아 상위에 잘 올라온다 —
+# 크기를 안 보여주면 에이전트가 그걸 그대로 연다.
+HEAVY = 30_000
+
 FM_DATE = re.compile(r"^date:\s*['\"]?(\d{4}-\d{2}-\d{2})", re.M)
 FM_TITLE = re.compile(r"^title:\s*['\"]?(.+?)['\"]?\s*$", re.M)
 FM_TYPE = re.compile(r"^type:\s*(\S+)", re.M)
@@ -71,7 +76,7 @@ def meta(path, rel, head):
         h = H1.search(head)
         title = h.group(1).strip() if h else os.path.basename(rel)[:-3]
     return {"file": rel, "layer": rel.split("/")[0] if "/" in rel else "(루트)",
-            "date": date, "title": title[:90],
+            "date": date, "title": title[:90], "bytes": os.path.getsize(path),
             "type": (FM_TYPE.search(head).group(1) if FM_TYPE.search(head) else None),
             "project": (FM_PROJECT.search(head).group(1) if FM_PROJECT.search(head) else None)}
 
@@ -136,6 +141,11 @@ def report(root, terms, hits, limit, want_lines):
     if len(terms) > 1:
         full = sum(1 for h in hits if h["matched"] == len(terms))
         print(f"  질의어 전부 포함: {full}건 / 일부만: {len(hits) - full}건")
+    heavy = [h for h in hits if h["bytes"] >= HEAVY]
+    if heavy and not want_lines:
+        print(f"  ⚠ 통째로 열면 비싼 문서가 {len(heavy)}건 있다(30KB 이상, 최대 "
+              f"{max(h['bytes'] for h in heavy)//1024}KB). **--lines 로 매치 줄만 먼저 본다** — "
+              f"그걸로 답이 되면 파일을 안 열어도 된다.")
     for layer, items in group(hits).items():
         note = LAYER_NOTE.get(layer, "")
         undated = sum(1 for h in items if not h["date"])
@@ -143,7 +153,9 @@ def report(root, terms, hits, limit, want_lines):
         print(f"\n[{layer}] {len(items)}건{' — ' + note if note else ''}{tail}")
         for h in items[:limit]:
             d = h["date"] or "  날짜없음  "
-            print(f"  {d}  ×{h['hits']:<3} {h['title']}")
+            kb = h["bytes"] // 1024
+            mark = " ⚠무거움" if h["bytes"] >= HEAVY else ""
+            print(f"  {d}  ×{h['hits']:<3} {kb:>4}KB{mark}  {h['title']}")
             print(f"              {h['file']}")
             for line in h.get("lines", []):
                 print(f"                · {line}")
