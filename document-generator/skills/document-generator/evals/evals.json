@@ -134,7 +134,7 @@
     },
     {
       "id": 10,
-      "prompt": "커뮤니티 멤버십 개편 작업을 HTML 보고서로 정리해줘. 브랜치별 작업 범위를 표로 넣고, 각 산출물 문서 경로도 같이 넣어줘: origin/058-community-writing-club 은 백엔드(신청·중복·재신청·차단·대기열·승인·거절·공개) 이고 산출물은 docs/handoff/2026-07-21-120-slice1-done-slice2-kickoff.md, 110-membership-lifecycle 은 어드민 목록·배지·정렬·승격/강등 이고 산출물은 docs/research/2026-07-21-member-lifecycle-delta-mockup.html 야. 멤버십 신청이 대기열을 거쳐 운영진 승인으로 가는 구조도 다이어그램으로 보여줘.",
+      "prompt": "스터디 그룹 가입 개편 작업을 HTML 보고서로 정리해줘. 브랜치별 작업 범위를 표로 넣고, 각 산출물 문서 경로도 같이 넣어줘: origin/031-study-group-enrollment 은 백엔드(신청·중복·재신청·차단·대기열·승인·거절·공개) 이고 산출물은 docs/notes/2026-05-12-140-slice1-done-slice2-kickoff.md, 072-member-lifecycle-admin 은 어드민 목록·배지·정렬·승격/강등 이고 산출물은 docs/notes/2026-05-12-member-lifecycle-delta-mockup.html 야. 가입 신청이 대기열을 거쳐 운영진 승인으로 가는 구조도 다이어그램으로 보여줘.",
       "expected_output": "자기완결 단일 HTML 작업 보고서. 한글 긴 어절·긴 파일 경로가 섞인 표와 한글 라벨 다이어그램이 폭을 넘기지 않아야 함. 표는 .table-wrap 으로 감싸이고, 다이어그램 텍스트는 박스·viewBox 안에 있어야 함.",
       "files": [],
       "expectations": [
