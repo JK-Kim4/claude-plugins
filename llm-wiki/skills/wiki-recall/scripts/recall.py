@@ -6,6 +6,13 @@
     python3 recall.py <질의> --limit 40          # 층당 상한 (기본 12)
     python3 recall.py <질의> --json out.json     # 판정용 원자료
     python3 recall.py <질의> --lines             # 매치 줄까지
+    python3 recall.py <질의> --project write-note # 프로젝트를 직접 지정
+    python3 recall.py <질의> --all               # 프로젝트 우선순위 끄기
+
+**현재 프로젝트를 먼저 놓는다.** 실행 위치의 경로 조각을 문서의 `project` 와 대조해
+지금 어느 프로젝트 안인지 추론한다 — "가장 최근 작업"을 물으면 위키 전체 최신이 아니라
+지금 있는 프로젝트의 최신이 답인 경우가 대부분이다. **거르지는 않는다**(`↗` 로 표시만).
+위키를 하나로 합친 이유가 프로젝트를 가로지르는 조회라서 하드 필터는 그걸 되돌린다.
 
 **위키 루트는 설정에서 얻는다** — `~/.config/llm-wiki/config.json` 의 `root`.
 조회는 프로젝트 저장소 한가운데서 "전에 어떻게 했더라"로 불리는 일이 대부분이라,
@@ -75,13 +82,18 @@ def meta(path, rel, head):
     else:
         h = H1.search(head)
         title = h.group(1).strip() if h else os.path.basename(rel)[:-3]
-    return {"file": rel, "layer": rel.split("/")[0] if "/" in rel else "(루트)",
+    parts = rel.split("/")
+    proj = FM_PROJECT.search(head)
+    project = proj.group(1) if proj else (parts[1] if parts[0] == "projects" and len(parts) > 1 else None)
+    return {"file": rel, "layer": parts[0] if len(parts) > 1 else "(루트)",
             "date": date, "title": title[:90], "bytes": os.path.getsize(path),
             "type": (FM_TYPE.search(head).group(1) if FM_TYPE.search(head) else None),
-            "project": (FM_PROJECT.search(head).group(1) if FM_PROJECT.search(head) else None)}
+            "project": project}
 
 
-def search(root, terms, want_lines=False):
+def search(root, terms, want_lines=False, scope=None):
+    """scope 는 현재 프로젝트 후보 이름들. **거르지 않고 순위만 올린다** —
+    위키를 하나로 합친 이유가 프로젝트를 가로지르는 조회라서, 하드 필터는 그걸 되돌린다."""
     lowered = [t.lower() for t in terms]
     hits = []
     for path in walk_md(root):
@@ -100,6 +112,7 @@ def search(root, terms, want_lines=False):
         d = meta(path, rel, text[:900])
         d["matched"] = sum(1 for c in counts if c)
         d["hits"] = sum(counts)
+        d["in_scope"] = bool(scope and d["project"] and d["project"].lower() in scope)
         if want_lines:
             out = []
             for line in text.splitlines():
@@ -115,7 +128,9 @@ def search(root, terms, want_lines=False):
     # **날짜를 관련도보다 앞세우지 않는다.** 날짜는 "이 서술을 지금도 믿을 수 있나"를
     # 가리는 정보지 "어느 문서가 답인가"를 고르는 기준이 아니다. 최신 순으로 세우면
     # 질의어를 스치듯 한 번 언급한 최근 문서가 27번 다룬 정본 위로 올라간다.
-    hits.sort(key=lambda h: (-h["matched"], -h["hits"],
+    # 현재 프로젝트 문서를 먼저 — "가장 최근 작업"을 물으면 위키 전체 최신이 아니라
+    # 지금 있는 프로젝트의 최신이 답인 경우가 대부분이다.
+    hits.sort(key=lambda h: (not h["in_scope"], -h["matched"], -h["hits"],
                              h["date"] is None, _neg(h["date"] or "")))
     return hits
 
@@ -133,7 +148,13 @@ def group(hits):
 
 
 def report(root, terms, hits, limit, want_lines):
-    print(f"{os.path.basename(root)} — {' + '.join(terms)} → 문서 {len(hits)}건 (raw/ 제외)")
+    scoped = sorted({h["project"] for h in hits if h["in_scope"]})
+    tag = f" · {'·'.join(scoped)} 우선" if scoped else ""
+    print(f"{os.path.basename(root)} — {' + '.join(terms)} → 문서 {len(hits)}건{tag} (raw/ 제외)")
+    if scoped:
+        n = sum(1 for h in hits if h["in_scope"])
+        print(f"  현재 프로젝트({'·'.join(scoped)}) {n}건을 먼저 놓았다. "
+              f"나머지는 `↗` 로 표시했다 — 거르지는 않는다.")
     if not hits:
         print("\n걸린 문서가 없다. 질의어를 줄이거나 다른 표현을 쓴다 —\n"
               "위키는 한국어 서사라 영어 용어로는 안 걸릴 수 있다.")
@@ -155,12 +176,28 @@ def report(root, terms, hits, limit, want_lines):
             d = h["date"] or "  날짜없음  "
             kb = h["bytes"] // 1024
             mark = " ⚠무거움" if h["bytes"] >= HEAVY else ""
-            print(f"  {d}  ×{h['hits']:<3} {kb:>4}KB{mark}  {h['title']}")
+            out = "" if h["in_scope"] or not scoped else " ↗"
+            print(f"  {d}  ×{h['hits']:<3} {kb:>4}KB{mark}{out}  {h['title']}")
             print(f"              {h['file']}")
             for line in h.get("lines", []):
                 print(f"                · {line}")
         if len(items) > limit:
             print(f"  … 외 {len(items) - limit}건 (--limit 로 늘린다)")
+
+
+# 경로에 흔히 끼는 이름들 — 프로젝트로 오인하지 않는다.
+NOT_A_PROJECT = {"users", "desktop", "documents", "workspaces", "dev", "src",
+                 "repos", "code", "home", "tmp", "var", "projects", "knowledge"}
+
+
+def cwd_scope(cwd=None):
+    """실행 위치의 경로 조각들. 문서의 project 와 겹치면 그게 현재 프로젝트다.
+
+    워크트리 안(`.../write-note/.worktrees/130-image-assets`)에서 불려도 상위 조각에
+    저장소 이름이 남아 있어 걸린다. 저장소 루트를 계산하는 것보다 튼튼하다.
+    """
+    parts = os.path.abspath(cwd or os.getcwd()).split(os.sep)
+    return {p.lower() for p in parts if p and p.lower() not in NOT_A_PROJECT}
 
 
 CONFIG = os.path.expanduser("~/.config/llm-wiki/config.json")
@@ -180,7 +217,7 @@ def main():
     i = 0
     while i < len(argv):
         a = argv[i]
-        if a in ("--json", "--limit", "--bootstrap", "--root"):
+        if a in ("--json", "--limit", "--bootstrap", "--root", "--project"):
             opts[a] = argv[i + 1] if i + 1 < len(argv) else None
             i += 2
         elif a.startswith("--"):
@@ -203,8 +240,15 @@ def main():
     terms = args
     limit = int(opts.get("--limit") or 12)
     want_lines = bool(opts.get("--lines"))
+    # 스코프: 명시 > 실행 위치 추론. --all 이면 끈다.
+    if opts.get("--all"):
+        scope = None
+    elif opts.get("--project"):
+        scope = {opts["--project"].lower()}
+    else:
+        scope = cwd_scope()
 
-    hits = search(root, terms, want_lines)
+    hits = search(root, terms, want_lines, scope)
     report(root, terms, hits, limit, want_lines)
 
     if opts.get("--json"):

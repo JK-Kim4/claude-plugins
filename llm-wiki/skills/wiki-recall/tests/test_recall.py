@@ -159,6 +159,48 @@ class ReadingCost(Base):
         self.assertNotIn("⚠", out)
 
 
+class ProjectScope(Base):
+    """조회는 대개 프로젝트 저장소 안에서 불린다 — 그때 위키 전체 최신이 답인 경우는 드물다."""
+
+    def test_common_path_names_are_not_projects(self):
+        got = R.cwd_scope("/Users/x/Desktop/workspaces/my-app")
+        self.assertIn("my-app", got)
+        for junk in ("users", "desktop", "workspaces", "x"):
+            if junk != "x":
+                self.assertNotIn(junk, got)
+
+    def test_worktree_still_finds_the_repo_name(self):
+        got = R.cwd_scope("/Users/x/workspaces/my-app/.worktrees/130-feature")
+        self.assertIn("my-app", got)
+
+    def test_project_comes_from_frontmatter(self):
+        hits = self.find({"sessions/a.md": "---\nproject: my-app\n---\n신고\n"}, "신고")
+        self.assertEqual(hits[0]["project"], "my-app")
+
+    def test_project_falls_back_to_projects_directory(self):
+        hits = self.find({"projects/my-app/status.md": "신고\n"}, "신고")
+        self.assertEqual(hits[0]["project"], "my-app")
+
+    def test_in_scope_documents_rank_first_even_when_weaker(self):
+        tree(self.root, {"sessions/2026-07-01-mine.md": "---\nproject: my-app\n---\n신고\n",
+                         "sessions/2026-07-30-other.md": "---\nproject: other\n---\n" + "신고 " * 20})
+        hits = R.search(self.root, ["신고"], scope={"my-app"})
+        self.assertEqual(hits[0]["file"], "sessions/2026-07-01-mine.md")
+        self.assertTrue(hits[0]["in_scope"])
+
+    def test_out_of_scope_is_kept_not_filtered(self):
+        # 위키를 하나로 합친 이유가 프로젝트를 가로지르는 조회다. 하드 필터는 그걸 되돌린다.
+        tree(self.root, {"sessions/a.md": "---\nproject: my-app\n---\n신고\n",
+                         "sessions/b.md": "---\nproject: other\n---\n신고\n"})
+        hits = R.search(self.root, ["신고"], scope={"my-app"})
+        self.assertEqual(len(hits), 2)
+        self.assertFalse(hits[1]["in_scope"])
+
+    def test_no_scope_means_nothing_is_privileged(self):
+        tree(self.root, {"sessions/a.md": "---\nproject: my-app\n---\n신고\n"})
+        self.assertFalse(R.search(self.root, ["신고"], scope=None)[0]["in_scope"])
+
+
 class Grouping(Base):
     def test_groups_preserve_ranked_order(self):
         hits = self.find({"sessions/2026-07-30-a.md": "신고 " * 5,
@@ -208,6 +250,16 @@ class Cli(Base):
                            capture_output=True, text=True, timeout=60, env=env)
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("위키 루트를 모른다", r.stderr)
+
+    def test_all_flag_disables_project_priority(self):
+        tree(self.root, {"sessions/a.md": "---\nproject: 빈홈\n---\n신고\n"})
+        out = self.run_cli("신고", "--root", self.root, "--all").stdout
+        self.assertNotIn("우선", out)
+
+    def test_explicit_project_is_reported(self):
+        tree(self.root, {"sessions/a.md": "---\nproject: my-app\n---\n신고\n"})
+        out = self.run_cli("신고", "--root", self.root, "--project", "my-app").stdout
+        self.assertIn("my-app 우선", out)
 
     def test_flag_value_is_not_treated_as_a_query_term(self):
         tree(self.root, {"a.md": "신고\n"})
