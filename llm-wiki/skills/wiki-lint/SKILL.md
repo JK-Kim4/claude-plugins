@@ -1,7 +1,7 @@
 ---
 name: wiki-lint
 description: "LLM wiki(지식베이스)의 건전성을 점검한다. 깨진 링크를 복구 가능성별로 가르고, 아무도 링크하지 않는 고아 문서를 디렉터리별로 집계하고, 세션 문서가 스스로 적어둔 미결 사항이 아직 참인지 판정 대상으로 뽑고, 오래 손 안 댄 문서를 찾는다. 사용자가 '위키 점검', '지식베이스 건전성 확인', '깨진 링크 정리', '고아 문서 찾아줘', '오래된 문서 확인', '위키 정리해줘', '미결 사항 아직 유효한지 봐줘' 같은 말을 하거나, 지식베이스를 한동안 쓴 뒤 정리가 필요하다고 할 때 사용한다. 새 문서 작성이나 세션 가공에는 쓰지 않는다."
-compatibility: "python3 3.8+ 만 있으면 동작한다. 외부 패키지 의존 없음. wiki-bootstrap 이 형제 디렉터리로 설치돼 있어야 한다(링크 파싱을 거기서 가져온다). 없으면 --bootstrap <경로> 로 지정한다."
+compatibility: "python3 3.8+ 만 있으면 동작한다. 외부 패키지 의존 없음. 위키 루트는 ~/.config/llm-wiki/config.json 에서 읽으므로 어느 디렉터리에서 실행해도 된다. wiki-bootstrap 이 형제 디렉터리로 설치돼 있어야 한다(링크 파싱을 거기서 가져온다). 없으면 --bootstrap <경로> 로 지정한다."
 ---
 
 # wiki-lint
@@ -18,11 +18,15 @@ LLM 이 읽는 방식은 성립하지 않는다. 기계로 후보를 줄인 다�
 
 판정 기준은 `references/judgment.md` 를 읽는다.
 
-## 한 번에 보기
+## 한 번에 보기 — 어느 디렉터리에서 실행해도 된다
 
 ```bash
-python3 <skill>/scripts/lint.py <위키루트>
+python3 <skill>/scripts/lint.py                 # 루트는 설정에서
+python3 <skill>/scripts/lint.py <위키루트>       # 직접 지정
 ```
+
+**위키 루트는 인자가 없으면 설정(`~/.config/llm-wiki/config.json` 의 `root`)에서
+얻는다.** 없으면 알려주고 멈춘다.
 
 점검 4종의 요약이 나온다. 각 항목은 `--check <이름>` 으로 상세를 본다
 (`links` · `orphans` · `pending` · `stale`). `--json out.json` 은 판정용 원자료다.

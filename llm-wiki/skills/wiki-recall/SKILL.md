@@ -1,7 +1,7 @@
 ---
 name: wiki-recall
 description: "LLM wiki(지식베이스)에서 답을 찾는다. 질문을 받으면 층별로 후보를 좁혀 날짜와 함께 제시하고, 어느 서술을 지금도 믿을 수 있는지 가려 근거 링크와 함께 답한다. 사용자가 위키에 쌓인 내용을 두고 '전에 어떻게 했더라', '이 커밋 뭐였지', '그 이슈 어떻게 결론났어', '왜 이렇게 결정했지', '지금 진행 상황이 뭐야', '예전에 비슷한 문제 있었나' 같은 것을 물을 때 사용한다. 문서를 새로 쓰거나 고치는 데는 쓰지 않는다."
-compatibility: "python3 3.8+ 만 있으면 동작한다. 외부 패키지 의존 없음. wiki-bootstrap 이 형제 디렉터리로 설치돼 있어야 한다(문서 순회 규칙을 거기서 가져온다). 없으면 --bootstrap <경로> 로 지정한다."
+compatibility: "python3 3.8+ 만 있으면 동작한다. 외부 패키지 의존 없음. 위키 루트는 ~/.config/llm-wiki/config.json 에서 읽으므로 어느 디렉터리에서 실행해도 된다. wiki-bootstrap 이 형제 디렉터리로 설치돼 있어야 한다(문서 순회 규칙을 거기서 가져온다). 없으면 --bootstrap <경로> 로 지정한다."
 ---
 
 # wiki-recall
@@ -17,13 +17,19 @@ compatibility: "python3 3.8+ 만 있으면 동작한다. 외부 패키지 의존
 
 판정 기준은 `references/reading.md` 를 읽는다.
 
-## 1. 좁힌다
+## 1. 좁힌다 — 어느 디렉터리에서 실행해도 된다
 
 ```bash
-python3 <skill>/scripts/recall.py <위키루트> <질의> [질의...]
-python3 <skill>/scripts/recall.py <루트> <질의> --lines      # 매치 줄까지
-python3 <skill>/scripts/recall.py <루트> <질의> --limit 30
+python3 <skill>/scripts/recall.py <질의> [질의...]
+python3 <skill>/scripts/recall.py <질의> --lines        # 매치 줄까지
+python3 <skill>/scripts/recall.py <질의> --limit 30
+python3 <skill>/scripts/recall.py <질의> --root ~/other # 다른 위키
 ```
+
+**위키 루트는 설정(`~/.config/llm-wiki/config.json` 의 `root`)에서 얻는다.**
+이 스킬은 프로젝트 저장소 한가운데서 "전에 어떻게 했더라"로 불리는 일이 대부분이라,
+부르는 쪽이 위키 경로를 알고 있어야 하면 쓰이지 않는다. 설정이 없으면 스크립트가
+알려주고 멈춘다 — 그때는 `wiki-bootstrap` 이 구축 마지막 단계에서 기록했어야 한다.
 
 질의어를 여러 개 주면 **전부 포함한 문서를 먼저** 올린다. 결과는 **층별로 묶여
 날짜가 붙어** 나온다 — 이 둘이 판정의 재료다.

@@ -153,23 +153,42 @@ class Cli(Base):
 
     def test_reports_zero_hits_with_guidance(self):
         tree(self.root, {"a.md": "본문\n"})
-        out = self.run_cli(self.root, "없는말").stdout
+        out = self.run_cli("없는말", "--root", self.root).stdout
         self.assertIn("0건", out)
         self.assertIn("질의어를 줄이거나", out)
 
     def test_json_holds_metadata_for_judgement(self):
         tree(self.root, {"sessions/2026-07-30-a.md": "---\ntitle: 제목\n---\n신고\n"})
         out = os.path.join(self.root, "out.json")
-        self.run_cli(self.root, "신고", "--json", out)
+        self.run_cli("신고", "--root", self.root, "--json", out)
         with open(out, encoding="utf-8") as f:
             d = json.load(f)
         self.assertEqual(d["terms"], ["신고"])
         self.assertEqual(d["hits"][0]["date"], "2026-07-30")
         self.assertEqual(d["hits"][0]["layer"], "sessions")
 
+    def test_root_comes_from_config_when_not_given(self):
+        """조회는 프로젝트 저장소 한가운데서 불린다 — 매번 위키 경로를 알 순 없다."""
+        tree(self.root, {"a.md": "신고\n"})
+        cfg = os.path.join(self.root, ".config", "llm-wiki")
+        os.makedirs(cfg)
+        with open(os.path.join(cfg, "config.json"), "w", encoding="utf-8") as f:
+            json.dump({"root": self.root}, f)
+        env = dict(os.environ, HOME=self.root)
+        r = subprocess.run([sys.executable, os.path.join(SCRIPTS, "recall.py"), "신고"],
+                           capture_output=True, text=True, timeout=60, env=env)
+        self.assertIn("문서 1건", r.stdout)
+
+    def test_missing_root_fails_loudly(self):
+        env = dict(os.environ, HOME=os.path.join(self.root, "빈홈"))
+        r = subprocess.run([sys.executable, os.path.join(SCRIPTS, "recall.py"), "신고"],
+                           capture_output=True, text=True, timeout=60, env=env)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("위키 루트를 모른다", r.stderr)
+
     def test_flag_value_is_not_treated_as_a_query_term(self):
         tree(self.root, {"a.md": "신고\n"})
-        out = self.run_cli(self.root, "신고", "--limit", "5").stdout
+        out = self.run_cli("신고", "--root", self.root, "--limit", "5").stdout
         self.assertIn("신고 → 문서 1건", out)
 
 

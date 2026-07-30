@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 """위키 조회 — 후보를 층별로 묶고 날짜를 붙여 좁힌다. 무엇을 믿을지는 LLM 이 판정한다.
 
-    python3 recall.py <위키루트> <질의> [질의...]      # 층별 후보
-    python3 recall.py <루트> <질의> --limit 40         # 층당 상한 (기본 12)
-    python3 recall.py <루트> <질의> --json out.json    # 판정용 원자료
-    python3 recall.py <루트> <질의> --lines            # 매치 줄까지
+    python3 recall.py <질의> [질의...]           # 어느 디렉터리에서 실행해도 된다
+    python3 recall.py <질의> --root ~/other      # 위키를 직접 지정
+    python3 recall.py <질의> --limit 40          # 층당 상한 (기본 12)
+    python3 recall.py <질의> --json out.json     # 판정용 원자료
+    python3 recall.py <질의> --lines             # 매치 줄까지
+
+**위키 루트는 설정에서 얻는다** — `~/.config/llm-wiki/config.json` 의 `root`.
+조회는 프로젝트 저장소 한가운데서 "전에 어떻게 했더라"로 불리는 일이 대부분이라,
+매번 위키 경로를 알고 있어야 하면 쓰이지 않는다. 경로를 본문에 박지 않는 것과
+경로를 찾을 줄 아는 것은 다른 문제다.
 
 질의를 여러 개 주면 **전부 포함한 문서를 먼저** 올린다. 하나도 못 찾으면 알린다.
 
@@ -145,12 +151,24 @@ def report(root, terms, hits, limit, want_lines):
             print(f"  … 외 {len(items) - limit}건 (--limit 로 늘린다)")
 
 
+CONFIG = os.path.expanduser("~/.config/llm-wiki/config.json")
+
+
+def configured_root():
+    """설정에 기록된 위키 루트. wiki-bootstrap 이 구축 마지막 단계에서 남긴다."""
+    try:
+        with open(CONFIG, encoding="utf-8") as f:
+            return json.load(f).get("root")
+    except (OSError, ValueError):
+        return None
+
+
 def main():
     argv, args, opts = sys.argv[1:], [], {}
     i = 0
     while i < len(argv):
         a = argv[i]
-        if a in ("--json", "--limit", "--bootstrap"):
+        if a in ("--json", "--limit", "--bootstrap", "--root"):
             opts[a] = argv[i + 1] if i + 1 < len(argv) else None
             i += 2
         elif a.startswith("--"):
@@ -159,12 +177,18 @@ def main():
         else:
             args.append(a)
             i += 1
-    if len(args) < 2:
+    if not args:
         print(__doc__)
         sys.exit(1)
 
-    root = os.path.abspath(os.path.expanduser(args[0]))
-    terms = args[1:]
+    root = opts.get("--root") or configured_root()
+    if not root:
+        sys.exit(f"위키 루트를 모른다. {CONFIG} 에 root 가 없고 --root 도 안 줬다.\n"
+                 f"wiki-bootstrap 으로 구축했다면 거기서 기록됐어야 한다.")
+    root = os.path.abspath(os.path.expanduser(root))
+    if not os.path.isdir(root):
+        sys.exit(f"위키 루트가 없다: {root}")
+    terms = args
     limit = int(opts.get("--limit") or 12)
     want_lines = bool(opts.get("--lines"))
 

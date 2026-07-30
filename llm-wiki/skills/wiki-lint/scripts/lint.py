@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """위키 점검 — 기계적으로 후보를 좁힌다. 판정은 LLM 이 한다.
 
-    python3 lint.py <위키루트>                        # 4종 요약
-    python3 lint.py <위키루트> --check links          # 한 종만 상세
-    python3 lint.py <위키루트> --json out.json        # LLM 이 먹을 형태
-    python3 lint.py <위키루트> --check links --apply  # 복구 가능한 링크만 적용
+    python3 lint.py                            # 4종 요약 (루트는 설정에서)
+    python3 lint.py <위키루트>                  # 루트를 직접 지정
+    python3 lint.py --check links              # 한 종만 상세
+    python3 lint.py --json out.json            # LLM 이 먹을 형태
+    python3 lint.py --check links --apply      # 복구 가능한 링크만 적용
+
+위키 루트는 인자가 없으면 `~/.config/llm-wiki/config.json` 의 `root` 를 쓴다.
 
 점검 4종 — links(깨진 링크) · orphans(고아) · pending(미결 마커) · stale(낡음).
 
@@ -32,6 +35,17 @@ except ImportError:
              f"아니면 --bootstrap <경로> 로 지정한다.")
 
 CHECKS = ("links", "orphans", "pending", "stale")
+
+CONFIG = os.path.expanduser("~/.config/llm-wiki/config.json")
+
+
+def configured_root():
+    """설정에 기록된 위키 루트. wiki-bootstrap 이 구축 마지막 단계에서 남긴다."""
+    try:
+        with open(CONFIG, encoding="utf-8") as f:
+            return json.load(f).get("root")
+    except (OSError, ValueError):
+        return None
 
 # --- 고아 면제 규칙 -------------------------------------------------------
 # 링크로 도달하지 않는 게 정상인 문서들. 이걸 안 빼면 고아 목록이 전체의 40% 가 되어
@@ -298,11 +312,14 @@ def main():
         else:
             args.append(a)
             i += 1
-    if not args:
-        print(__doc__)
-        sys.exit(1)
-
-    root = os.path.abspath(os.path.expanduser(args[0]))
+    # 루트를 안 주면 설정에서 얻는다 — 위키 밖에서 불려도 동작해야 한다.
+    root = args[0] if args else configured_root()
+    if not root:
+        sys.exit(f"위키 루트를 모른다. {CONFIG} 에 root 가 없고 인자도 안 줬다.\n"
+                 f"wiki-bootstrap 으로 구축했다면 거기서 기록됐어야 한다.")
+    root = os.path.abspath(os.path.expanduser(root))
+    if not os.path.isdir(root):
+        sys.exit(f"위키 루트가 없다: {root}")
     which = (opts["--check"],) if opts.get("--check") else CHECKS
     for w in which:
         if w not in CHECKS:
