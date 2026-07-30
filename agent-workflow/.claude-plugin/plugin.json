@@ -1,0 +1,6 @@
+{
+  "name": "agent-workflow",
+  "version": "0.1.0",
+  "description": "에이전트가 일하는 방식을 다루는 스킬 2종. 도구 호출·파일 읽기·출력 처리에서 토큰 낭비를 줄이는 규율(token-efficiency)과, 최신 origin/develop 기준의 격리 Git worktree 를 만들어 작업 경로를 고정하는 절차(worktree).",
+  "author": { "name": "JK-Kim4" }
+}

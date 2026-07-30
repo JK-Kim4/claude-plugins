@@ -29,6 +29,11 @@
       "name": "llm-wiki",
       "source": "./llm-wiki",
       "description": "흩어진 마크다운 저장소·Obsidian vault·AI 세션 기록(JSONL)을 하나의 LLM wiki 로 통합하고(wiki-bootstrap), 세션을 읽을 수 있는 문서로 가공하고(wiki-digest), 링크·고아 문서·문서가 스스로 적어둔 미결 사항을 점검한다(wiki-lint). 외부 의존 없이 python3 stdlib 만 사용."
+    },
+    {
+      "name": "agent-workflow",
+      "source": "./agent-workflow",
+      "description": "에이전트의 작업 위생 스킬 2종 — 도구 호출·파일 읽기·출력 처리에서 토큰 낭비를 줄이는 규율(token-efficiency), 최신 origin/develop 기준 격리 Git worktree 생성과 작업 경로 고정(worktree)."
     }
   ]
 }
