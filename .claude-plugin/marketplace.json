@@ -28,7 +28,7 @@
     {
       "name": "llm-wiki",
       "source": "./llm-wiki",
-      "description": "흩어진 마크다운 저장소·Obsidian vault·AI 세션 기록(JSONL)을 하나의 LLM wiki 로 통합하고(wiki-bootstrap), 세션을 읽을 수 있는 문서로 가공하고(wiki-digest), 링크·고아 문서·문서가 스스로 적어둔 미결 사항을 점검한다(wiki-lint). 외부 의존 없이 python3 stdlib 만 사용."
+      "description": "흩어진 마크다운 저장소·Obsidian vault·AI 세션 기록(JSONL)을 하나의 LLM wiki 로 통합하고(wiki-bootstrap), 세션을 읽을 수 있는 문서로 가공하고(wiki-digest), 링크·고아 문서·문서가 스스로 적어둔 미결 사항을 점검하고(wiki-lint), 쌓인 것을 층별·날짜별로 좁혀 조회한다(wiki-recall). 외부 의존 없이 python3 stdlib 만 사용."
     },
     {
       "name": "agent-workflow",

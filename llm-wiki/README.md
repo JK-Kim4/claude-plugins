@@ -6,16 +6,21 @@ Karpathy 의 3계층 모델(원본은 불변, 가공물은 LLM 소유, 규약은
 
 python3 3.8+ 만 있으면 동작한다. 외부 패키지 의존 없음.
 
-## 세 연산
+## 네 연산
 
 | 스킬 | 역할 | 언제 |
 |---|---|---|
 | `wiki-bootstrap` | **통합** — 흩어진 문서를 하나의 위키로 | "지식베이스 만들어줘", "vault 통합" |
 | `wiki-digest` | **가공** — 세션 JSONL → 읽을 수 있는 문서 | "이 세션 정리해줘", "세션 일괄 가공" |
 | `wiki-lint` | **점검** — 링크·고아·미결·낡음 | "위키 점검", "깨진 링크 정리" |
+| `wiki-recall` | **조회** — 층별·날짜별로 좁혀 답한다 | "전에 어떻게 했더라", "이 커밋 뭐였지" |
 
-세 스킬은 `skills/` 아래 형제로 함께 설치돼야 한다. `wiki-lint` 가 링크 파싱을
-`wiki-bootstrap` 에서 가져다 쓴다(중복 구현하지 않으려고 그렇게 했다).
+네 스킬은 `skills/` 아래 형제로 함께 설치돼야 한다. `wiki-lint` 는 링크 파싱을,
+`wiki-recall` 은 문서 순회 규칙을 `wiki-bootstrap` 에서 가져다 쓴다(중복 구현하지
+않으려고 그렇게 했다).
+
+**앞의 셋은 쓰는 쪽이고 `wiki-recall` 만 읽는 쪽이다.** 쌓기만 하고 꺼내 쓰지
+않으면 위키는 비용만 된다.
 
 ## 설계에서 지킨 것
 
@@ -37,11 +42,11 @@ python3 3.8+ 만 있으면 동작한다. 외부 패키지 의존 없음.
 ## 테스트
 
 ```bash
-for s in wiki-bootstrap wiki-digest wiki-lint; do
+for s in wiki-bootstrap wiki-digest wiki-lint wiki-recall; do
   (cd skills/$s && python3 -m unittest discover -s tests)
 done
 ```
 
-90건. 상당수가 실사용에서 터진 버그의 회귀 방지다 — 링크 그래프 누락, 코드 예시가
+113건. 상당수가 실사용에서 터진 버그의 회귀 방지다 — 링크 그래프 누락, 코드 예시가
 실제 링크로 집계되던 것, 세션 결말이 표본에서 통째로 빠지던 것 등.
 **스크립트를 고치면 여기부터 돌린다.**
