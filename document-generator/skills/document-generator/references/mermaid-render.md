@@ -54,14 +54,18 @@ HTML 본문에는 자리표시자만 두고:
 import re
 from pathlib import Path
 html = Path("report.html").read_text()
-for tag, svg_path in [("fig1", "fig1.svg"), ("fig2", "fig2.svg")]:
+for tag, svg_path, label in [("fig1", "fig1.svg", "그림 1. 인증 요청 처리 구조")]:
     svg = re.sub(r'^<\?xml[^>]*\?>', '', Path(svg_path).read_text()).strip()
-    svg = svg.replace('<svg ', f'<svg role="img" aria-label="그림 {tag} 설명" ', 1)
+    open_tag = svg[:svg.index('>') + 1]
+    extra = f'aria-label="{label}" '
+    if 'role=' not in open_tag:      # Mermaid 11 은 role 을 이미 넣는다
+        extra += 'role="img" '
+    svg = svg.replace('<svg ', f'<svg {extra}', 1)
     html = html.replace(f"<!--SVG:{tag}-->", svg)
 Path("report.html").write_text(html)
 ```
 
-`role="img"`와 `aria-label`은 Mermaid가 넣지 않으므로 위처럼 치환 시점에 붙인다.
+`aria-label`은 Mermaid가 넣지 않으므로 위처럼 치환 시점에 붙인다. 반면 `role`은 버전에 따라 이미 들어 있다(Mermaid 11은 `role="graphics-document document"`) — **확인 없이 `role="img"`를 덧붙이면 속성이 중복돼 마크업이 깨진다.** 없을 때만 붙인다. 중복이 생기면 `check-layout.py`가 "SVG 파싱 실패"로 잡는다.
 
 ## 3-1. 검증
 
@@ -108,11 +112,21 @@ npx -y @mermaid-js/mermaid-cli -i diagram.mmd -o diagram.svg \
 
 **폴백해도 문서는 깨지지 않는다** — hand-SVG 역시 자기완결 인라인 SVG다. 툴체인 유무는 *그림의 정확도*에만 영향을 주지 *문서의 이식성*에는 영향을 주지 않는다. 그래서 이식성을 이유로 Mermaid CDN 스크립트를 문서에 넣는 선택은 하지 않는다 — 작성 편의를 얻는 대신 **모든 열람자에게 네트워크 의존을 영구히 떠넘기는** 거래이기 때문이다.
 
-## 6. 작성 원칙
+## 6. 한글 라벨
+
+**한글 라벨은 Mermaid 쪽이 안전하다.** 자동 레이아웃이 렌더 시점에 실제 글자 폭을 재서 노드를 넓히므로, 한글 12자 라벨에 노드 폭이 212px로 잡히는 식으로 맞춰진다(실측). 공백 없는 긴 한글도 문자 단위로 줄바꿈해 노드 안에 넣는다. 손으로 그릴 때 필요한 글자수 예산(`diagrams.md`)이 여기서는 필요 없다.
+
+두 가지만 지킨다.
+
+- **라벨의 어절 사이 공백을 유지한다.** 공백이 없으면 줄바꿈 지점을 문자 중간에서 잡아 `매우긴한글어절없이공백이전혀들어` / `가지않은노드라벨입니다`처럼 어색하게 쪼개진다.
+- **라벨을 짧게 유지한다.** 긴 한글 라벨은 그림 전체를 옆으로 늘리고, 넓어진 그림은 `max-width:100%`로 축소돼 글자가 작아진다. 노드당 12자 안쪽을 권한다.
+
+렌더된 SVG의 좌표는 렌더 시점 폰트로 고정된다. 그래서 config의 `fontFamily`에는 `document.css`와 같은 한글 폰트 스택(맑은 고딕 포함)을 둔다 — 다른 OS에서 열어도 자폭 차이가 작다.
+
+## 7. 작성 원칙
 
 Mermaid를 쓴다고 해서 `diagrams.md`의 원칙이 면제되지 않는다. 그대로 적용한다.
 
 - **하나의 다이어그램은 하나의 메시지.** 노드가 ~8개를 넘으면 나눈다 — 자동 레이아웃이 배치를 해준다고 해서 복잡한 그림이 읽히는 것은 아니다.
 - **그림을 이해하는 데 설명 문단이 필요하면, 문단 말고 그림을 다시 그린다.**
 - 관례가 아닌 시각 규칙(점선=비동기 등)을 썼으면 범례를 단다.
-- 라벨은 짧게. 자동 레이아웃은 긴 라벨을 만나면 그림 전체를 옆으로 늘린다.

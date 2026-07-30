@@ -12,7 +12,7 @@
     "tertiaryColor": "#ffffff",
     "lineColor": "#59636e",
     "textColor": "#1f2328",
-    "fontFamily": "-apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif",
     "fontSize": "14px"
   }
 }
