@@ -6,7 +6,7 @@
     python3 recall.py <질의> --limit 40          # 층당 상한 (기본 12)
     python3 recall.py <질의> --json out.json     # 판정용 원자료
     python3 recall.py <질의> --lines             # 매치 줄까지
-    python3 recall.py <질의> --project write-note # 프로젝트를 직접 지정
+    python3 recall.py <질의> --project my-app    # 프로젝트를 직접 지정
     python3 recall.py <질의> --all               # 프로젝트 우선순위 끄기
 
 **현재 프로젝트를 먼저 놓는다.** 실행 위치의 경로 조각을 문서의 `project` 와 대조해
@@ -193,7 +193,7 @@ NOT_A_PROJECT = {"users", "desktop", "documents", "workspaces", "dev", "src",
 def cwd_scope(cwd=None):
     """실행 위치의 경로 조각들. 문서의 project 와 겹치면 그게 현재 프로젝트다.
 
-    워크트리 안(`.../write-note/.worktrees/130-image-assets`)에서 불려도 상위 조각에
+    워크트리 안(`.../my-app/.worktrees/130-feature`)에서 불려도 상위 조각에
     저장소 이름이 남아 있어 걸린다. 저장소 루트를 계산하는 것보다 튼튼하다.
     """
     parts = os.path.abspath(cwd or os.getcwd()).split(os.sep)
