@@ -75,6 +75,12 @@ document-generator 스킬(v1.2.0 → v1.3.0)의 한글 레이아웃 깨짐을 �
 - GitHub 코드 검색: SKILL.md 내 `word-break: keep-all` 177건 / `overflow-wrap` 1,632건 / `table-wrap` 384건 — 한글 레이아웃을 다루는 스킬은 이미 여럿 있다
 - `awesome-*` 목록(ComposioHQ 71k 등)의 별 수는 목록 인기이지 스킬 자체가 아님
 
+## ⚠️ 배포 시 함정 (2026-07-30 실측)
+
+1. **이 레포는 머신이 둘이다.** 회사 머신(`zimssa-jwkim@zimssa.com`)이 같은 origin에 푸시한다. 실제로 v1.3.0은 fetch 없이 v1.2.0 위에 쌓여, 원격의 `95346d3 v1.2.1`(긴 코드 토큰 오버플로우 CSS)을 모른 채 작업했다 — 그대로 밀었으면 그 수정이 사라졌다. **작업 시작 전 `git fetch` 필수.** v1.2.1은 rebase로 통합했고 `code`·`th,td`의 `overflow-wrap: anywhere`, `word-break: break-word`가 모두 살아 있음을 확인했다.
+2. **`claude plugin update`는 버전 번호만 비교한다.** 레포 내용을 바꿔도 `plugin.json`의 버전이 그대로면 "already at the latest version"만 출력하고 캐시를 재복사하지 않는다. 캐시(`~/.claude/plugins/cache/jongwan-plugins/document-generator/<버전>/`)는 심링크가 아니라 복사본이다. → 같은 버전에서 내용만 고쳤으면 **파일을 직접 복사하거나 버전을 올려야** 반영된다. `diff -rq`로 확인하는 습관이 필요하다.
+3. **마켓플레이스 소스가 GitHub이 아니라 로컬 디렉터리다** (`known_marketplaces.json`: `"source": "directory", "path": "/Users/jongwan-air/doc-gen-plugin"`). 이 머신에서는 push가 플러그인 동작에 아무 영향이 없다. push는 원격 백업과 타 머신용이다.
+
 ## 참고 — 재현·검증 도구 위치
 
 - **영속(레포)**: `document-generator/skills/document-generator/assets/check-layout.py` — `python3 <스킬경로>/assets/check-layout.py <html>` 로 실행, 발견 0건이 통과
