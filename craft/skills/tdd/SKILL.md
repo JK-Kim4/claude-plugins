@@ -3,7 +3,7 @@ name: tdd
 description: 테스트 주도 개발. 기능·버그픽스를 test-first로 만들 때, "red-green-refactor" 언급 시, 통합 테스트를 원할 때 사용한다. 테스트 비용 규율(레벨·중복·예산) 포함.
 ---
 
-<!-- fork: matt-pocock skills/tdd @ 2026-07-17. 변경점: 테스트 비용 규율 4항목 추가(한국 현업 근거: 우아한형제들 techblog 14874, 토스 test-strategy-server), craft:tdd-implementer 위임 경로, 본문 한국어화 -->
+<!-- fork: matt-pocock skills/tdd @ 2026-07-17, upstream v1.2.3(2026-08-05) 반영 @ 2026-08-13. 변경점: 테스트 비용 규율 4항목 추가(한국 현업 근거: 우아한형제들 techblog 14874, 토스 test-strategy-server), craft:tdd-implementer 위임 경로, codebase-design 어휘 포인터, 본문 한국어화 -->
 
 # Test-Driven Development
 
@@ -24,6 +24,8 @@ TDD는 red → green 루프다. 이 스킬은 그 루프가 간직할 가치가 
 **사전 합의된 seam에서만 테스트한다.** 테스트를 쓰기 전에 테스트할 seam을 적어 사용자와 확인한다. 합의 안 된 seam에는 테스트를 쓰지 않는다. 전부를 테스트할 수는 없다 — seam을 먼저 합의하는 것이 테스트 공수를 핵심 경로와 복잡한 로직에 착지시키는 방법이다.
 
 물어라: "public 인터페이스가 무엇이고, 어느 seam을 테스트할까요?"
+
+인터페이스의 형태 자체가 논점일 때 — 모듈이 얼마나 깊어야 하는지, seam이 어디에 속하는지, 인터페이스가 무엇을 노출해야 하는지 — 는 `/codebase-design` 스킬을 어휘로 쓴다. module·interface·depth·seam·adapter·leverage·locality 용어의 공유 원천이며, 실행할 세션이 아니라 참조할 레퍼런스다.
 
 ## 테스트 비용 규율 — 스위트가 폭발하지 않게
 

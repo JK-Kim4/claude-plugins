@@ -1,6 +1,6 @@
 {
   "name": "craft",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "개발 파이프라인 단계별 페르소나 sub agent 4종(verifier·interface-designer·tdd-implementer·code-reviewer)과 오케스트레이션 스킬 세트. Matt Pocock 엔지니어링 스킬 팩의 선택적 포크 + 한국 현업 관행 반영.",
   "author": {
     "name": "JK-Kim4"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# fork: matt-pocock skills/diagnosing-bugs/scripts/hitl-loop.template.sh @ 2026-07-17 (verbatim copy)
+# fork: matt-pocock skills/diagnosing-bugs/scripts/hitl-loop.template.sh @ 2026-07-17, upstream v1.2.3(2026-08-06) 반영 @ 2026-08-13 (verbatim copy)
 # Human-in-the-loop reproduction loop.
 # Copy this file, edit the steps below, and run it.
 # The agent runs the script; the user follows prompts in their terminal.
@@ -12,6 +12,9 @@
 #   capture VAR "<question>"      → show question, read response into VAR
 #
 # At the end, captured values are printed as KEY=VALUE for the agent to parse.
+#
+# `capture` prints its value back to the terminal, where the agent reads it — so
+# capture observations, and leave signing in to the user as a `step`.
 
 set -euo pipefail
 

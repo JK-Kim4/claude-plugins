@@ -4,7 +4,7 @@ description: 이슈·외부 PR을 triage 상태 머신(분류 → 검증 → gri
 disable-model-invocation: true
 ---
 
-<!-- fork: matt-pocock skills/triage @ 2026-07-17. 변경점: 검증 단계를 craft:verifier 스폰으로 바인딩, 본문 한국어화 -->
+<!-- fork: matt-pocock skills/triage @ 2026-07-17, upstream v1.2.3(2026-07-29) 반영 @ 2026-08-13. 변경점: 검증 단계를 craft:verifier 스폰으로 바인딩, 본문 한국어화 -->
 
 # Triage
 
@@ -69,7 +69,7 @@ PR이 범위에 있으면 외부 PR을 버킷에 포함하고 각 줄에 `[PR]`/
 
 3. **추천.** 분류·상태 추천과 근거, 요청과 관련된 코드베이스 요약(이미 구현됐는지 포함)을 메인테이너에게 보고하고 지시를 기다린다.
 
-4. **Grill (필요시).** 요청을 구체화해야 하면 `/grilling`과 `/domain-modeling` 스킬을 함께 실행 — 한 번에 질문 하나로 벼리고, 결정이 내려지는 대로 CONTEXT.md/ADR을 인라인 갱신한다.
+4. **Grill (필요시).** 요청을 구체화해야 하면 `/grilling`과 `/domain-modeling` 스킬을 함께 실행 — 질문 라운드 단위로 벼리고, 결정이 내려지는 대로 CONTEXT.md/ADR을 인라인 갱신한다.
 
 5. **결과 적용:**
    - `ready-for-agent` — 에이전트 브리프 코멘트 게시 ([AGENT-BRIEF.md](AGENT-BRIEF.md))
