@@ -92,7 +92,7 @@ def source_files(root: Path):
             dirnames[:] = []
         dirnames[:] = sorted(d for d in dirnames if d not in EXCLUDED_DIRS and not d.startswith("."))
         for f in sorted(filenames):
-            if Path(f).suffix in SOURCE_EXT:
+            if Path(f).suffix in SOURCE_EXT and (Path(dirpath) / f).is_file():  # 끊어진 심링크 제외
                 yield rel / f
 
 
@@ -251,7 +251,7 @@ def next_stage(root: Path, st: State):
 ANY_ID_RE = re.compile(r"\b(NFR|FR)(\d+)(?:\.(\d+))?\b")
 DEFINITION_SECTIONS = ("## 기능 요구사항", "## 비기능 요구사항")
 REFERENCE_STAGES = {"design", "plan", "build", "verify"}
-UNIT_ROW_RE = re.compile(r"^\|\s*(u\d+-[a-z0-9][a-z0-9-]*)\s*\|([^|]*)\|([^|]*)\|([^|]*)\|")
+UNIT_ROW_RE = re.compile(r"^\|\s*(u\d+-[a-z0-9][a-z0-9-]*)\s*\|([^|]*)\|([^|]*)\|([^|]*?)\|?\s*$")
 FINGERPRINT_RE = re.compile(r"<!-- fingerprint: (\w+) -->")
 
 
@@ -314,7 +314,9 @@ def check_questions(path: Path, problems):
         return
     numbers, summary = [], None
     for title, body in question_blocks(path.read_text(encoding="utf-8")):
-        m = re.match(r"^(Q(\d+))\.", title)
+        m = re.match(r"^(Q(\d+))\b(\.?)", title)
+        if m and not m.group(3):
+            problems.append(f"{path.name}: {m.group(1)} 제목은 `## {m.group(1)}.` 처럼 번호 뒤에 점을 찍어야 합니다")
         if m:
             numbers.append(int(m.group(2)))
             answer = answer_of(body)
@@ -391,7 +393,7 @@ def check_units_coverage(work: Path, known, problems):
         return
     covered = set()
     for u in units_table(work):
-        covered |= ids_in(u["covers"])
+        covered |= {i.split(".")[0] for i in ids_in(u["covers"])}  # 하위 ID 를 맡으면 상위도 덮은 것
     gaps = sorted(i for i in known - covered if "." not in i)
     if gaps:
         problems.append("units.md: 어느 유닛도 맡지 않은 요구사항 — " + ", ".join(gaps))
@@ -402,7 +404,8 @@ def check_analyze_fingerprint(root: Path, text: str, problems):
     if not m:
         problems.append("codebase.md: `<!-- fingerprint: <값> -->` 주석이 없습니다 (없으면 다음 작업마다 analyze 가 다시 뜹니다)")
     elif m.group(1) != workspace_fingerprint(root):
-        problems.append("codebase.md: fingerprint 가 현재 소스와 다릅니다. 분석을 갱신하고 값을 다시 적으세요")
+        problems.append(f"codebase.md: fingerprint 가 현재 소스와 다릅니다. 분석을 갱신하고 "
+                        f"`<!-- fingerprint: {workspace_fingerprint(root)} -->` 로 적으세요")
 
 
 def check_build(work: Path, known, problems):
@@ -423,7 +426,7 @@ def check_stage(root: Path, work: Path, stage: str):
     if stage == "build":
         check_build(work, known, problems)
         return problems
-    plan_owns_units = stage == "plan" and "design" not in read_state(work).stages
+    plan_owns_units = stage == "plan" and read_state(work).stages.get("design") in (None, "skipped")
     if plan_owns_units:
         artifacts += [a for a in ARTIFACTS["design"] if a[0] == "units.md"]
     for rel, required in artifacts:

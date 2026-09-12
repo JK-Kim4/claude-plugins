@@ -6,3 +6,6 @@ docs/handoff/
 # 파이썬 실행 산출물
 __pycache__/
 *.py[cod]
+
+# oh-my-claudecode 세션 상태 (훅이 cwd 에 만든다)
+.omc/
