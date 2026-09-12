@@ -6,6 +6,7 @@
     python3 dlc.py next
     python3 dlc.py check requirements
     python3 dlc.py start|approve|skip requirements [--note ..] [--reason ..]
+    python3 dlc.py start analyze --force     # 지문이 같아 건너뛴 분석을 다시 돌린다
     python3 dlc.py note requirements "결정 내용"
 
 책임은 셋뿐이다. (1) state.md 전이를 도맡아 에이전트가 손으로 고치지 않게 한다.
@@ -108,9 +109,12 @@ def scan_workspace(root: Path):
 
 
 def workspace_fingerprint(root: Path) -> str:
+    """소스 파일의 경로와 내용을 함께 해시한다. 같은 소스면 PC 가 달라도 같은 값이 나온다."""
     h = hashlib.sha1()
     for f in source_files(root):
         h.update(str(f).encode("utf-8"))
+        h.update(b"\0")
+        h.update((root / f).read_bytes())
         h.update(b"\0")
     return h.hexdigest()[:12]
 
@@ -163,8 +167,11 @@ def active_work(root: Path) -> Path:
 
 def read_state(work: Path) -> State:
     st = State()
+    in_meta = True
     for line in (work / "state.md").read_text(encoding="utf-8").splitlines():
-        m = re.match(r"^- (\w+): (.*)$", line)
+        if line.startswith("## "):
+            in_meta = False
+        m = re.match(r"^- (\w+): (.*)$", line) if in_meta else None
         if m:
             st.meta[m.group(1)] = m.group(2).strip()
             continue
@@ -380,7 +387,8 @@ def cmd_init(a):
     scan = scan_workspace(root)
     profile = PROFILES[a.profile]
     st = State()
-    st.meta = {"profile": a.profile, "depth": profile["depth"], "description": a.description or "-",
+    description = re.sub(r"\s*\n\s*", " ", a.description).strip() or "-"  # 한 줄이어야 메타 문법과 안 섞인다
+    st.meta = {"profile": a.profile, "depth": profile["depth"], "description": description,
                "created": now_iso(), **scan, "fingerprint": workspace_fingerprint(root)}
     for stage in profile["stages"]:
         st.set(stage, "pending", "")
@@ -454,11 +462,25 @@ def require_is_next(root: Path, st: State, stage: str, verb: str):
         raise SystemExit(f"지금 {verb}할 스테이지는 {nxt} 입니다 ({stage} 아님, 현재 {st.stages[stage]}).")
 
 
+def require_forceable(st: State, stage: str):
+    """--force 는 지문 일치로 건너뛴 analyze 를 다시 돌리는 용도뿐이다."""
+    if stage != "analyze":
+        raise SystemExit("--force 는 analyze 에만 쓸 수 있습니다 (지문이 같아 건너뛴 분석을 다시 돌릴 때).")
+    require_in_profile(st, stage)
+    if st.meta.get("workspace") != "brownfield":
+        raise SystemExit("greenfield 작업에는 분석할 코드가 없습니다.")
+    if st.stages[stage] != "pending":
+        raise SystemExit(f"analyze 가 이미 {st.stages[stage]} 입니다.")
+
+
 def cmd_start(a):
     root = Path(a.root).resolve()
     work = active_work(root)
     st = read_state(work)
-    require_is_next(root, st, a.stage, "시작")
+    if a.force:
+        require_forceable(st, a.stage)
+    else:
+        require_is_next(root, st, a.stage, "시작")
     st.set(a.stage, "active")
     write_state(work, st)
     log(work, a.stage, "start", a.note or "")
@@ -535,6 +557,7 @@ def main(argv=None) -> int:
     p = sub.add_parser("start", help="스테이지 시작 기록", parents=[common])
     p.add_argument("stage", choices=STAGE_ORDER)
     p.add_argument("--note", default="")
+    p.add_argument("--force", action="store_true", help="지문이 같아 건너뛴 analyze 를 다시 돌린다")
     p.set_defaults(fn=cmd_start)
 
     p = sub.add_parser("approve", help="승인 기록 (check 통과 필요)", parents=[common])

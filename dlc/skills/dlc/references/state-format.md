@@ -54,7 +54,7 @@ docs/dlc/
 | done | 승인됨 |
 | skipped | 사유와 함께 건너뜀 |
 
-프로파일에 없는 스테이지는 표에 아예 없다. `analyze`는 greenfield면 init 시점에 `skipped`로 기록되고, brownfield여도 `codebase.md`의 fingerprint가 현재 소스와 같으면 `next`가 건너뛴다.
+프로파일에 없는 스테이지는 표에 아예 없다. `analyze`는 greenfield면 init 시점에 `skipped`로 기록되고, brownfield여도 `codebase.md`의 fingerprint가 현재 소스와 같으면 `next`가 건너뛴다. fingerprint는 소스 파일들의 경로와 내용을 함께 해시한 값이라 파일명이 같아도 내용이 바뀌면 달라진다. 건너뛴 analyze를 다시 돌리려면 `dlc.py start analyze --force`.
 
 ## 프로파일
 

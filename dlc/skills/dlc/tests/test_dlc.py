@@ -542,6 +542,58 @@ class Fingerprint(Base):
         self.write("docs/dlc/x.md", "x\n")
         self.assertEqual(a, D.workspace_fingerprint(self.root))
 
+    def test_changes_when_source_content_changes_with_same_path(self):
+        self.write("app.py", "print(1)\n")
+        a = D.workspace_fingerprint(self.root)
+        self.write("app.py", "class NewService: pass\n")
+        self.assertNotEqual(a, D.workspace_fingerprint(self.root))
+
+
+class AnalyzeRerun(Base):
+    """지문이 같아 next 가 건너뛴 analyze 를 사용자가 명시 호출로 다시 돌린다 (F6)."""
+
+    def test_force_starts_analyze_even_when_fingerprint_matches(self):
+        self.make_brownfield()
+        self.init(profile="express")
+        self.write("docs/dlc/codebase.md", f"<!-- fingerprint: {D.workspace_fingerprint(self.root)} -->\n")
+        code, _, err = run("start", "analyze", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        code, _, err = run("start", "analyze", "--root", str(self.root), "--force")
+        self.assertEqual(code, 0, err)
+        self.assertEqual(D.read_state(self.work()).stages["analyze"], "active")
+        _, out, _ = run("next", "--root", str(self.root))
+        self.assertIn("analyze", out.splitlines()[0])
+
+    def test_force_is_refused_for_other_stages(self):
+        self.init(profile="express")
+        code, _, err = run("start", "plan", "--root", str(self.root), "--force")
+        self.assertNotEqual(code, 0)
+        self.assertIn("--force", err)
+        self.assertEqual(D.read_state(self.work()).stages["plan"], "pending")
+
+    def test_force_is_refused_on_greenfield(self):
+        self.init(profile="express")
+        code, _, err = run("start", "analyze", "--root", str(self.root), "--force")
+        self.assertNotEqual(code, 0)
+        self.assertEqual(D.read_state(self.work()).stages["analyze"], "skipped")
+
+
+class Description(Base):
+    """자유 텍스트 description 이 state.md 메타 문법과 섞이지 않는다 (C9)."""
+
+    def test_multiline_description_is_flattened_and_kept(self):
+        self.init(desc="첫 줄\n- profile: unknown\n둘째 줄")
+        code, out, err = run("status", "--root", str(self.root))
+        self.assertEqual(code, 0, err)
+        self.assertIn("첫 줄 - profile: unknown 둘째 줄", out.splitlines()[0])
+        self.assertEqual(D.read_state(self.work()).meta["profile"], "express")
+
+    def test_meta_after_stages_table_is_ignored(self):
+        self.init()
+        p = self.work() / "state.md"
+        p.write_text(p.read_text(encoding="utf-8") + "\n- profile: enterprise\n", encoding="utf-8")
+        self.assertEqual(D.read_state(self.work()).meta["profile"], "express")
+
 
 if __name__ == "__main__":
     unittest.main()
