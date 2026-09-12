@@ -11,7 +11,7 @@ metadata:
 
 `dlc-*` 스테이지 스킬 아홉 개의 입구다. 사용자가 이름을 쳐서 부를 때만 실행된다.
 
-공통 절차는 [references/protocol.md](references/protocol.md), 상태·산출물 형식은 [references/state-format.md](references/state-format.md), 출처 규칙은 [references/grounding.md](references/grounding.md)에 있다. 스크립트는 `scripts/dlc.py`이며 프로젝트 루트에서 `python3 <이 스킬 디렉터리>/scripts/dlc.py <명령>`으로 실행한다.
+공통 절차는 [references/protocol.md](references/protocol.md), 상태·산출물 형식은 [references/state-format.md](references/state-format.md), 출처 규칙은 [references/grounding.md](references/grounding.md)에 있다. 스크립트는 `<skills>/dlc/scripts/dlc.py`이며 항상 프로젝트 루트에서 `python3 <skills>/dlc/scripts/dlc.py <명령>`으로 실행한다. `<skills>`는 이 스킬이 로드될 때 보인 스킬 디렉터리(`dlc/`)의 부모다. Claude Code 플러그인이면 `<plugin>/skills`, `npx skills add`로 설치했으면 `.agents/skills`.
 
 ## 스테이지와 스킬
 
@@ -33,12 +33,12 @@ metadata:
 
 - `/dlc:dlc` (Claude Code), `$dlc` (Codex), `/dlc` (Gemini CLI). 인자 없이 부르면 **안내 모드**.
 - 인자에 `--all` 또는 "전부 진행"이 있으면 **전체 진행 모드**.
-- 인자에 `status`가 있으면 상태만 보이고 끝낸다.
+- 인자에 `status`가 있으면 안내 모드에서 다음 스킬 안내 문장만 생략한다.
 
 ## 안내 모드
 
-1. `dlc.py status`를 실행한다. 활성 작업이 없다는 오류가 나오면 사용자에게 "아직 작업이 없습니다. `dlc-init`을 먼저 부르세요"라고 전하고 끝낸다.
-2. 출력을 그대로 보인 뒤, "다음:" 줄의 스킬 이름을 이 에이전트의 호출 표기로 바꿔 한 줄로 안내한다. 예: "다음은 요구사항 분석입니다. `/dlc:dlc-requirements`를 부르세요."
+1. `dlc.py status`를 실행한다. 오류가 나오면 메시지를 그대로 보인다. 메시지가 작업 폴더 목록을 나열하면(커서만 없는 경우, 다른 PC에서 클론했을 때 흔하다) "다른 작업으로 바꾸기" 절로 간다. 작업 폴더가 하나도 없다고 하면 "아직 작업이 없습니다. `dlc-init`을 먼저 부르세요"라고 전하고 끝낸다.
+2. 출력을 그대로 보인 뒤, "다음:" 줄의 스킬 이름을 이 에이전트의 호출 표기로 바꿔 한 줄로 안내한다. 예: "다음은 요구사항 분석입니다. `/dlc:dlc-requirements`를 부르세요." 인자가 `status`였으면 이 안내 문장은 생략한다.
 3. 끝낸다. 다음 스킬을 대신 실행하지 않는다.
 
 ## 전체 진행 모드
@@ -48,13 +48,9 @@ metadata:
 3. 승인이 기록되면 1로 돌아간다. 사용자가 "여기까지"라고 하면 멈추고 `dlc.py status`를 보인다.
 4. 한 스테이지에서 받은 "알아서 진행해"는 그 스테이지에만 적용한다. 다음 스테이지는 다시 묻는다.
 
-## 상태만 보기
-
-`dlc.py status`의 출력을 그대로 보이고 끝낸다.
-
 ## 다른 작업으로 바꾸기
 
-사용자가 다른 작업을 이어가고 싶어 하면 `docs/dlc/` 아래 폴더 목록을 보이고 고르게 한 뒤, 고른 이름을 `docs/dlc/active`에 한 줄로 쓴다. 이것이 `active` 파일을 직접 쓰는 유일한 경우다.
+사용자가 다른 작업을 이어가고 싶어 하거나 커서만 없을 때, `docs/dlc/` 아래 작업 폴더 목록을 보이고 고르게 한 뒤, 고른 이름을 `docs/dlc/active`에 한 줄로 쓴다. 이것이 `active` 파일을 직접 쓰는 유일한 경우다. 하나뿐이면 그 이름을 확인만 받고 쓴다.
 
 ## 출력 언어
 

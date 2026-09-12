@@ -107,10 +107,12 @@ dlc/
 | `init --profile <p> --slug <s>` | 작업 폴더와 `state.md` 생성, 워크스페이스 스캔(greenfield/brownfield, 언어·빌드 도구 감지) |
 | `status` | 현재 작업, 프로파일, 스테이지별 상태 출력 |
 | `next` | 다음 실행 스테이지와 호출할 스킬 이름 출력. 완료면 `done` |
-| `check <stage>` | 산출물 필수 절 존재, 질문 파일 미답변 여부, FR/NFR ID 연속성 검사. 실패 목록 출력 |
-| `start`, `approve`, `skip --reason` | 상태 전이 기록. `approve`는 `check` 통과가 전제 |
+| `check <stage>` | 산출물 필수 절 존재, 질문 파일 미답변·번호 연속, FR/NFR ID 연속성, 설계·계획·빌드·검증의 ID 참조, 유닛 커버리지, codebase.md 지문 검사. 실패 목록 출력 |
+| `start`, `approve`, `skip --reason` | 상태 전이 기록. `start`·`approve`는 `next`가 가리키는 스테이지만, `approve`는 `start` 후 `check` 통과가 전제. `skip`은 pending·active만 |
+| `start analyze --force` | 지문 일치로 건너뛴 analyze를 다시 돌린다 |
+| `note <stage> <text>` | `log.md`에 결정·메모 한 줄 추가 (상태 변화 없음) |
 
-python3 표준 라이브러리만 쓴다. `python3 -m unittest discover -s dlc/tests`로 검증한다. 스크립트가 없는 환경에서는 각 스킬이 `references/protocol.md`의 수동 체크리스트를 따르도록 폴백을 둔다.
+python3 3.9 이상, 표준 라이브러리만 쓴다. `python3 -m unittest discover -s dlc/skills/dlc/tests`로 검증한다. 스크립트가 없는 환경에서는 각 스킬이 `references/protocol.md`의 수동 체크리스트를 따르도록 폴백을 둔다.
 
 ## 7. 에이전트별 호출과 제약
 

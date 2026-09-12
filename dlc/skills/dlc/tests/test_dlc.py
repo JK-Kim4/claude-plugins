@@ -168,6 +168,15 @@ class Next(Base):
         self.assertNotEqual(code, 0)
         self.assertIn("dlc-init", err)
 
+    def test_no_active_work_lists_existing_work_folders(self):
+        # 다른 PC 에서 클론하면 작업 폴더는 있는데 커서만 없다 (F3). 새 작업을 만들라고 하면 안 된다
+        self.init(slug="carried-over")
+        (self.root / "docs" / "dlc" / "active").unlink()
+        code, _, err = run("status", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("carried-over", err)
+        self.assertNotIn("dlc-init", err)
+
     def _force_done(self, stage):
         work = self.work()
         st = D.read_state(work)

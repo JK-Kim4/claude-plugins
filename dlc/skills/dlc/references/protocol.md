@@ -4,7 +4,7 @@
 
 ## 스크립트 위치
 
-상태 전이와 검사는 `dlc.py`가 맡는다. 이 파일 기준 `../scripts/dlc.py`에 있다. 스테이지 스킬에서는 `../dlc/scripts/dlc.py`다(스킬 디렉터리가 형제로 설치된다). 항상 프로젝트 루트에서 실행한다.
+상태 전이와 검사는 `<skills>/dlc/scripts/dlc.py`가 맡는다. `<skills>`는 스킬이 로드될 때 보인 스킬 디렉터리의 부모다(Claude Code 플러그인이면 `<plugin>/skills`, `npx skills add`면 `.agents/skills`). 스킬 디렉터리가 형제로 설치되므로 스테이지 스킬 안에서는 `../dlc/scripts/dlc.py`와 같은 파일이다. 항상 프로젝트 루트에서 실행한다.
 
 ```bash
 python3 <skills>/dlc/scripts/dlc.py next

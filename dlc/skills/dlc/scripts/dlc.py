@@ -150,10 +150,20 @@ def cursor_path(root: Path) -> Path:
     return cursor
 
 
+def no_active_message(root: Path) -> str:
+    """커서만 없고 작업 폴더는 있을 수 있다(다른 PC 에서 클론). 그때는 새 작업을 만들라고 하지 않는다."""
+    base = dlc_root(root)
+    works = sorted(p.name for p in base.iterdir() if p.is_dir() and WORK_NAME_RE.match(p.name)) if base.is_dir() else []
+    if not works:
+        return "활성 작업이 없습니다. 먼저 dlc-init 스킬(또는 `dlc.py init`)로 작업을 만드세요."
+    return ("활성 작업 커서(docs/dlc/active)가 없지만 작업 폴더가 있습니다: " + ", ".join(works)
+            + "\n이어갈 작업 이름을 docs/dlc/active 에 한 줄로 쓰세요.")
+
+
 def active_work(root: Path) -> Path:
     cursor = cursor_path(root)
     if not cursor.exists():
-        raise SystemExit("활성 작업이 없습니다. 먼저 dlc-init 스킬(또는 `dlc.py init`)로 작업을 만드세요.")
+        raise SystemExit(no_active_message(root))
     name = cursor.read_text(encoding="utf-8").strip()
     if not WORK_NAME_RE.match(name):
         raise SystemExit(f"docs/dlc/active 의 내용 {name!r} 이(가) 작업 폴더 이름(<YYMMDD>-<slug>)이 아닙니다.")

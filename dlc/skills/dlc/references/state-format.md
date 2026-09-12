@@ -22,6 +22,8 @@ docs/dlc/
 
 애플리케이션 코드는 이 폴더에 두지 않는다. 프로젝트 저장소의 원래 위치에 쓴다.
 
+작업 폴더 이름의 `<YYMMDD>`는 `dlc.py init`을 실행한 PC의 로컬 날짜다(사람이 보는 이름). `state.md`와 `log.md`의 시각은 UTC다. 자정 근처에는 둘이 하루 다를 수 있다.
+
 ## state.md
 
 ```markdown
