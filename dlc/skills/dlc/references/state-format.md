@@ -1,0 +1,87 @@
+# 상태와 산출물의 위치·형식
+
+## 디렉터리
+
+```
+docs/dlc/
+  active                      활성 작업 폴더 이름 한 줄. 사용자별 커서라 .gitignore 에 넣어도 된다
+  codebase.md                 dlc-analyze 산출물. 저장소 단위라 작업 폴더 밖에 둔다
+  practices.md                dlc-practices 산출물. 저장소 단위
+  <YYMMDD>-<slug>/            작업 하나
+    state.md                  dlc.py 가 관리. 손으로 고치지 않는다
+    log.md                    전이·결정 기록. dlc.py 가 추가만 한다
+    intent.md
+    intent-questions.md
+    requirements.md
+    requirements-questions.md
+    design.md  decisions.md  units.md  design-questions.md
+    plan.md  plan-questions.md
+    build/<unit>.md           유닛마다 하나
+    verify.md
+```
+
+애플리케이션 코드는 이 폴더에 두지 않는다. 프로젝트 저장소의 원래 위치에 쓴다.
+
+## state.md
+
+```markdown
+# DLC State
+
+- profile: express
+- depth: minimal
+- description: 재고 API
+- created: 2026-09-13T02:10:00Z
+- workspace: brownfield
+- languages: kotlin, java
+- build: gradle
+- fingerprint: 3f9a1c0b2d4e
+
+## Stages
+
+| stage | status | updated | note |
+|---|---|---|---|
+| init | done | 2026-09-13T02:10:00Z | |
+| analyze | pending | 2026-09-13T02:10:00Z | |
+| requirements | pending | 2026-09-13T02:10:00Z | |
+```
+
+상태 값은 넷뿐이다.
+
+| 값 | 뜻 |
+|---|---|
+| pending | 아직 시작 안 함 |
+| active | 진행 중 (start 기록됨) |
+| done | 승인됨 |
+| skipped | 사유와 함께 건너뜀 |
+
+프로파일에 없는 스테이지는 표에 아예 없다. `analyze`는 greenfield면 init 시점에 `skipped`로 기록되고, brownfield여도 `codebase.md`의 fingerprint가 현재 소스와 같으면 `next`가 건너뛴다.
+
+## 프로파일
+
+| 프로파일 | 스테이지 | depth |
+|---|---|---|
+| full | init, analyze, intent, practices, requirements, design, plan, build, verify | standard |
+| express | init, analyze, requirements, plan, build, verify | minimal |
+| bugfix | express와 같음. requirements 질문이 재현·기대 동작·회귀 테스트 중심 | minimal |
+
+## log.md
+
+한 줄에 하나. `- <UTC 시각> | <stage> | <event> | <text>`. event는 created, start, approve, skip, note.
+
+## 산출물 필수 절
+
+`dlc.py check`가 보는 H2 목록이다. 스테이지 스킬의 골격과 같아야 한다.
+
+| 산출물 | 필수 절 |
+|---|---|
+| codebase.md | 개요, 구조, 기술 스택, 관례와 제약, 가정과 열린 질문 |
+| intent.md | 문제, 대상과 가치, 성공 지표, 범위, 타당성, 가정과 열린 질문 |
+| practices.md | 작업 방식, 테스트, 배포, 코드 스타일, 가정과 열린 질문 |
+| requirements.md | 의도 요약, 기능 요구사항, 비기능 요구사항, 제약, 범위 밖, 가정과 열린 질문 |
+| design.md | 컴포넌트, 엔티티 소유권, 상호작용, 가정과 열린 질문 |
+| units.md | 유닛, 계약, 가정과 열린 질문 |
+| plan.md | 유닛 순서, Seam과 테스트 예산, 완료 정의, 가정과 열린 질문 |
+| build/<unit>.md | 변경 파일, 추적성, 테스트, 가정과 열린 질문 |
+| verify.md | 테스트 결과, 추적성, 리뷰 발견, 판정, 가정과 열린 질문 |
+
+`units.md`의 유닛 표는 `| unit | kind | depends_on | covers |` 네 열이며, `covers`에 적힌 FR/NFR을 모아 requirements.md의 모든 ID를 덮어야 한다. `codebase.md`는 첫 줄 근처에 `<!-- fingerprint: <값> -->`을 둔다. 값은 `dlc.py init`이 state.md에 기록한 fingerprint다.

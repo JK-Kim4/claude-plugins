@@ -8,6 +8,7 @@ jongwan의 Claude Code 플러그인 마켓플레이스. 현재 네 개의 플러
 | **pr-automator** | 현재 브랜치 작업을 원격에 push하고 GitHub PR 생성을 자동화. 커밋 컨벤션 레포당 1회 확정·저장, 미커밋 커밋·브랜치 안전장치·기존 PR 갱신 처리. |
 | **pr-reviewer** | 지정한 GitHub PR을 컨벤션·코드(보안·동시성·로직) 두 축으로 분석해 P0~P2 우선순위 라벨을 단 단일 PR Review로 게시. 리뷰 기준 컨벤션 레포당 1회 확정·저장. |
 | **architecture-reviewer** | APoSD·DDD 관점으로 코드의 아키텍처 품질(복잡도·모듈 깊이·정보 은닉·결합도)을 7축 루브릭으로 진단하거나, 제안한 아키텍처 방향을 현 코드 기준으로 검증. 지적마다 P0~P2 + 개선 스케치. |
+| **dlc** | AI-DLC 방법론의 명시 호출형 생명주기 스킬셋. 라우터(dlc) + 스테이지 9개. 산출물·진행 상태를 docs/dlc/ 에 남기고 python3 stdlib 스크립트가 상태 전이·다음 단계 판정·산출물 검사를 맡는다. Claude Code·Codex·Gemini CLI 공용. |
 
 ## 구성
 
@@ -49,6 +50,7 @@ doc-gen-plugin/
 /plugin install pr-automator@jongwan-plugins
 /plugin install pr-reviewer@jongwan-plugins
 /plugin install architecture-reviewer@jongwan-plugins
+/plugin install dlc@jongwan-plugins
 ```
 
 > 로컬 개발·테스트: `/plugin marketplace add ~/doc-gen-plugin`
