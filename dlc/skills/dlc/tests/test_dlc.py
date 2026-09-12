@@ -277,6 +277,121 @@ class Transitions(Base):
             D.write_state(self.w, st)
 
 
+class TransitionGuards(Base):
+    """approve·skip 은 순서와 상태를 본다. 손상된 state.md 와 조작된 active 커서는 거부한다 (G1)."""
+
+    def setUp(self):
+        super().setUp()
+        self.init(profile="express")
+        self.w = self.work()
+
+    def approve_ready(self, stage):
+        if stage == "requirements":
+            self.write(f"docs/dlc/{self.w.name}/requirements.md", REQ_OK)
+            self.write(f"docs/dlc/{self.w.name}/requirements-questions.md", QUESTIONS_ANSWERED)
+
+    def test_approve_refuses_stage_that_is_not_next(self):
+        self.write(f"docs/dlc/{self.w.name}/plan.md",
+                   "## 유닛 순서\nx\n\n## Seam과 테스트 예산\nx\n\n## 완료 정의\nx\n\n## 가정과 열린 질문\nNone.\n")
+        code, _, err = run("approve", "plan", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("requirements", err)
+        self.assertEqual(D.read_state(self.w).stages["plan"], "pending")
+
+    def test_approve_requires_start_first(self):
+        self.approve_ready("requirements")
+        code, _, err = run("approve", "requirements", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("start", err)
+        self.assertEqual(D.read_state(self.w).stages["requirements"], "pending")
+
+    def test_approve_refuses_skipped_stage(self):
+        code, _, err = run("approve", "analyze", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("skipped", err)
+
+    def test_stage_outside_profile_is_named_in_message(self):
+        for cmd in ("approve", "start"):
+            code, _, err = run(cmd, "design", "--root", str(self.root))
+            self.assertNotEqual(code, 0)
+            self.assertIn("에 없는 스테이지", err)
+            self.assertNotIn("None", err)
+
+    def test_start_after_completion_says_done(self):
+        for stage in ("requirements", "plan", "build", "verify"):
+            st = D.read_state(self.w); st.stages[stage] = "done"; D.write_state(self.w, st)
+        code, _, err = run("start", "verify", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("끝났습니다", err)
+        self.assertNotIn("None", err)
+
+    def test_skip_refuses_done_stage(self):
+        run("start", "requirements", "--root", str(self.root))
+        self.approve_ready("requirements")
+        code, _, err = run("approve", "requirements", "--root", str(self.root))
+        self.assertEqual(code, 0, err)
+        code, _, err = run("skip", "requirements", "--root", str(self.root), "--reason", "undo")
+        self.assertNotEqual(code, 0)
+        self.assertEqual(D.read_state(self.w).stages["requirements"], "done")
+
+    def test_skip_refuses_blank_reason(self):
+        for reason in ("", "   "):
+            code, _, err = run("skip", "requirements", "--root", str(self.root), "--reason", reason)
+            self.assertNotEqual(code, 0, reason)
+            self.assertIn("사유", err)
+        self.assertEqual(D.read_state(self.w).stages["requirements"], "pending")
+
+    def test_state_without_profile_is_reported_not_traceback(self):
+        p = self.w / "state.md"
+        p.write_text(p.read_text(encoding="utf-8").replace("- profile: express\n", ""), encoding="utf-8")
+        code, _, err = run("next", "--root", str(self.root))
+        self.assertEqual(code, 2)
+        self.assertIn("profile", err)
+
+    def test_state_with_unknown_profile_is_reported_not_traceback(self):
+        p = self.w / "state.md"
+        p.write_text(p.read_text(encoding="utf-8").replace("- profile: express", "- profile: enterprise"), encoding="utf-8")
+        code, _, err = run("next", "--root", str(self.root))
+        self.assertEqual(code, 2)
+        self.assertIn("enterprise", err)
+
+    def test_active_with_path_outside_docs_dlc_is_refused(self):
+        other = tempfile.TemporaryDirectory()
+        self.addCleanup(other.cleanup)
+        run("init", "--root", other.name, "--profile", "express", "--slug", "victim")
+        victim = [p for p in (Path(other.name) / "docs" / "dlc").iterdir() if p.is_dir()][0]
+        for bad in (str(victim), f"../../{victim.name}", "../active"):
+            self.write("docs/dlc/active", bad + "\n")
+            code, _, err = run("start", "requirements", "--root", str(self.root))
+            self.assertNotEqual(code, 0, bad)
+            self.assertIn("active", err)
+        self.assertEqual(D.read_state(victim).stages["requirements"], "pending")
+
+    def test_active_symlink_is_refused_by_read_and_init(self):
+        victim = Path(self.tmp.name) / "victim.txt"
+        victim.write_text("precious\n", encoding="utf-8")
+        cursor = self.root / "docs" / "dlc" / "active"
+        cursor.unlink()
+        os.symlink(victim, cursor)
+        code, _, err = run("status", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("심볼릭", err)
+        code, _, err = run("init", "--root", str(self.root), "--profile", "express", "--slug", "second")
+        self.assertNotEqual(code, 0)
+        self.assertEqual(victim.read_text(encoding="utf-8"), "precious\n")
+
+    def test_note_with_pipe_round_trips(self):
+        run("start", "requirements", "--root", str(self.root))
+        self.approve_ready("requirements")
+        code, _, err = run("approve", "requirements", "--root", str(self.root), "--note", "a | b")
+        self.assertEqual(code, 0, err)
+        st = D.read_state(self.w)
+        st.set("plan", "active", "p | q")
+        D.write_state(self.w, st)
+        self.assertEqual(D.read_state(self.w).notes["plan"], "p | q")
+        self.assertEqual(D.read_state(self.w).stages["build"], "pending")
+
+
 # --- check ------------------------------------------------------------------
 
 class Check(Base):

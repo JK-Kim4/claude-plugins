@@ -135,12 +135,27 @@ def dlc_root(root: Path) -> Path:
     return root / "docs" / "dlc"
 
 
-def active_work(root: Path) -> Path:
+WORK_NAME_RE = re.compile(r"^\d{6}-[a-z0-9][a-z0-9-]*$")
+
+
+def cursor_path(root: Path) -> Path:
+    """active 커서 파일. 심볼릭 링크면 읽지도 쓰지도 않는다 — 링크 너머의 파일을 덮어쓰지 않기 위해."""
     cursor = dlc_root(root) / "active"
+    if cursor.is_symlink():
+        raise SystemExit("docs/dlc/active 가 심볼릭 링크입니다. 일반 파일이어야 합니다.")
+    return cursor
+
+
+def active_work(root: Path) -> Path:
+    cursor = cursor_path(root)
     if not cursor.exists():
         raise SystemExit("활성 작업이 없습니다. 먼저 dlc-init 스킬(또는 `dlc.py init`)로 작업을 만드세요.")
     name = cursor.read_text(encoding="utf-8").strip()
+    if not WORK_NAME_RE.match(name):
+        raise SystemExit(f"docs/dlc/active 의 내용 {name!r} 이(가) 작업 폴더 이름(<YYMMDD>-<slug>)이 아닙니다.")
     work = dlc_root(root) / name
+    if work.resolve().parent != dlc_root(root).resolve():
+        raise SystemExit(f"active 가 가리키는 {name} 이(가) docs/dlc/ 안의 폴더가 아닙니다.")
     if not (work / "state.md").exists():
         raise SystemExit(f"활성 작업 {name} 에 state.md 가 없습니다. dlc-init 으로 다시 만드세요.")
     return work
@@ -158,6 +173,10 @@ def read_state(work: Path) -> State:
             st.stages[m.group(1)] = m.group(2)
             st.updated[m.group(1)] = m.group(3).strip()
             st.notes[m.group(1)] = m.group(4).strip()
+    profile = st.meta.get("profile")
+    if profile not in PROFILES:
+        raise SystemExit(f"state.md 의 profile 이 {profile!r} 입니다. 가능한 값: {', '.join(PROFILES)}. "
+                         "파일이 손상됐으면 dlc-init 으로 다시 만드세요.")
     return st
 
 
@@ -357,6 +376,7 @@ def cmd_init(a):
     work = dlc_root(root) / name
     if work.exists():
         raise SystemExit(f"{work.relative_to(root)} 이(가) 이미 있습니다. 다른 slug 를 쓰거나 기존 작업을 이어가세요.")
+    cursor_path(root)  # 심볼릭 링크면 폴더를 만들기 전에 거부
     scan = scan_workspace(root)
     profile = PROFILES[a.profile]
     st = State()
@@ -369,7 +389,7 @@ def cmd_init(a):
         st.set("analyze", "skipped", "greenfield")
     work.mkdir(parents=True)
     write_state(work, st)
-    (dlc_root(root) / "active").write_text(name + "\n", encoding="utf-8")
+    cursor_path(root).write_text(name + "\n", encoding="utf-8")
     log(work, "init", "created", f"profile={a.profile} workspace={scan['workspace']}")
     print(f"작업 폴더: {work.relative_to(root)}")
     for k in ("profile", "depth", "workspace", "languages", "build"):
@@ -420,13 +440,25 @@ def cmd_check(a):
     return 0
 
 
+def require_in_profile(st: State, stage: str):
+    if stage not in st.stages:
+        raise SystemExit(f"{stage} 은(는) 이 프로파일({st.meta['profile']})에 없는 스테이지입니다.")
+
+
+def require_is_next(root: Path, st: State, stage: str, verb: str):
+    require_in_profile(st, stage)
+    nxt = next_stage(root, st)
+    if nxt is None:
+        raise SystemExit(f"모든 스테이지가 끝났습니다. {verb}할 스테이지가 없습니다.")
+    if stage != nxt:
+        raise SystemExit(f"지금 {verb}할 스테이지는 {nxt} 입니다 ({stage} 아님, 현재 {st.stages[stage]}).")
+
+
 def cmd_start(a):
     root = Path(a.root).resolve()
     work = active_work(root)
     st = read_state(work)
-    nxt = next_stage(root, st)
-    if a.stage != nxt:
-        raise SystemExit(f"지금 시작할 스테이지는 {nxt} 입니다 ({a.stage} 아님).")
+    require_is_next(root, st, a.stage, "시작")
     st.set(a.stage, "active")
     write_state(work, st)
     log(work, a.stage, "start", a.note or "")
@@ -438,8 +470,9 @@ def cmd_approve(a):
     root = Path(a.root).resolve()
     work = active_work(root)
     st = read_state(work)
-    if st.stages.get(a.stage) not in ("active", "pending"):
-        raise SystemExit(f"{a.stage} 은(는) 승인할 수 있는 상태가 아닙니다 (현재 {st.stages.get(a.stage)}).")
+    require_is_next(root, st, a.stage, "승인")
+    if st.stages[a.stage] != "active":
+        raise SystemExit(f"{a.stage} 은(는) 아직 시작하지 않았습니다. 먼저 `dlc.py start {a.stage}` 를 실행하세요.")
     problems = check_stage(root, work, a.stage)
     if problems:
         sys.stderr.write(f"승인 거부 — check {a.stage} 실패 {len(problems)}건:\n" + "".join(f"- {p}\n" for p in problems))
@@ -457,12 +490,16 @@ def cmd_skip(a):
     root = Path(a.root).resolve()
     work = active_work(root)
     st = read_state(work)
-    if a.stage not in st.stages:
-        raise SystemExit(f"{a.stage} 은(는) 이 프로파일에 없는 스테이지입니다.")
-    st.set(a.stage, "skipped", a.reason)
+    require_in_profile(st, a.stage)
+    reason = a.reason.strip()
+    if not reason:
+        raise SystemExit("skip 사유(--reason)가 비어 있습니다. 왜 건너뛰는지 한 줄로 적으세요.")
+    if st.stages[a.stage] not in ("pending", "active"):
+        raise SystemExit(f"{a.stage} 은(는) 이미 {st.stages[a.stage]} 라서 건너뛸 수 없습니다.")
+    st.set(a.stage, "skipped", reason)
     write_state(work, st)
-    log(work, a.stage, "skip", a.reason)
-    print(f"{a.stage}: skipped ({a.reason})")
+    log(work, a.stage, "skip", reason)
+    print(f"{a.stage}: skipped ({reason})")
     return 0
 
 
