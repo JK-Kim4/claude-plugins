@@ -383,6 +383,36 @@ class Check(Base):
         self.assertIn("u2-api", out)
 
 
+class RootOption(Base):
+    """--root 는 서브명령 앞뒤 어디에 두어도 같은 프로젝트를 가리킨다 (C1)."""
+
+    def setUp(self):
+        super().setUp()
+        self.elsewhere = tempfile.TemporaryDirectory()
+        self.addCleanup(self.elsewhere.cleanup)
+        self.prev_cwd = os.getcwd()
+        os.chdir(self.elsewhere.name)
+        self.addCleanup(os.chdir, self.prev_cwd)
+
+    def test_root_before_subcommand_targets_that_root(self):
+        code, _, err = run("--root", str(self.root), "init", "--profile", "express", "--slug", "demo")
+        self.assertEqual(code, 0, err)
+        self.assertTrue((self.root / "docs" / "dlc").exists())
+        self.assertFalse((Path(self.elsewhere.name) / "docs").exists())
+
+    def test_root_after_subcommand_targets_that_root(self):
+        code, _, err = run("init", "--root", str(self.root), "--profile", "express", "--slug", "demo")
+        self.assertEqual(code, 0, err)
+        self.assertTrue((self.root / "docs" / "dlc").exists())
+        self.assertFalse((Path(self.elsewhere.name) / "docs").exists())
+
+    def test_root_before_subcommand_for_state_commands(self):
+        run("init", "--root", str(self.root), "--profile", "express", "--slug", "demo")
+        code, out, err = run("--root", str(self.root), "next")
+        self.assertEqual(code, 0, err)
+        self.assertIn("requirements", out)
+
+
 class Fingerprint(Base):
     def test_changes_when_source_added(self):
         self.make_brownfield()

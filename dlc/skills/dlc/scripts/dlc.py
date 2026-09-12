@@ -11,7 +11,11 @@
 책임은 셋뿐이다. (1) state.md 전이를 도맡아 에이전트가 손으로 고치지 않게 한다.
 (2) 다음 스테이지를 프로파일·워크스페이스 종류로 결정적으로 판정한다.
 (3) 승인 전에 산출물의 필수 절·질문 답변·ID 연속성을 기계적으로 검사한다.
+
+Python 3.9 이상. 표준 라이브러리만 쓴다.
 """
+from __future__ import annotations
+
 import argparse
 import hashlib
 import os
@@ -470,11 +474,13 @@ def cmd_note(a):
 
 
 def main(argv=None) -> int:
-    common = argparse.ArgumentParser(add_help=False)
-    common.add_argument("--root", default=".", help="프로젝트 루트 (기본: 현재 디렉터리)")
-    ap = argparse.ArgumentParser(prog="dlc.py", description=__doc__, parents=[common],
+    ap = argparse.ArgumentParser(prog="dlc.py", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--root", default=".", help="프로젝트 루트 (기본: 현재 디렉터리)")
     sub = ap.add_subparsers(dest="cmd", required=True)
+    # 서브명령 뒤에도 --root 를 허용한다. 기본값을 SUPPRESS 로 두어 앞에서 받은 값을 덮지 않는다.
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument("--root", default=argparse.SUPPRESS, help=argparse.SUPPRESS)
 
     p = sub.add_parser("init", help="작업 폴더와 state.md 생성", parents=[common])
     p.add_argument("--profile", required=True)
