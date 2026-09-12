@@ -143,6 +143,33 @@ G4 → G1 → G3 → G2 → G5. G4를 먼저 하는 이유는 3.9 호환과 `--r
 - 저장소 루트의 `.omc/`(oh-my-claudecode 세션 상태)가 추적되지 않은 채 남아 있다. `.gitignore`에 `.omc/`를 넣는 것은 이 이슈 범위 밖이라 손대지 않았다.
 - `log.md`의 `note` 텍스트에 줄바꿈이 들어가면 한 줄 형식이 깨진다. 읽는 코드가 없어 결함으로 세지 않았다.
 
-## 조치 결과
+## 조치 결과 (2026-09-13)
 
-(3단계 완료 후 목표별 커밋 해시를 기록한다.)
+| 목표 | 커밋 | 해소한 지적 | 추가 테스트 |
+|---|---|---|---|
+| 통합 분석 문서 | `cc43937` | — | — |
+| G4 이식성·환경 | `341b878` | U4, U12, U13 | `RootOption` 3건 |
+| G1 상태 전이 강제 | `464919f` | U1, U10, U11, U16, U17, U18 | `TransitionGuards` 12건 |
+| G3 캐시·입력 처리 | `e495f54` | U7, U8, U15 | `Fingerprint`+1, `AnalyzeRerun` 3건, `Description` 2건 |
+| G2 산출물 계약·검사 | `40ad216` | U2, U5, U6, U9, U14, U19, M1, M2 | `Contracts` 9건, `ExpressContract` 2건 |
+| G5 문서·코드 일치 | `573910e` | U3, U20, U21, U22, U23 | `Next`+1 |
+
+- 테스트: 36건 → 69건. Python 3.9.6 / 3.12.13 / 3.14.6 모두 `--help` exit 0, unittest OK.
+- `claude plugin validate ./dlc` 통과. `npx skills add <repo> --skill dlc -y` 임시 디렉터리 설치 확인(skills 1.5.26).
+- 재현 스크립트 26개 시나리오 재실행: 1단계에서 통과했던 잘못된 입력이 전부 거부·검출됨.
+- Fable 재리뷰(craft:code-reviewer 페르소나, 읽기 전용, 341b878~573910e 대상): 통합표 25건 전부 "해소". 새 지적 P1 0건 / P2 1건 / P3 5건 / P4 2건. 회귀 축(가드가 정상 흐름을 막는지, ID 정규식, full 프로파일 `check plan`, 포함 관계 검사) 이상 없음.
+
+### 재리뷰 지적과 조치 — 커밋 `8b1e79c`
+
+| # | 심각도 | 내용 | 조치 |
+|---|---|---|---|
+| N1 | P2 | oh-my-claudecode 세션 훅이 스킬 디렉터리 안에 만든 `.omc/` 상태 파일이 `341b878`에 섞여 커밋됨. 플러그인·`npx skills add` 배포물에 딸려 나간다 | 추적 해제 + `.gitignore`에 `.omc/`. 5절에서 범위 밖으로 둔 루트 `.omc/`도 같은 규칙으로 무시된다 |
+| N2 | P3 | 유닛이 하위 ID(`FR1.1`)만 맡으면 상위 `FR1`이 "어느 유닛도 맡지 않음"으로 거짓 실패 | 하위 ID를 맡으면 상위도 덮은 것으로 계산 |
+| N3 | P3 | 끊어진 심링크 `dead.py`가 있으면 지문 계산에서 FileNotFoundError traceback | `source_files`가 `is_file()`이 아닌 항목 제외 |
+| N4 | P3 | state-format은 "init이 기록한 지문"이라 하지만 check는 현재 소스 지문과 비교. 현재 값을 얻을 CLI가 없음 | 불일치 메시지에 기대 값 출력, 문서 정정 |
+| N5 | P3 | full에서 design을 skip하면 plan도 build도 units.md를 안 만드는 막다른 길 | design이 없거나 skipped면 plan이 맡는다 |
+| N6 | P3 | `## Q1 a`(점 없음)는 질문으로 안 세어 답변 없이 통과 | 번호 뒤 점 없는 제목을 형식 위반으로 보고 |
+| N7 | P4 | 행 끝 `\|` 없는 GFM 표 행은 유닛으로 안 읽힘 | 정규식에서 끝 `\|` 선택 |
+| N8 | P4 | 수동 체크리스트가 참조 검사 대상을 "설계·계획"만, grounding이 `NFR<n>.<m>` 누락 | 문서 정정 |
+
+- 최종: 테스트 75건, Python 3.9.6 / 3.12.13 / 3.14.6 OK, `claude plugin validate ./dlc` 통과, `git ls-files dlc`에 `.omc` 0건.
