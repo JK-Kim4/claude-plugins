@@ -528,6 +528,207 @@ class RootOption(Base):
         self.assertIn("requirements", out)
 
 
+# --- 산출물 계약 (G2) --------------------------------------------------------
+
+UNITS_OK = """# 유닛
+
+## 유닛
+| unit | kind | depends_on | covers |
+|---|---|---|---|
+| u1-api | service | | FR1, FR2, NFR1 |
+
+## 계약
+| endpoint | method | path | owner |
+|---|---|---|---|
+| get-stock | GET | /stock | u1-api |
+
+## 가정과 열린 질문
+None.
+"""
+
+PLAN_OK = """## 유닛 순서
+1. u1-api — FR1.1, FR2
+
+## Seam과 테스트 예산
+없음
+
+## 완료 정의
+테스트 GREEN
+
+## 가정과 열린 질문
+None.
+"""
+
+BUILD_OK = """# u1-api
+
+## 변경 파일
+- src/a.kt
+
+## 추적성
+| id | target |
+|---|---|
+| FR1.1 | src/a.kt |
+
+## 테스트
+통과
+
+## 가정과 열린 질문
+None.
+"""
+
+VERIFY_OK = """## 테스트 결과
+전부 통과
+
+## 추적성
+FR1, FR2, NFR1 확인
+
+## 리뷰 발견
+없음
+
+## 판정
+승인
+
+## 가정과 열린 질문
+None.
+"""
+
+
+class Contracts(Base):
+    def setUp(self):
+        super().setUp()
+        self.init(profile="full")
+        self.w = self.work()
+        self.write(self.path("requirements.md"), REQ_OK)
+
+    def path(self, name):
+        return f"docs/dlc/{self.w.name}/{name}"
+
+    def check(self, stage):
+        return run("check", stage, "--root", str(self.root))
+
+    def test_contract_table_in_units_md_is_not_a_unit(self):
+        self.write(self.path("units.md"), UNITS_OK)
+        self.assertEqual([u["unit"] for u in D.units_table(self.w)], ["u1-api"])
+        self.write(self.path("build/u1-api.md"), BUILD_OK)
+        code, out, _ = self.check("build")
+        self.assertEqual(code, 0, out)
+
+    def test_fr_mentioned_outside_definition_sections_is_neither_defined_nor_a_gap(self):
+        self.write(self.path("requirements.md"), REQ_OK.replace("- 발주 자동화", "- 발주 자동화 (FR7 후보였으나 제외)"))
+        self.write(self.path("requirements-questions.md"), QUESTIONS_ANSWERED)
+        code, out, _ = self.check("requirements")
+        self.assertEqual(code, 0, out)
+        self.write(self.path("plan.md"), PLAN_OK.replace("FR2", "FR7"))
+        self.write(self.path("plan-questions.md"), QUESTIONS_ANSWERED)
+        code, out, _ = self.check("plan")
+        self.assertNotEqual(code, 0)
+        self.assertIn("FR7", out)
+
+    def test_unknown_sub_id_reference_reported(self):
+        self.write(self.path("plan-questions.md"), QUESTIONS_ANSWERED)
+        for bad in ("FR1.9", "FR999.1"):
+            self.write(self.path("plan.md"), PLAN_OK.replace("FR1.1", bad))
+            code, out, _ = self.check("plan")
+            self.assertNotEqual(code, 0, bad)
+            self.assertIn(bad, out)
+        self.write(self.path("plan.md"), PLAN_OK)
+        code, out, _ = self.check("plan")
+        self.assertEqual(code, 0, out)
+
+    def test_build_unit_file_references_are_checked(self):
+        self.write(self.path("units.md"), UNITS_OK)
+        self.write(self.path("build/u1-api.md"), BUILD_OK.replace("FR1.1", "FR999"))
+        code, out, _ = self.check("build")
+        self.assertNotEqual(code, 0)
+        self.assertIn("FR999", out)
+        self.assertIn("u1-api.md", out)
+
+    def test_verify_references_are_checked(self):
+        self.write(self.path("verify.md"), VERIFY_OK)
+        code, out, _ = self.check("verify")
+        self.assertEqual(code, 0, out)
+        self.write(self.path("verify.md"), VERIFY_OK.replace("NFR1", "NFR9"))
+        code, out, _ = self.check("verify")
+        self.assertNotEqual(code, 0)
+        self.assertIn("NFR9", out)
+
+    def test_analyze_requires_current_fingerprint_in_codebase_md(self):
+        self.make_brownfield()
+        body = "## 개요\nx\n\n## 구조\nx\n\n## 기술 스택\nx\n\n## 관례와 제약\nx\n\n## 가정과 열린 질문\nNone.\n"
+        self.write("docs/dlc/codebase.md", body)
+        code, out, _ = self.check("analyze")
+        self.assertNotEqual(code, 0)
+        self.assertIn("fingerprint", out)
+        self.write("docs/dlc/codebase.md", "<!-- fingerprint: deadbeef -->\n" + body)
+        code, out, _ = self.check("analyze")
+        self.assertNotEqual(code, 0)
+        self.write("docs/dlc/codebase.md", f"<!-- fingerprint: {D.workspace_fingerprint(self.root)} -->\n" + body)
+        code, out, _ = self.check("analyze")
+        self.assertEqual(code, 0, out)
+
+    def test_question_without_answer_line_reported(self):
+        self.write(self.path("requirements-questions.md"),
+                   "## Q1. 주체는?\nA. 사내\nX. Other (please specify)\n\n"
+                   "## Consolidated Summary Confirmation\n- Looks correct\n\n[Answer]: Looks correct\n")
+        code, out, _ = self.check("requirements")
+        self.assertNotEqual(code, 0)
+        self.assertIn("Q1", out)
+
+    def test_question_numbers_must_be_continuous(self):
+        self.write(self.path("requirements-questions.md"),
+                   "## Q1. a\nA. x\n\n[Answer]: A\n\n## Q3. b\nA. x\n\n[Answer]: A\n\n"
+                   "## Consolidated Summary Confirmation\n- Looks correct\n\n[Answer]: Looks correct\n")
+        code, out, _ = self.check("requirements")
+        self.assertNotEqual(code, 0)
+        self.assertIn("Q2", out)
+
+    def test_empty_summary_answer_is_reported_once(self):
+        self.write(self.path("requirements-questions.md"), QUESTIONS_ANSWERED.replace("[Answer]: Looks correct", "[Answer]:"))
+        code, out, _ = self.check("requirements")
+        self.assertNotEqual(code, 0)
+        self.assertEqual(out.count("Consolidated Summary Confirmation") + out.count("요약 확인"), 1, out)
+
+
+class ExpressContract(Base):
+    """design 이 없는 프로파일에서는 plan 이 units.md 를 만든다 (C2, 결정 A)."""
+
+    def setUp(self):
+        super().setUp()
+        self.init(profile="express")
+        self.w = self.work()
+
+    def path(self, name):
+        return f"docs/dlc/{self.w.name}/{name}"
+
+    def test_check_plan_requires_units_md_when_profile_has_no_design(self):
+        self.write(self.path("requirements.md"), REQ_OK)
+        self.write(self.path("plan.md"), PLAN_OK)
+        self.write(self.path("plan-questions.md"), QUESTIONS_ANSWERED)
+        code, out, _ = run("check", "plan", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("units.md", out)
+        self.write(self.path("units.md"), UNITS_OK.replace("FR1, FR2, NFR1", "FR1, NFR1"))
+        code, out, _ = run("check", "plan", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("FR2", out)
+
+    def test_express_runs_to_completion(self):
+        def approve(stage, *files):
+            for name, text in files:
+                self.write(self.path(name), text)
+            code, _, err = run("start", stage, "--root", str(self.root))
+            self.assertEqual(code, 0, err)
+            code, _, err = run("approve", stage, "--root", str(self.root))
+            self.assertEqual(code, 0, err)
+
+        approve("requirements", ("requirements.md", REQ_OK), ("requirements-questions.md", QUESTIONS_ANSWERED))
+        approve("plan", ("plan.md", PLAN_OK), ("units.md", UNITS_OK), ("plan-questions.md", QUESTIONS_ANSWERED))
+        approve("build", ("build/u1-api.md", BUILD_OK))
+        approve("verify", ("verify.md", VERIFY_OK))
+        _, out, _ = run("next", "--root", str(self.root))
+        self.assertEqual(out.strip(), "done")
+
+
 class Fingerprint(Base):
     def test_changes_when_source_added(self):
         self.make_brownfield()

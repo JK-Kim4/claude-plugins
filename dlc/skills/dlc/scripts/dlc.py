@@ -237,8 +237,12 @@ def next_stage(root: Path, st: State):
 
 # --- 검사 ----------------------------------------------------------------------
 
-ID_RE = {"FR": re.compile(r"\bFR(\d+)\b(?!\.\d)"), "NFR": re.compile(r"\bNFR(\d+)\b(?!\.\d)")}
-SUB_ID_RE = {"FR": re.compile(r"\bFR(\d+)\.\d+\b"), "NFR": re.compile(r"\bNFR(\d+)\.\d+\b")}
+# FR1 / FR1.2 / NFR3 / NFR3.1 — (kind, top, sub|None)
+ANY_ID_RE = re.compile(r"\b(NFR|FR)(\d+)(?:\.(\d+))?\b")
+DEFINITION_SECTIONS = ("## 기능 요구사항", "## 비기능 요구사항")
+REFERENCE_STAGES = {"design", "plan", "build", "verify"}
+UNIT_ROW_RE = re.compile(r"^\|\s*(u\d+-[a-z0-9][a-z0-9-]*)\s*\|([^|]*)\|([^|]*)\|([^|]*)\|")
+FINGERPRINT_RE = re.compile(r"<!-- fingerprint: (\w+) -->")
 
 
 def h2_sections(text: str):
@@ -271,58 +275,90 @@ def check_sections(path: Path, required, problems):
     return text
 
 
+def question_blocks(text: str):
+    """(제목, 본문) 목록. 제목은 '## ' 을 뗀 것."""
+    blocks, title, body = [], None, []
+    for ln in text.splitlines():
+        if ln.startswith("## "):
+            if title is not None:
+                blocks.append((title, body))
+            title, body = ln[3:].strip(), []
+        else:
+            body.append(ln)
+    if title is not None:
+        blocks.append((title, body))
+    return blocks
+
+
+def answer_of(body):
+    """블록의 [Answer]: 값. 행이 없으면 None, 비어 있으면 ''."""
+    for ln in body:
+        m = re.match(r"^\[Answer\]:\s*(.*)$", ln)
+        if m:
+            return m.group(1).strip()
+    return None
+
+
 def check_questions(path: Path, problems):
     if not path.exists():
         return
-    text = path.read_text(encoding="utf-8")
-    current = None
-    for ln in text.splitlines():
-        m = re.match(r"^## (Q\d+)\.", ln)
+    numbers, summary = [], None
+    for title, body in question_blocks(path.read_text(encoding="utf-8")):
+        m = re.match(r"^(Q(\d+))\.", title)
         if m:
-            current = m.group(1)
-        elif ln.startswith("## "):
-            current = ln[3:].strip()
-        if re.match(r"^\[Answer\]:\s*$", ln):
-            problems.append(f"{path.name}: {current or '?'} 답변이 비어 있습니다")
-    m = re.search(r"## Consolidated Summary Confirmation.*?\[Answer\]:\s*(.*)", text, re.S)
-    if not m or m.group(1).strip().splitlines()[0:1] != ["Looks correct"]:
+            numbers.append(int(m.group(2)))
+            answer = answer_of(body)
+            if answer is None:
+                problems.append(f"{path.name}: {m.group(1)} 에 [Answer]: 행이 없습니다")
+            elif not answer:
+                problems.append(f"{path.name}: {m.group(1)} 답변이 비어 있습니다")
+        elif title == "Consolidated Summary Confirmation":
+            summary = answer_of(body)
+    missing = sorted(set(range(1, max(numbers, default=0) + 1)) - set(numbers))
+    if missing:
+        problems.append(f"{path.name}: 질문 번호가 비었습니다 — " + ", ".join(f"Q{n}" for n in missing))
+    if summary != "Looks correct":
         problems.append(f"{path.name}: 요약 확인 답변이 정확히 'Looks correct' 여야 합니다")
 
 
-def ids_in(text: str, kind: str):
-    return {int(n) for n in ID_RE[kind].findall(text)}
+def ids_in(text: str):
+    """텍스트에 나오는 모든 ID 문자열 — 'FR1', 'FR1.2', 'NFR3'."""
+    return {f"{k}{n}" + (f".{sub}" if sub else "") for k, n, sub in ANY_ID_RE.findall(text)}
+
+
+def top_numbers(ids, kind: str):
+    return {int(i[len(kind):]) for i in ids if i.startswith(kind) and "." not in i and i[len(kind):].isdigit()}
+
+
+def definition_text(text: str) -> str:
+    return "\n".join(section_body(text, h) for h in DEFINITION_SECTIONS)
 
 
 def check_id_continuity(text: str, name: str, problems):
+    ids = ids_in(definition_text(text))
     for kind in ("FR", "NFR"):
-        nums = ids_in(text, kind)
-        parents = {int(n) for n in SUB_ID_RE[kind].findall(text)}
+        nums = top_numbers(ids, kind)
+        parents = {int(i[len(kind):].split(".")[0]) for i in ids if i.startswith(kind) and "." in i}
         orphans = sorted(parents - nums)
         if orphans:
             problems.append(f"{name}: 하위 ID 의 상위 {kind} 가 없습니다 — " + ", ".join(f"{kind}{n}" for n in orphans))
-        if not nums:
-            continue
-        missing = sorted(set(range(1, max(nums) + 1)) - nums)
+        missing = sorted(set(range(1, max(nums, default=0) + 1)) - nums)
         if missing:
             problems.append(f"{name}: {kind} 번호가 비었습니다 — " + ", ".join(f"{kind}{n}" for n in missing))
 
 
 def requirement_ids(work: Path):
+    """requirements.md 의 정의 절에서 뽑은 ID 집합(하위 ID 포함). 파일이 없으면 None."""
     p = work / "requirements.md"
     if not p.exists():
         return None
-    text = p.read_text(encoding="utf-8")
-    return {f"FR{n}" for n in ids_in(text, "FR")} | {f"NFR{n}" for n in ids_in(text, "NFR")}
-
-
-def top_ids(text: str):
-    return {f"{k}{n}" for k in ID_RE for n in ids_in(text, k)}
+    return ids_in(definition_text(p.read_text(encoding="utf-8")))
 
 
 def check_references(text: str, name: str, known, problems):
     if known is None:
         return
-    unknown = sorted(top_ids(text) - known)
+    unknown = sorted(ids_in(text) - known)
     if unknown:
         problems.append(f"{name}: requirements.md 에 없는 ID 를 참조합니다 — " + ", ".join(unknown))
 
@@ -332,40 +368,67 @@ def units_table(work: Path):
     if not p.exists():
         return []
     rows = []
-    for ln in p.read_text(encoding="utf-8").splitlines():
-        m = re.match(r"^\|\s*([a-z0-9][a-z0-9-]*)\s*\|([^|]*)\|([^|]*)\|([^|]*)\|", ln)
-        if m and m.group(1) not in ("unit", "---"):
+    for ln in section_body(p.read_text(encoding="utf-8"), "## 유닛").splitlines():
+        m = UNIT_ROW_RE.match(ln)
+        if m:
             rows.append({"unit": m.group(1), "kind": m.group(2).strip(),
                          "depends_on": m.group(3).strip(), "covers": m.group(4).strip()})
     return rows
 
 
+def check_units_coverage(work: Path, known, problems):
+    if known is None:
+        return
+    covered = set()
+    for u in units_table(work):
+        covered |= ids_in(u["covers"])
+    gaps = sorted(i for i in known - covered if "." not in i)
+    if gaps:
+        problems.append("units.md: 어느 유닛도 맡지 않은 요구사항 — " + ", ".join(gaps))
+
+
+def check_analyze_fingerprint(root: Path, text: str, problems):
+    m = FINGERPRINT_RE.search(text)
+    if not m:
+        problems.append("codebase.md: `<!-- fingerprint: <값> -->` 주석이 없습니다 (없으면 다음 작업마다 analyze 가 다시 뜹니다)")
+    elif m.group(1) != workspace_fingerprint(root):
+        problems.append("codebase.md: fingerprint 가 현재 소스와 다릅니다. 분석을 갱신하고 값을 다시 적으세요")
+
+
+def check_build(work: Path, known, problems):
+    units = units_table(work)
+    if not units:
+        problems.append("units.md: 유닛 표를 읽을 수 없습니다 (## 유닛 절의 `| u<n>-<slug> | kind | depends_on | covers |` 행)")
+    for u in units:
+        path = work / "build" / f"{u['unit']}.md"
+        text = check_sections(path, BUILD_UNIT_SECTIONS, problems)
+        if text is not None:
+            check_references(text, path.name, known, problems)
+
+
 def check_stage(root: Path, work: Path, stage: str):
     problems = []
     known = requirement_ids(work)
+    artifacts = list(ARTIFACTS.get(stage, []))
     if stage == "build":
-        units = units_table(work)
-        if not units:
-            problems.append("units.md: 유닛 표를 읽을 수 없습니다 (dlc-design 산출물)")
-        for u in units:
-            check_sections(work / "build" / f"{u['unit']}.md", BUILD_UNIT_SECTIONS, problems)
+        check_build(work, known, problems)
         return problems
-    for rel, required in ARTIFACTS.get(stage, []):
+    plan_owns_units = stage == "plan" and "design" not in read_state(work).stages
+    if plan_owns_units:
+        artifacts += [a for a in ARTIFACTS["design"] if a[0] == "units.md"]
+    for rel, required in artifacts:
         path = (dlc_root(root) / rel[3:]) if rel.startswith("../") else (work / rel)
         text = check_sections(path, required, problems)
         if text is None:
             continue
         if stage == "requirements":
             check_id_continuity(text, path.name, problems)
-        elif stage in ("design", "plan"):
+        elif stage == "analyze":
+            check_analyze_fingerprint(root, text, problems)
+        elif stage in REFERENCE_STAGES:
             check_references(text, path.name, known, problems)
-    if stage == "design" and known is not None:
-        covered = set()
-        for u in units_table(work):
-            covered |= top_ids(u["covers"])
-        gaps = sorted(known - covered)
-        if gaps:
-            problems.append("units.md: 어느 유닛도 맡지 않은 요구사항 — " + ", ".join(gaps))
+    if stage == "design" or plan_owns_units:
+        check_units_coverage(work, known, problems)
     if stage in QUESTION_STAGES:
         check_questions(work / f"{stage}-questions.md", problems)
     return problems

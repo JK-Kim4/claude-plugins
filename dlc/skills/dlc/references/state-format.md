@@ -15,7 +15,7 @@ docs/dlc/
     requirements.md
     requirements-questions.md
     design.md  decisions.md  units.md  design-questions.md
-    plan.md  plan-questions.md
+    plan.md  plan-questions.md   (design 이 없는 프로파일에서는 units.md 도 plan 이 만든다)
     build/<unit>.md           유닛마다 하나
     verify.md
 ```
@@ -79,9 +79,10 @@ docs/dlc/
 | practices.md | 작업 방식, 테스트, 배포, 코드 스타일, 가정과 열린 질문 |
 | requirements.md | 의도 요약, 기능 요구사항, 비기능 요구사항, 제약, 범위 밖, 가정과 열린 질문 |
 | design.md | 컴포넌트, 엔티티 소유권, 상호작용, 가정과 열린 질문 |
+| decisions.md | (필수 절 없음. 존재만 검사) |
 | units.md | 유닛, 계약, 가정과 열린 질문 |
 | plan.md | 유닛 순서, Seam과 테스트 예산, 완료 정의, 가정과 열린 질문 |
 | build/<unit>.md | 변경 파일, 추적성, 테스트, 가정과 열린 질문 |
 | verify.md | 테스트 결과, 추적성, 리뷰 발견, 판정, 가정과 열린 질문 |
 
-`units.md`의 유닛 표는 `| unit | kind | depends_on | covers |` 네 열이며, `covers`에 적힌 FR/NFR을 모아 requirements.md의 모든 ID를 덮어야 한다. `codebase.md`는 첫 줄 근처에 `<!-- fingerprint: <값> -->`을 둔다. 값은 `dlc.py init`이 state.md에 기록한 fingerprint다.
+`units.md`의 유닛 표는 `## 유닛` 절 안의 `| unit | kind | depends_on | covers |` 네 열 표이며, `unit`이 `u<n>-<slug>` 형식인 행만 유닛으로 읽는다(다른 절의 표는 무시). `covers`에 적힌 FR/NFR을 모아 requirements.md의 모든 최상위 ID를 덮어야 한다. design이 프로파일에 있으면 design이, 없으면 plan이 이 파일을 만들고 검사받는다. `codebase.md`는 첫 줄 근처에 `<!-- fingerprint: <값> -->`을 둔다. 값은 `dlc.py init`이 state.md에 기록한 fingerprint다.

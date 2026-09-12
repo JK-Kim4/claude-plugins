@@ -73,6 +73,8 @@ AI-DLC(awslabs/aidlc-workflows)의 방법론을 에이전트 종속 없이 쓸 �
 
 depth는 스테이지당 질문 수(minimal 2~4, standard 5~8)와 산출물 상세도를 정한다.
 
+**design이 없는 프로파일의 유닛 표.** express·bugfix는 design을 건너뛰지만 build는 유닛 단위로 진행하므로 유닛 표가 필요하다. 이 경우 **plan 스테이지가 `plan.md`와 함께 `units.md`를 만든다**(1라운드 리뷰 반영, 사용자 결정 2026-09-13). `dlc.py check plan`은 프로파일에 design이 없을 때만 `units.md`의 필수 절과 요구사항 커버리지를 함께 검사한다. 유닛 표의 형식과 build 검사는 프로파일과 무관하게 하나다.
+
 ## 5. 공유 스파인
 
 스테이지 스킬과 라우터가 함께 읽는 것은 라우터 스킬 `dlc/` 안에 둔다. 다른 스킬은 `../dlc/references/...`로 가리킨다. Claude 플러그인(`<plugin>/skills/<name>/`)과 `npx skills add`(`~/.agents/skills/<name>/`) 둘 다 스킬 디렉터리가 형제로 놓이므로 상대 경로가 같다. 이 가정은 1라운드에서 실제 설치로 검증한다.

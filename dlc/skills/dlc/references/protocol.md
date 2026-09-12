@@ -47,7 +47,7 @@ X. Other (please specify)
 [Answer]:
 ```
 
-- 제목은 `## Q<n>.`으로 시작하고 번호는 1부터 연속이다.
+- 제목은 `## Q<n>.`으로 시작하고 번호는 1부터 연속이다. 질문마다 `[Answer]:` 행이 하나 있어야 하며 `dlc.py check`가 행의 존재·답변 값·번호 연속을 본다.
 - 질문은 스스로 설명해야 한다. "FR3이 맞나요?"처럼 식별자만 던지지 않는다. 이유가 자명하지 않으면 한 줄 맥락을 붙인다.
 - 선택지는 A~E, 마지막은 항상 `X. Other (please specify)`. 답은 `[Answer]: B` 또는 `[Answer]: X - <자유 서술>`.
 - 요약 확인 항목만 글자 접두 없이 `Looks correct` / `Request changes`를 쓴다. `[Answer]: Looks correct`가 정확한 문자열이어야 한다.
