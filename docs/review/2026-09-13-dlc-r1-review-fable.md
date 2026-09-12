@@ -1,4 +1,6 @@
-# dlc 플러그인 1라운드 리뷰 (2026-09-13)
+# [Fable 리뷰] dlc 플러그인 1라운드 (2026-09-13)
+
+> 리뷰 주체: Claude Fable 5.1 서브에이전트(craft:code-reviewer 페르소나). 사람이 아닌 모델 리뷰이며, 채택·기각 판단은 아래 "조치 계획"에서 오케스트레이터가 내렸다.
 
 - 대상: 브랜치 `feature/dlc-plugin`, 커밋 `f0852a6` — 설계 문서, 라우터 SKILL.md, references 3종, dlc.py, test_dlc.py, 메타 파일 4종
 - 리뷰어: craft:code-reviewer 페르소나, 모델 Claude Fable 5.1 (읽기 전용 서브에이전트)
