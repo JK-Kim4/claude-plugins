@@ -130,9 +130,11 @@ Codex의 `agents/openai.yaml`은 Agent Skills 표준 밖의 확장이지만 다�
 | 라운드 | 내용 | 검증 |
 |---|---|---|
 | R1 | 플러그인 골격, 마켓플레이스 등록, 라우터 스킬, 공유 참조 3개, `dlc.py` + 테스트 | unittest GREEN, `claude plugin validate`, `npx skills add` 로컬 설치로 형제 경로 가정 확인 |
-| R2 | 스테이지 스킬 5개: init, analyze, intent, practices, requirements | 빈 디렉터리에서 Claude로 express 프로파일 1회 실행. 기존 코드가 있는 디렉터리에서 analyze 1회 실행 |
+| R2 | 스테이지 스킬 5개: init, analyze, intent, practices, requirements | 빈 디렉터리에서 Claude로 express 프로파일 1회 실행 — 수동 대신 `claude plugin eval` 케이스 1건(`dlc/evals/`)으로 수행해 기록을 남기고, 명시 호출 스킬이 eval 프롬프트에서 발동되는지 확정. 기존 코드가 있는 디렉터리에서 analyze 1회 실행 |
 | R3 | 스테이지 스킬 4개: design, plan, build, verify | 같은 실행을 verify까지 완주 |
-| R4 | Codex `openai.yaml`, README, evals, Codex에서 1회 실행 | Codex에서 `$dlc-requirements` 동작 확인 |
+| R4 | Codex `openai.yaml`, README, evals, Codex에서 1회 실행 | Codex에서 `$dlc-requirements` 동작 확인. evals는 `claude plugin eval` suite(라우터 + 스테이지 스킬)로 만들고, 발동 채점 방식은 R2 케이스 결과를 따른다 |
+
+**evals 시점(2026-09-13 결정).** 평가 suite는 R4에서 만든다. R1 시점에 만들면 스테이지 스킬이 없어 라우터의 "멈추고 안내" 분기만 검사할 수 있고, R2·R3에서 프로즈가 바뀌면 grader를 다시 써야 한다. 결정적인 부분(`dlc.py`)은 unittest가 라운드마다 회귀를 잡는다. 케이스 하나가 기본 3회 실행(ablation 시 6회)이라 라운드마다 suite를 돌리면 비용이 곱해진다. 단, 라우터·스테이지 스킬이 `disable-model-invocation: true`인데 eval 프롬프트에서 발동되는지는 공식 문서에 없으므로, R2의 express 1회 실행을 eval 케이스 1건으로 수행해 이 미지수를 먼저 푼다. 저장소의 기존 `evals.json`(skill-creator 형식)과의 병행 여부는 R4에서 정한다.
 
 ## 9. 열린 질문
 
