@@ -53,3 +53,5 @@ P1 수정(grader 앵커링 + §8 정정 + 재실행)과 P2 셋을 반영하면 �
 
 - **P1(1번) 반영안 검증만 해 둠.** 남아 있는 1차 trace(`/private/tmp/e-aCSA9s/out/trace.jsonl`)에서 확인한 사실: Write 도구의 `tool_use` 레코드와 그 `tool_result` 레코드(`tool_use_result`가 입력을 되돌려 줌) 두 곳에만 `"<경로>/requirements.md","content":"` 형태의 앵커가 있고, Read 결과에는 없다. 따라서 grader 패턴을 `requirements\.md","content":"` 뒤에 JSON 문자열 안에서만 움직이는 `(?:[^"\\]|\\.)*?` 로 이어 필수 절 여섯 개·`### FR1\.`을 요구하고, 요약 확인은 `requirements-questions\.md","content":"` 뒤에 `\[Answer\]: Looks correct`를 요구하면 된다. 원 trace에서는 매치(양성), Write 호출·결과 레코드를 모두 제거한 trace에서는 불매치(진짜 음성)를 확인했다. 반영 시 case.yaml의 grader 3개를 이 패턴으로 바꾸고, 설계 §8 "파일 내용 채점" 행을 "trace에는 Read 결과도 남으므로 Write 입력 앵커가 필요하다"로 정정한 뒤 1회 재실행해 11/11을 다시 받는다.
 - P2·P3는 검증하지 않았다. 지적표의 권장 조치가 반영안이다. 14번(R3 대비 테스트 파서 범위)은 R3 착수 시 함께 본다.
+
+> 통합 분석과 재현 결과·반영안: [2026-09-13-dlc-r2-review-consolidated.md](2026-09-13-dlc-r2-review-consolidated.md). 이 문서의 지적 번호는 그곳의 U 번호로 대응된다.
