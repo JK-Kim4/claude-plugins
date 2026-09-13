@@ -9,3 +9,6 @@ __pycache__/
 
 # oh-my-claudecode 세션 상태 (훅이 cwd 에 만든다)
 .omc/
+
+# claude plugin eval 실행 결과 (러너가 만든다. 리포트는 이슈 코멘트로)
+*/evals/results/

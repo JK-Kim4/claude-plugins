@@ -19,7 +19,7 @@ AI-DLC(awslabs/aidlc-workflows) 방법론을 **에이전트 종속 없이** 쓰�
 | `dlc-build` | 유닛별 구현, 요구사항→파일 추적 | 코드, `build/<unit>.md` |
 | `dlc-verify` | 전체 테스트, 추적성 검사, 리뷰 발견, 판정 | `verify.md` |
 
-스테이지 스킬은 2·3라운드에서 추가된다. 현재 저장소에는 라우터 `dlc`와 공유 스파인만 있다.
+현재 저장소에는 라우터 `dlc`, 공유 스파인, 스테이지 스킬 5개(`dlc-init`·`dlc-analyze`·`dlc-intent`·`dlc-practices`·`dlc-requirements`)가 있다. `dlc-design`·`dlc-plan`·`dlc-build`·`dlc-verify`는 3라운드에서 추가된다.
 
 프로파일: `full`(9단계 전부, 질문 5~8개), `express`(init·analyze·requirements·plan·build·verify, 질문 2~4개), `bugfix`(express와 같은 단계, 결함 재현·회귀 중심).
 
@@ -44,10 +44,10 @@ AI-DLC(awslabs/aidlc-workflows) 방법론을 **에이전트 종속 없이** 쓰�
 ### Codex CLI, Gemini CLI, Cursor
 
 ```
-npx skills add JK-Kim4/claude-plugins --skill dlc
+npx skills add JK-Kim4/claude-plugins --skill dlc --skill dlc-init --skill dlc-analyze --skill dlc-intent --skill dlc-practices --skill dlc-requirements
 ```
 
-`--skill`은 정확한 스킬 이름만 받는다(와일드카드 불가). 스테이지 스킬이 추가되는 2·3라운드부터는 `--skill dlc --skill dlc-init ...`처럼 이름을 전부 나열한다. 스킬이 `.agents/skills/<name>/`에 형제 디렉터리로 복사된다. 스테이지 스킬은 `../dlc/scripts/dlc.py`로 라우터 스킬의 스크립트를 찾으므로 **`dlc` 라우터는 항상 함께 설치**한다.
+`--skill`은 정확한 스킬 이름만 받는다(와일드카드 불가). 3라운드에서 스킬이 추가되면 이름을 더 나열한다. 스킬이 `.agents/skills/<name>/`에 형제 디렉터리로 복사된다. 스테이지 스킬은 `../dlc/scripts/dlc.py`로 라우터 스킬의 스크립트를 찾으므로 **`dlc` 라우터는 항상 함께 설치**한다.
 
 호출: Codex `$dlc-requirements`, Gemini CLI `/dlc-requirements`. Codex는 각 스킬의 `agents/openai.yaml`이 자동 발동을 막는다. Gemini CLI는 그 설정이 없어 description을 사람용 한 줄로만 둔다.
 

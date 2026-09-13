@@ -864,3 +864,66 @@ class Description(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# --- 스테이지 스킬 계약 (R2) --------------------------------------------------
+
+SKILLS_DIR = Path(HERE).parent.parent  # dlc/skills/
+
+
+def skeleton_h2s(skill_md: str, artifact: str):
+    """SKILL.md 의 '### <artifact>' 소절 다음 첫 fenced block 안의 H2 목록. 소절이 없으면 None."""
+    lines = skill_md.splitlines()
+    try:
+        start = lines.index(f"### {artifact}")
+    except ValueError:
+        return None
+    h2s, in_fence = [], False
+    for ln in lines[start + 1:]:
+        if ln.startswith("```"):
+            if in_fence:
+                return h2s
+            in_fence = True
+            continue
+        if in_fence and ln.startswith("## "):
+            h2s.append(ln.strip())
+    return None
+
+
+class StageSkillContracts(Base):
+    def test_skill_skeleton_h2_matches_artifacts(self):
+        """스킬 본문의 산출물 골격 H2 가 dlc.py ARTIFACTS 와 글자 단위로 같다 (순서 포함)."""
+        checked = 0
+        for stage, artifacts in D.ARTIFACTS.items():
+            skill = SKILLS_DIR / f"dlc-{stage}" / "SKILL.md"
+            if not skill.exists():
+                continue  # 아직 없는 스테이지 스킬 (R3)
+            text = skill.read_text(encoding="utf-8")
+            for rel, required in artifacts:
+                name = rel.split("/")[-1]
+                got = skeleton_h2s(text, name)
+                self.assertIsNotNone(got, f"dlc-{stage}/SKILL.md 에 '### {name}' 골격 블록이 없습니다")
+                self.assertEqual(got, required, f"dlc-{stage}/SKILL.md 의 {name} 골격 H2 가 ARTIFACTS 와 다릅니다")
+                checked += 1
+        self.assertGreaterEqual(checked, 4, "R2 스킬 4개(analyze·intent·practices·requirements)의 골격이 검사돼야 합니다")
+
+    def test_every_stage_skill_is_explicit_invocation_only(self):
+        for d in sorted(SKILLS_DIR.glob("dlc-*")):
+            text = (d / "SKILL.md").read_text(encoding="utf-8")
+            self.assertIn("disable-model-invocation: true", text, d.name)
+            self.assertIn("allow_implicit_invocation: false", (d / "agents" / "openai.yaml").read_text(encoding="utf-8"), d.name)
+            self.assertLessEqual(len(text.splitlines()), 300, f"{d.name}/SKILL.md 가 300줄을 넘습니다")
+
+    def test_analyze_questions_file_is_checked_when_present(self):
+        self.make_brownfield()
+        self.init()
+        work = self.work()
+        fp = D.workspace_fingerprint(self.root)
+        self.write("docs/dlc/codebase.md", f"# 코드베이스 분석\n\n<!-- fingerprint: {fp} -->\n\n## 개요\nx\n## 구조\nx\n"
+                   "## 기술 스택\nx\n## 관례와 제약\nx\n## 가정과 열린 질문\nNone.\n")
+        self.write(f"docs/dlc/{work.name}/analyze-questions.md",
+                   "## Q1. legacy/ 는 폐기 예정입니까?\nA. 예\nX. Other\n\n[Answer]:\n\n"
+                   "## Consolidated Summary Confirmation\n- x\n\n[Answer]: Looks correct\n")
+        code, out, _ = run("check", "--root", str(self.root), "analyze")
+        self.assertEqual(code, 1)
+        self.assertIn("Q1 답변이 비어 있습니다", out)

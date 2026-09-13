@@ -61,7 +61,7 @@ ARTIFACTS = {
 BUILD_UNIT_SECTIONS = ["## 변경 파일", "## 추적성", "## 테스트", ASSUMPTIONS]
 
 # 질문 파일이 있는 스테이지. 있으면 모든 [Answer]: 가 채워지고 요약 확인이 Looks correct 여야 한다.
-QUESTION_STAGES = {"intent", "practices", "requirements", "design", "plan"}
+QUESTION_STAGES = {"analyze", "intent", "practices", "requirements", "design", "plan"}
 
 SOURCE_EXT = {
     ".kt": "kotlin", ".kts": "kotlin", ".java": "java", ".py": "python", ".ts": "typescript",

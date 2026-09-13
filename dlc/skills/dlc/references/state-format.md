@@ -10,6 +10,7 @@ docs/dlc/
   <YYMMDD>-<slug>/            작업 하나
     state.md                  dlc.py 가 관리. 손으로 고치지 않는다
     log.md                    전이·결정 기록. dlc.py 가 추가만 한다
+    analyze-questions.md  practices-questions.md   (공유 산출물의 질문 파일도 작업 폴더에 둔다)
     intent.md
     intent-questions.md
     requirements.md

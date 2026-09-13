@@ -31,12 +31,19 @@ doc-gen-plugin/
 │       ├── SKILL.md
 │       ├── references/           # 컨벤션·코드리뷰 기준·게시 형식
 │       └── evals/                # 스킬 평가 케이스
-└── architecture-reviewer/
+├── architecture-reviewer/
+│   ├── .claude-plugin/plugin.json
+│   └── skills/architecture-reviewer/
+│       ├── SKILL.md
+│       ├── references/           # 7축 루브릭·red flags·출처
+│       └── evals/                # 스킬 평가 케이스
+└── dlc/
     ├── .claude-plugin/plugin.json
-    └── skills/architecture-reviewer/
-        ├── SKILL.md
-        ├── references/           # 7축 루브릭·red flags·출처
-        └── evals/                # 스킬 평가 케이스
+    ├── evals/                    # claude plugin eval 케이스 (express-requirements)
+    └── skills/
+        ├── dlc/                  # 라우터 + 공유 스파인(references/, scripts/dlc.py, tests/)
+        ├── dlc-init/  dlc-analyze/  dlc-intent/  dlc-practices/  dlc-requirements/
+        └── (3라운드) dlc-design/  dlc-plan/  dlc-build/  dlc-verify/
 ```
 
 ## 설치 (다른 PC 포함)
