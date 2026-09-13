@@ -49,7 +49,7 @@ Gemini CLI는 `--agent gemini-cli`(에이전트 이름이 `gemini`가 아니다)
 
 | 에이전트 | 호출 | 명시 호출 강제 | 실측 (2026-09-13) |
 |---|---|---|---|
-| Claude Code 2.1.270 | `/dlc:dlc`, `/dlc:dlc-requirements` | `disable-model-invocation: true` | R2~R4 전 스테이지 실행. eval 8 케이스 중 7개 1.0 통과, plan 케이스는 계정 세션 한도로 재실행 대기(설계 §8 R4) |
+| Claude Code 2.1.270 | `/dlc:dlc`, `/dlc:dlc-requirements` | `disable-model-invocation: true` | R2~R4 전 스테이지 실행. eval 8 케이스 최종 실행 8/8 1.0(1차는 5/8, 실패 3건은 채점기 결함으로 수정. `docs/review/2026-09-13-dlc-r4-eval-results.md`) |
 | Codex CLI 0.154.0 | `$dlc-init`, `$dlc-requirements` | `agents/openai.yaml`의 `policy.allow_implicit_invocation: false` | `$dlc-init` → `$dlc-requirements` 질문 파일 생성·대기까지 확인. 에이전트가 `.agents/skills/dlc/scripts/dlc.py`를 프로젝트 상대 경로로 찾았다. 스킬이 많은 환경에서는 "Skill descriptions were shortened to fit the skills context budget" 경고가 뜬다(동작에는 영향 없음) |
 | Gemini CLI 0.34.0 | `activate_skill` 도구(모델이 고름) 또는 `/skills list`로 확인 | 차단 설정 없음. description을 사람용 한 줄로 둔다 | `gemini skills list`가 프로젝트 `.agents/skills/`의 dlc 스킬 10개를 전부 발견. 모델 호출은 이 PC의 개인 계정 티어(`oauth-personal`, "Gemini Code Assist for individuals" 지원 종료)로 막혀 실측하지 못했다. 우회: API 키 또는 Antigravity 계정으로 인증 |
 | Cursor | 슬래시 | 미확인 | 미실측 |

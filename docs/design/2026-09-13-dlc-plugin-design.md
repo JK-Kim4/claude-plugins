@@ -181,7 +181,9 @@ Codex의 `agents/openai.yaml`은 Agent Skills 표준 밖의 확장이지만 다�
 
 grader 교훈(R2 U1의 연장): trace에는 에이전트가 읽은 스킬·참조 문서와 `dlc.py`의 안내 문구까지 들어가므로, 부정 grader의 패턴은 실제 명령·출력에만 있는 형태(`init --profile express`, `requirements: done`)로 좁혀야 한다. Write 앵커 뒤에는 반드시 JSON 문자열 통과 구간 `(?:[^"\\]|\\.)*?`를 둔다.
 
-**R4 잔여(계정 한도 해제 뒤).** (1) `dlc/evals/run.sh --case plan-supplies-units` 재실행과 전체 suite 1회로 깨끗한 리포트 확보(Claude 세션 한도 21:40 KST 해제). (2) Codex 3턴 이후(답변 → 요약 확인 → 승인)와 관련 없는 프롬프트의 자동 발동 차단 확인(Codex 한도 21:08 KST 해제, `codex exec resume --last`).
+**최종 실행(2026-09-13 19:05 KST, 2.1.270).** grader 수정을 반영한 전체 suite 1회: 8 케이스 전부 1.0, grader 54개 전부 통과, 324초, 약 $4.15, `--threshold 1.0` 종료 코드 0. 세 실행 사이에 스킬·스크립트 변경은 없었으므로 1차 실패 3건이 채점기 결함이었음이 확정됐다. 케이스별 행위·품질 관찰과 grader가 보지 못한 것은 `docs/review/2026-09-13-dlc-r4-eval-results.md`. 위 표의 "재실행" 열 제목은 plan 행에는 맞지 않는다 — 그 재실행은 수정 전 패턴으로 돌았고(Opus 리뷰 지적 3) 수정 패턴은 최종 실행에서 검증됐다.
+
+**R4 잔여(계정 한도 해제 뒤).** ~~(1) `dlc/evals/run.sh --case plan-supplies-units` 재실행과 전체 suite 1회로 깨끗한 리포트 확보(Claude 세션 한도 21:40 KST 해제).~~ → 위 최종 실행으로 해소. (2) Codex 3턴 이후(답변 → 요약 확인 → 승인)와 관련 없는 프롬프트의 자동 발동 차단 확인(Codex 한도 21:08 KST 해제, `codex exec resume --last`).
 
 *build 재개 경로.* R3 express 산출물(`wcl`) 복사본에서 `build/u2-cli.md`·`wcl/__main__.py`·`tests/test_cli.py`를 지우고 state.md의 build를 `active`, verify를 `pending`으로 되돌린 픽스처 위에서 `claude -p --plugin-dir ./dlc --dangerously-skip-permissions`로 `/dlc:dlc-build` 재개 프롬프트를 실행했다. 19턴, 약 $2.30. 에이전트는 `dlc.py next`로 build를 확인한 뒤 state가 `active`임을 보고 `start build`를 다시 실행하지 않고 `note build "재개"`를 기록했다(log.md: `build | start`(R3) → `build | note | 재개` → `build | approve`). `build/u1-count.md`가 있는 u1은 건너뛰고 u2-cli부터 진행 — `craft:tdd`를 Skill 도구로 로드하고 seam 테스트 5건을 red→green 3회(모듈 없음·옵션을 파일로 취급·없는 파일 예외 전파)로 구현, red 없이 통과한 2건은 기록에 구분해 적었다. `python3 -m unittest discover -s tests` 8건 OK, `check build` OK, 승인 뒤 `verify pending`에서 지시대로 멈췄다. verify의 재개 규칙(`dlc-verify` "재개" 절)은 build와 같은 문장이며 이번에 따로 돌리지 않았다.
 
