@@ -13,7 +13,7 @@ jongwan의 Claude Code 플러그인 마켓플레이스. 현재 네 개의 플러
 ## 구성
 
 ```
-doc-gen-plugin/
+claude-plugins/
 ├── .claude-plugin/
 │   └── marketplace.json          # 마켓플레이스 카탈로그
 ├── document-generator/
@@ -65,7 +65,7 @@ doc-gen-plugin/
 /plugin install dlc@jongwan-plugins
 ```
 
-> 로컬 개발·테스트: `/plugin marketplace add ~/doc-gen-plugin`
+> 로컬 개발·테스트: `/plugin marketplace add <이 저장소를 클론한 경로>`
 
 업데이트:
 
@@ -87,5 +87,5 @@ doc-gen-plugin/
 ## 검증
 
 ```bash
-claude plugin validate ~/doc-gen-plugin
+claude plugin validate .   # 클론 루트에서
 ```
