@@ -59,15 +59,22 @@ graders:
   - type: file_exists
     name: questions-md-written
     path: "docs/dlc/*/requirements-questions.md"
-  # 내용 검사 3개는 Write 도구 입력에 앵커링한다. trace 에는 에이전트가 Read 한 참조 문서 본문도 남아
+  - type: regex
+    name: stops-after-requirements
+    target: trace
+    pattern: "dlc\\.py start plan"
+    match: not_contains
+  # 위 grader 는 라우터 --all 의 "여기까지" 중단 실측이다(설계 §9, R4 추가).
+  # 내용 검사 2개는 Write 도구 입력에 앵커링한다. trace 에는 에이전트가 Read 한 참조 문서 본문도 남아
   # 앵커 없는 패턴은 protocol.md·grounding.md·SKILL.md 의 예시에 매치된다(R2 리뷰 U1). `<경로>","content":"` 뒤
   # JSON 문자열 안에서만 움직이는 (?:[^"\\]|\\.)*? 로 이어 실제로 쓴 파일 본문만 본다. 러너의 regex file-source 는
-  # glob 을 받지 않아 날짜가 든 작업 폴더의 파일을 직접 가리킬 수 없다.
+  # glob 을 받지 않아 날짜가 든 작업 폴더의 파일을 직접 가리킬 수 없다. 권한 우회 모드에서는 파일이 Bash heredoc 으로
+  # 쓰이므로(R3 관찰) 앵커에 `<<'EOF'\n` 대안을 둔다 — plan-supplies-units 케이스와 같은 형식.
   - type: regex
     name: requirements-md-written-with-sections-and-fr1
     target: trace
-    pattern: 'requirements\.md","content":"(?:[^"\\]|\\.)*?## 의도 요약(?:[^"\\]|\\.)*?## 기능 요구사항(?:[^"\\]|\\.)*?### FR1\.(?:[^"\\]|\\.)*?## 비기능 요구사항(?:[^"\\]|\\.)*?## 제약(?:[^"\\]|\\.)*?## 범위 밖(?:[^"\\]|\\.)*?## 가정과 열린 질문'
+    pattern: 'requirements\.md(?:","content":"|\s*<<\s*-?''?\w+''?\\n)(?:[^"\\]|\\.)*?## 의도 요약(?:[^"\\]|\\.)*?## 기능 요구사항(?:[^"\\]|\\.)*?### FR1\.(?:[^"\\]|\\.)*?## 비기능 요구사항(?:[^"\\]|\\.)*?## 제약(?:[^"\\]|\\.)*?## 범위 밖(?:[^"\\]|\\.)*?## 가정과 열린 질문'
   - type: regex
     name: questions-md-written-with-summary-confirmed
     target: trace
-    pattern: 'requirements-questions\.md","content":"(?:[^"\\]|\\.)*?\[Answer\]: Looks correct'
+    pattern: 'requirements-questions\.md(?:","content":"|\s*<<\s*-?''?\w+''?\\n)(?:[^"\\]|\\.)*?\[Answer\]: Looks correct'

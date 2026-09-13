@@ -1,0 +1,38 @@
+schema_version: "1.1"
+name: router-no-cursor
+description: >
+  다른 PC 에서 클론한 상황: 작업 폴더는 있지만 docs/dlc/active 가 없다. 라우터는 status 의 작업 폴더 목록 메시지를 보이고 고르게 한 뒤(사전 답변 제공) 고른 이름을 active 에 쓰고 status 를 다시 보여야 한다. 새 작업을 만들지 않는다.
+tags: [dlc, router, r4]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 20
+  timeout_seconds: 300
+  allowed_tools: [Bash, Read, Write, Edit, Glob, Grep]
+  prompt: |
+    /dlc:dlc
+
+    이 세션은 자동 실행이라 나는 뒤에 더 답할 수 없다. 커서가 없어 이어갈 작업을 고르라고 하면, 하나뿐인 작업 `260913-inventory-lookup` 으로 이어가는 데 동의한 것으로 하고 진행하라.
+graders:
+  - type: regex
+    name: lists-existing-work-folders
+    target: trace
+    pattern: "활성 작업 커서\\(docs/dlc/active\\)가 없지만 작업 폴더가 있습니다: 260913-inventory-lookup"
+  - type: file_exists
+    name: cursor-written
+    path: "docs/dlc/active"
+  - type: regex
+    name: status-after-cursor
+    target: trace
+    pattern: "다음: requirements → dlc-requirements"
+  - type: regex
+    name: does-not-init
+    target: trace
+    pattern: "dlc\\.py init"
+    match: not_contains
+  - type: regex
+    name: does-not-start-next-stage
+    target: trace
+    pattern: "dlc\\.py start"
+    match: not_contains

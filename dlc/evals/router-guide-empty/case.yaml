@@ -1,0 +1,34 @@
+schema_version: "1.1"
+name: router-guide-empty
+description: >
+  작업이 하나도 없는 빈 디렉터리에서 라우터를 인자 없이 부른다. 안내 모드는 status 오류 메시지를 그대로 보이고 dlc-init 을 안내한 뒤 끝나야 하며, 작업을 대신 만들지 않는다.
+tags: [dlc, router, r4]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 15
+  timeout_seconds: 300
+  allowed_tools: [Bash, Read, Write, Edit, Glob, Grep]
+  prompt: |
+    /dlc:dlc
+graders:
+  - type: regex
+    name: skill-fired-status-run
+    target: trace
+    pattern: "dlc\\.py status"
+  - type: regex
+    name: no-work-message-shown
+    target: trace
+    pattern: "활성 작업이 없습니다"
+  # 'dlc-init 안내' 문장 grader 는 두지 않는다 — 라우터 SKILL.md 본문(슬래시 명령 확장으로 trace 에 포함)에 같은 문자열이 있어 거짓 양성이 난다. 안내 문구는 위 no-work-message-shown 의 dlc.py 출력이 대신 증명한다.
+  - type: regex
+    name: does-not-init-by-itself
+    target: trace
+    pattern: "dlc\\.py init --profile (?:full|express|bugfix)"  # `dlc.py init` 만으로는 dlc.py 의 안내 문구("또는 `dlc.py init`")에 매치돼 거짓 양성(R4 1차 실행)
+    match: not_contains
+  - type: regex
+    name: no-traceback
+    target: trace
+    pattern: "Traceback \\(most recent call last\\)"
+    match: not_contains

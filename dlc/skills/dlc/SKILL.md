@@ -31,7 +31,7 @@ metadata:
 
 ## 호출
 
-- `/dlc:dlc` (Claude Code), `$dlc` (Codex), `/dlc` (Gemini CLI). 인자 없이 부르면 **안내 모드**.
+- `/dlc:dlc` (Claude Code), `$dlc` (Codex). Gemini CLI는 스킬 이름을 부르는 슬래시 명령이 없어(0.34.0) 사용자가 "dlc 스킬을 활성화해라"라고 말하면 `activate_skill`로 활성화된다. 인자 없이 부르면 **안내 모드**.
 - 인자에 `--all` 또는 "전부 진행"이 있으면 **전체 진행 모드**.
 - 인자에 `status`가 있으면 안내 모드에서 다음 스킬 안내 문장만 생략한다.
 

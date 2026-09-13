@@ -1,0 +1,65 @@
+schema_version: "1.1"
+name: plan-supplies-units
+description: >
+  express(design 없음)에서 requirements 가 done 인 픽스처 위에 plan 단계를 단독 호출한다. plan.md 와 함께 units.md 를 만들어야 하고, 유닛 순서 표의 유닛 집합이 units.md 와 같고 `실행 명령:` 줄이 있어야 `check plan` 이 OK 다(R4 검사).
+tags: [dlc, plan, r4]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 50
+  timeout_seconds: 1200
+  allowed_tools: [Bash, Read, Write, Edit, Glob, Grep]
+  prompt: |
+    /dlc:dlc-plan
+
+    이 세션은 자동 실행이라 나는 뒤에 더 답할 수 없다. 그러니 다음을 지켜라.
+
+    - 질문 파일을 만들고 각 질문의 답은 아래에서 주제에 맞는 것을 골라 `[Answer]:` 에 기록하라. 아래에 없는 주제는 묻지 말고 가정 절에 [assumption] 으로 남겨라.
+    - 요약 확인은 내가 미리 `Looks correct` 로 답한 것으로 기록하라.
+    - 승인 게이트에서는 `dlc.py check plan` 이 OK 이면 내가 승인한 것으로 보고 `dlc.py approve plan --note "사전 승인(eval)"` 을 실행하라. check 가 실패하면 고쳐서 다시 검사하라.
+    - plan 승인 뒤에는 "여기까지". `dlc.py status` 를 보이고 멈춰라. build 를 시작하지 말라.
+
+    내 답변:
+    - 유닛 분해: 두 개. 재고 조회 서비스(FR1, NFR1)와 HTTP 엔드포인트·인증(FR2, FR1 의 200/404 응답). 엔드포인트가 서비스에 의존한다.
+    - seam: 서비스는 `get_stock(sku)` 반환값, 엔드포인트는 `GET /stock/{sku}` 응답(상태 코드·본문).
+    - 테스트 예산: 실제 PostgreSQL 을 쓰는 통합 테스트 0건. 저장소는 인메모리 대체.
+    - 실행 명령: `python3 -m pytest -q`
+    - 완료 정의: 모든 유닛의 build 기록이 있고 check build 가 OK, 전체 테스트 GREEN, FR 마다 seam 테스트 1개 이상.
+graders:
+  - type: regex
+    name: skill-fired-start-plan
+    target: trace
+    pattern: "dlc\\.py start plan"
+  - type: file_exists
+    name: units-md-written
+    path: "docs/dlc/*/units.md"
+  - type: file_exists
+    name: plan-md-written
+    path: "docs/dlc/*/plan.md"
+  - type: regex
+    name: units-md-has-unit-rows
+    target: trace
+    pattern: 'units\.md(?:","content":"|\s*<<\s*-?''?\w+''?\\n)(?:[^"\\]|\\.)*?\|\s*u1-[a-z0-9-]+\s*\|(?:[^"\\]|\\.)*?\|\s*u2-[a-z0-9-]+\s*\|'  # 쓰기 앵커: Write 입력 또는 Bash heredoc 뒤 JSON 문자열 안에서 유닛 행 2개
+  - type: regex
+    name: plan-md-has-run-command
+    target: trace
+    pattern: 'plan\.md(?:","content":"|\s*<<\s*-?''?\w+''?\\n)(?:[^"\\]|\\.)*?실행 명령\s*[:：]'
+  - type: regex
+    name: plan-check-ok
+    target: trace
+    pattern: "check plan: OK"
+  - type: regex
+    name: plan-approved
+    target: trace
+    pattern: "plan: done"
+  - type: regex
+    name: build-not-started
+    target: trace
+    pattern: "dlc\\.py start build"
+    match: not_contains
+  - type: regex
+    name: no-traceback
+    target: trace
+    pattern: "Traceback \\(most recent call last\\)"
+    match: not_contains

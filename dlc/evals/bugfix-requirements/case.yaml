@@ -1,0 +1,67 @@
+schema_version: "1.1"
+name: bugfix-requirements
+description: >
+  빈 디렉터리에서 라우터 전체 진행 모드로 bugfix 프로파일 init → requirements 승인까지. bugfix 는 express 와 스테이지가 같고 requirements 질문 주제만 재현 조건·기대 동작·영향 범위·회귀 테스트로 바뀐다(설계 §4). R1~R3 에서 한 번도 실행되지 않은 프로파일의 첫 실측(설계 §9).
+tags: [dlc, bugfix, requirements, r4]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 50
+  timeout_seconds: 1200
+  allowed_tools: [Bash, Read, Write, Edit, Glob, Grep]
+  prompt: |
+    /dlc:dlc --all bugfix sku-zero-warehouse SKU 조회 API 가 창고가 0개인 SKU 에서 500 을 돌려준다. 기대는 200 과 총수량 0, 빈 창고 목록이다.
+
+    이 세션은 자동 실행이라 나는 뒤에 더 답할 수 없다. 그러니 다음을 지켜라.
+
+    - 프로파일 bugfix, slug sku-zero-warehouse, 설명은 위 문장 그대로다. 되묻지 말고 init 을 진행하라.
+    - requirements 질문 파일을 만들고 각 질문의 답은 아래에서 주제에 맞는 것을 골라 `[Answer]:` 에 기록하라. 아래에 없는 주제는 묻지 말고 가정 절에 [assumption] 으로 남겨라.
+    - 요약 확인은 내가 미리 `Looks correct` 로 답한 것으로 기록하라.
+    - 승인 게이트에서는 `dlc.py check requirements` 가 OK 이면 내가 승인한 것으로 보고 `dlc.py approve requirements --note "사전 승인(eval)"` 을 실행하라. check 가 실패하면 고쳐서 다시 검사하라.
+    - requirements 승인 뒤에는 "여기까지". `dlc.py status` 를 보이고 멈춰라.
+
+    내 답변:
+    - 재현 조건: staging 환경, `GET /stock/{sku}`, 창고 배정 행을 모두 지운 SKU-0042 로 호출하면 항상(10/10) 500.
+    - 기대 동작과 실제 동작: 기대는 200 과 `{"sku": "SKU-0042", "total": 0, "warehouses": []}`. 실제는 500 과 빈 본문.
+    - 영향 범위: 사내 관리 화면의 재고 조회만. inventory 테이블을 직접 조회해 데이터 손상은 없음을 확인했다.
+    - 회귀 테스트: 단위 테스트(집계 로직이 빈 목록에서 0 을 돌려줌)와 API 통합 테스트(200 과 본문) 둘 다. 창고가 있는 SKU 의 200, 없는 SKU 의 404 는 그대로 유지.
+graders:
+  - type: regex
+    name: skill-fired-dlc-py-used
+    target: trace
+    pattern: "dlc\\.py (init|next|status|start|check|approve)"
+  - type: regex
+    name: init-created-bugfix-work
+    target: trace
+    pattern: "작업 폴더: docs/dlc/\\d{6}-sku-zero-warehouse"
+  - type: regex
+    name: profile-is-bugfix
+    target: trace
+    pattern: "- profile: bugfix"
+  - type: regex
+    name: asks-reproduction
+    target: trace
+    pattern: "## Q\\d+\\.[^\"\\n]*재현"  # 질문 제목에 재현 조건 주제
+  - type: regex
+    name: asks-regression-test
+    target: trace
+    pattern: "## Q\\d+\\.[^\"\\n]*(회귀|테스트)"  # 질문 제목에 회귀 테스트 주제
+  - type: regex
+    name: requirements-check-ok
+    target: trace
+    pattern: "check requirements: OK"
+  - type: regex
+    name: requirements-approved
+    target: trace
+    pattern: "requirements: done"
+  - type: regex
+    name: stops-after-requirements
+    target: trace
+    pattern: "dlc\\.py start plan"
+    match: not_contains
+  - type: regex
+    name: no-traceback
+    target: trace
+    pattern: "Traceback \\(most recent call last\\)"
+    match: not_contains
