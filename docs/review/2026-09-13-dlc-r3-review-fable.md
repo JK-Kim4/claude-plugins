@@ -36,7 +36,7 @@
 
 | 번호 | 조치 |
 |---|---|
-| 1 | dlc-build "테스트 규율의 원천" 절, dlc-plan "seam과 예산", dlc-design "인터페이스 대안이 쟁점일 때"에 에이전트별 로드 방법(Claude Code는 Skill 도구 호출, Codex·Gemini는 `<skills>/<name>/SKILL.md` Read)과 "목록에 있는데 로드하지 않고 폴백으로 가지 않는다"를 명시. 설계 §8 관찰을 "있었는데 읽지 않았다(결함, 수정)"로 정정 |
+| 1 | dlc-build "테스트 규율의 원천" 절, dlc-plan "seam과 예산", dlc-design "인터페이스 대안이 쟁점일 때"에 에이전트별 로드 방법(Claude Code는 Skill 도구 호출, Codex·Gemini는 `<skills>/<name>/SKILL.md` Read)과 "목록에 있는데 로드하지 않고 폴백으로 가지 않는다"를 명시. **정정(같은 날, Opus 리뷰 1번):** 이 지적의 사실 관계는 틀렸다. trace 순번 169에 `Skill {"skill":"craft:tdd"}` 호출과 173에 본문 주입이 있어 에이전트는 실제로 로드했다. "읽지 않았다"는 파일 Read만 센 오류다. 로드 방법 명시는 Codex·Gemini 경로 때문에 유지하고, 설계 §8 관찰은 "Skill 도구로 로드했다"로 되돌려 적었다 |
 | 2 | grounding.md `[assumption]` 정의에 build·verify 추적성·검증 표의 "미확인" 행 예외를 추가(같은 내용을 가정 절에도 둔다) |
 | 3 | dlc-verify 3단계: 수용 기준 열은 requirements.md 원문 그대로, 픽스처 편차는 확인 열에 적고 판정 조건 검증 여부로 미확인 판정. dlc-build 7단계 (d)에 픽스처 편차 보고 추가 |
 | 4 | dlc-verify 머리말을 "리뷰 중에는 고치지 않는다. 고치는 것은 반려 뒤 사용자 결정으로만"으로. (a) 경로에 dlc-build 2~5단계로 고친다고 명시 |

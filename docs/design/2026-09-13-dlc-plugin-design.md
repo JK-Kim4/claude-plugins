@@ -96,7 +96,7 @@ dlc/
 
 **승인 게이트.** 스테이지 끝에 에이전트가 산출물 요약과 검사 결과를 보이고 채팅으로 승인을 묻는다. 사용자가 승인하면 `dlc.py approve <stage>`로 상태를 기록한다. 에이전트가 `state.md`를 손으로 고치는 것은 금지한다.
 
-**출처 태그.** 산출물의 실질 문단·표 행은 `[desc]`, `[Q<n>]`, `[practice]`, `[code:<경로>]`, `[assumption]` 중 하나를 단다. `[code:<경로>]`는 저장소 파일을 직접 읽어 확인한 사실용이며 `codebase.md`처럼 코드가 근거인 산출물에서 쓴다(R2 추가). 근거 없는 내용은 `## 가정과 열린 질문` 절에만 둔다. 이 절은 필수이며 없으면 `None.`을 쓴다.
+**출처 태그.** 산출물의 실질 문단·표 행은 `[desc]`, `[Q<n>]`, `[practice]`, `[code:<경로>]`, `[assumption]` 중 하나를 단다. `[code:<경로>]`는 저장소 파일을 직접 읽어 확인한 사실, 또는 그 파일을 실행·측정해 얻은 결과(명령을 함께 적는다)용이며 `codebase.md`처럼 코드가 근거인 산출물과 build·verify 기록에서 쓴다(R2 추가, R3에 실행·측정 결과 포함). 근거 없는 내용은 `## 가정과 열린 질문` 절에만 둔다. 예외 하나(R3): `build/<unit>.md`·`verify.md`의 추적성·검증 표에서 테스트로 확인하지 못한 행은 표에서 빼지 않고 `[assumption]`을 달되 같은 내용을 가정 절에도 둔다. 이 절은 필수이며 없으면 `None.`을 쓴다.
 
 ## 6. dlc.py 책임
 
@@ -132,7 +132,7 @@ Codex의 `agents/openai.yaml`은 Agent Skills 표준 밖의 확장이지만 다�
 | R1 | 플러그인 골격, 마켓플레이스 등록, 라우터 스킬, 공유 참조 3개, `dlc.py` + 테스트 | unittest GREEN, `claude plugin validate`, `npx skills add` 로컬 설치로 형제 경로 가정 확인 |
 | R2 | 스테이지 스킬 5개: init, analyze, intent, practices, requirements | 빈 디렉터리에서 Claude로 express 프로파일 1회 실행 — 수동 대신 `claude plugin eval` 케이스 1건(`dlc/evals/`)으로 수행해 기록을 남기고, 명시 호출 스킬이 eval 프롬프트에서 발동되는지 확정. 기존 코드가 있는 디렉터리에서 analyze 1회 실행 |
 | R3 | 스테이지 스킬 4개: design, plan, build, verify. `dlc.py check build`에 빌드 추적성 커버리지 추가, decisions.md 필수 절(`## 결정`·가정) 확정, 골격 비교 테스트를 `BUILD_UNIT_SECTIONS`·plan의 units.md까지 확장(R2 리뷰 U16) | 빈 디렉터리에서 라우터 `--all`로 express 프로파일 init→verify 완주(헤드리스). full 프로파일 픽스처 위에서 design 1회 실행. 결과는 아래 |
-| R4 | Codex `openai.yaml`, README, evals, Codex에서 1회 실행 | Codex에서 `$dlc-requirements` 동작 확인. evals는 `claude plugin eval` suite(라우터 + 스테이지 스킬)로 만들고, 발동 채점 방식은 R2 케이스 결과를 따른다 |
+| R4 | Codex·Gemini CLI 실기기 1회 실행, README의 설치·호출·제약 표를 실측으로 확정, eval suite를 라우터·스테이지 스킬로 확장(기존 `evals.json` 병행 여부 결정), R3 Opus 리뷰가 넘긴 항목(이슈 #4 본문 "R3 이월 항목"), 버전 확정, main PR. `agents/openai.yaml` 10개·README·eval 케이스 1건은 R2·R3에서 이미 만들었다 | Codex에서 `$dlc-requirements` 동작 확인. evals의 발동 채점은 R2 결과를 따르되, 앵커는 Write와 Bash heredoc, Read와 `cat` 양쪽을 받는다(R3 관찰) |
 
 **R3 실측 결과 (2026-09-13).** 두 실행 모두 `claude -p --plugin-dir ./dlc --dangerously-skip-permissions --output-format stream-json`(2.1.270), 빈 임시 디렉터리, 답변·승인 사전 제공. eval 러너가 아니라 헤드리스 CLI를 쓴 것은 다중 스테이지 한 프롬프트 실행에 러너의 이점(scaffold·grader)이 필요 없었기 때문이며, trace는 stream-json으로 남겼다.
 
@@ -145,7 +145,7 @@ Codex의 `agents/openai.yaml`은 Agent Skills 표준 밖의 확장이지만 다�
 
 - **verify의 반려 경로가 실제로 돌았다.** 1차 검증이 P1 1건(`except OSError`만 잡아 UTF-8이 아닌 파일에서 크래시)을 재현 테스트와 함께 찾아 판정 `반려`로 기록하고, 프롬프트의 "반려면 이 세션에서 고친다"에 따라 seam 테스트를 red로 확인한 뒤 수정, `build/u2-cli.md` 갱신, `note verify` 2줄, 재검증 통과 후 승인. log.md에 `start → note → note → approve` 순서가 남았다.
 - **라우터 `--all`이 스테이지마다 멈추고 승인 뒤 다음 스킬 파일을 읽어 이어갔다.** requirements→plan→build→verify 네 번 모두 `next` 재실행 → `../dlc-<stage>/SKILL.md` Read → 절차 수행. 사용자의 "여기까지" 중단은 이번에 실측하지 않았다.
-- **craft:tdd가 있었는데 읽지 않았다(결함, 같은 라운드에 수정).** 헤드리스 세션의 init 이벤트 `skills` 목록(147개)에 `craft:tdd`가 있었지만 에이전트는 로드하지 않고 dlc-build의 폴백 5줄로 진행했다. 스킬이 "읽는다"고만 적고 로드 방법을 안 적은 탓이다(Claude Code의 플러그인 스킬은 파일 경로로 읽을 수 없고 Skill 도구 호출로만 본문이 들어온다). R3 리뷰 1번으로 dlc-build·dlc-plan·dlc-design에 에이전트별 로드 방법을 명시했다. 폴백 자체는 동작했다: 유닛 기록에 red 확인 내역과 "red 없이 통과한 테스트"가 구분돼 적혔다.
+- **craft:tdd를 Skill 도구로 로드했다.** 헤드리스 세션의 init 이벤트 `skills` 목록(147개)에 `craft:tdd`가 있었고, 에이전트는 plan 승인 직후 Skill 도구로 그것을 호출해(trace 순번 169 호출, 173 본문 주입) 첫 red 테스트 전에 본문을 읽었다. 실행 당시 dlc-build 본문에는 로드 방법이 적혀 있지 않았는데도 Claude Code에서는 로드됐다. Fable 리뷰 1번은 파일 Read만 세어 "읽지 않았다"고 했고 이 문단의 첫 기록도 그것을 따랐다가 Opus 리뷰 1번(trace 순번 인용)으로 정정했다. dlc-build·dlc-plan·dlc-design에 에이전트별 로드 방법을 명시한 조치는 Codex·Gemini(`npx skills add` 설치, Skill 도구 없음) 경로 때문에 유지한다. 유닛 기록에는 red 확인 내역과 "red 없이 통과한 테스트"가 구분돼 적혔다.
 - **Write 도구 호출 0회.** `--dangerously-skip-permissions`로 돌린 두 실행 모두 파일을 Bash heredoc으로 썼다(Claude Code가 권한 우회 모드에서 Bash 우선을 안내한다). R2에서 확정한 "Write 입력 앵커" grader는 이 모드에서는 매치되지 않으므로, R4 evals는 러너 기본 권한 모드(R2 실행과 같음)를 유지하거나 Bash heredoc(`cat > <경로> <<'EOF'`)도 앵커로 허용해야 한다.
 - dlc-build의 "`craft:implement`를 쓸 수 있다고 한 번 안내한다"도 수행되지 않았다(리뷰 14번). 안내 시점을 첫 유닛 1단계 앞으로 옮겼다.
 - 승인이 사전 제공된 자동 실행이라 plan의 start→approve 간격이 10초였다(R2 관찰 (a)와 같은 압축). 전이 순서는 지켜졌다.
