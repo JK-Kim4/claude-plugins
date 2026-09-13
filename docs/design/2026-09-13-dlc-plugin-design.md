@@ -136,7 +136,7 @@ Codex의 `agents/openai.yaml`은 Agent Skills 표준 밖의 확장이지만 다�
 
 **evals 시점(2026-09-13 결정).** 평가 suite는 R4에서 만든다. R1 시점에 만들면 스테이지 스킬이 없어 라우터의 "멈추고 안내" 분기만 검사할 수 있고, R2·R3에서 프로즈가 바뀌면 grader를 다시 써야 한다. 결정적인 부분(`dlc.py`)은 unittest가 라운드마다 회귀를 잡는다. 케이스 하나가 기본 3회 실행(ablation 시 6회)이라 라운드마다 suite를 돌리면 비용이 곱해진다. 단, 라우터·스테이지 스킬이 `disable-model-invocation: true`인데 eval 프롬프트에서 발동되는지는 공식 문서에 없으므로, R2의 express 1회 실행을 eval 케이스 1건으로 수행해 이 미지수를 먼저 푼다. 저장소의 기존 `evals.json`(skill-creator 형식)과의 병행 여부는 R4에서 정한다.
 
-**R2 eval 실행 결과 (2026-09-13, Claude Code 2.1.269).** 케이스 `dlc/evals/express-requirements/`를 `--runs 1 --ablation none --scaffold --allow-tools Bash Write Edit`로 1회 실행했다. 1차 18턴, 약 $0.89, grader 10/11 통과. 실패 1건은 아래 러너 제약(glob)이며 스킬 결함이 아니다. 그 grader를 trace 기반으로 바꿔 재실행한 2차는 18턴, 약 $0.89, 11/11 통과(점수 1.0). 결과가 정한 것:
+**R2 eval 실행 결과 (2026-09-13).** 케이스 `dlc/evals/express-requirements/`를 `--runs 1 --ablation none --scaffold --allow-tools Bash Write Edit`로 실행했다. `--allow-tools`는 case.yaml `allowed_tools`(모델에 보이는 도구 목록: Bash·Read·Write·Edit·Glob·Grep) 중 게이트 도구(Bash·Write·Edit)에 대한 운영자 허가이며 Read·Glob·Grep은 게이트가 아니라 허가가 필요 없다. 1차(Claude Code 2.1.269) 18턴, 약 $0.89, grader 10/11 통과. 실패 1건은 아래 러너 제약(glob)이며 스킬 결함이 아니다. 그 grader를 trace 기반으로 바꿔 재실행한 2차(2.1.270, 두 실행 사이 CLI 자동 갱신) 18턴, 약 $0.89, 11/11 통과(점수 1.0). 그러나 R2 리뷰(통합 U1)에서 내용 grader 3개가 참조 문서의 Read 결과에도 매치되는 거짓 양성이 확인돼 Write 입력에 앵커링한 grader로 바꾸고 3차를 실행했다(결과는 아래 표 뒤). 결과가 정한 것:
 
 | 미지수 | 확정 | R4 evals에 미치는 것 |
 |---|---|---|
@@ -144,8 +144,10 @@ Codex의 `agents/openai.yaml`은 Agent Skills 표준 밖의 확장이지만 다�
 | 발동 채점 | Skill 도구 호출은 0회. `tool_used: Skill`은 발동 지표로 쓸 수 없다 | 발동 지표는 스킬만 아는 행위의 trace regex(`dlc\.py (init\|next\|…)`)로 잡는다 |
 | 다중 턴 | 지원하지 않는다. `context.history_file`은 이전 대화 주입만 한다 | 질문 답·요약 확인·승인을 프롬프트에 사전 제공한다. 명시 사전 승인이라 protocol.md의 "침묵은 승인 아님"과 충돌하지 않는다. 라우터 `--all`에 "작업이 없으면 init부터" 분기를 넣어 한 프롬프트로 init→requirements를 이었다 |
 | scaffold | `context.scaffold_script`는 케이스 디렉터리 기준 상대 경로의 bash 파일. 에이전트 cwd(`<tmp>/home/cwd`)에서 실행되고 그 디렉터리가 에이전트의 cwd다. HOME·`CLAUDE_CONFIG_DIR`가 격리되고 CLAUDE.md는 로드되지 않는다(`CLAUDE_CODE_DISABLE_CLAUDE_MDS=1`). 플러그인은 대상 경로의 절대 경로로 로드되어 `<skills>`는 `<plugin>/skills`로 풀린다 | 픽스처는 scaffold가 cwd에 만든다 |
-| 파일 내용 채점 | `regex`의 `target: {source: file, path}`는 glob을 받지 않는다(리터럴 경로만). 작업 폴더 이름에 날짜가 있어 파일을 가리킬 수 없다. `file_exists`의 `path`는 glob을 받는다 | 존재는 `file_exists` glob, 내용은 Write 도구 입력이 남는 trace regex로 본다 |
+| 파일 내용 채점 | `regex`의 `target: {source: file, path}`는 glob을 받지 않는다(리터럴 경로만). 작업 폴더 이름에 날짜가 있어 파일을 가리킬 수 없다. `file_exists`의 `path`는 glob을 받는다 | 존재는 `file_exists` glob으로 본다. 내용은 trace regex로 보되, trace에는 에이전트가 Read한 참조 문서 본문도 남으므로 **Write 도구 입력에 앵커링**해야 한다(`<경로>","content":"` 뒤 JSON 문자열 안에서만 매치). 앵커 없는 패턴은 protocol.md·grounding.md·SKILL.md의 예시에 매치돼 거짓 양성이 난다(R2 리뷰 U1에서 Read 결과만으로 3개 모두 통과함을 재현) |
 | 실행 환경 | Bash를 허용하는 eval은 `~/.docker` 안에 심볼릭 링크(Docker Desktop의 `cli-plugins/`, `bin/lib/`)가 있으면 샌드박스가 실행을 거부한다. 실행 동안 두 폴더를 `~/.docker` 바깥으로 옮기고 끝나면 되돌리는 우회가 필요했다 | 실행 절차에 기록. 자동화 여부는 R4에서 판단 |
+
+3차(2.1.270, Write 앵커 grader 10개): 18턴, 약 $0.80, 10/10 통과(점수 1.0). 앵커 패턴은 실행 전 1차 trace로 양성(원 trace 매치)·음성(Write 호출·결과 제거 시 불매치)을 확인했다.
 
 산출물 관찰: 질문 5개(minimal 기준 2~4를 넘음. 사용자가 주제 5개를 제공한 결과이며 기준은 상한이 아니다), FR3·NFR1, 모든 행에 출처 태그, FR마다 수용 기준, 가정 7건. 같은 날 full 프로파일(intent·practices) 헤드리스 실행(`claude -p --plugin-dir ./dlc`, 빈 임시 디렉터리, 답변 사전 제공)은 첫 시도가 계정 세션 사용량 한도로 첫 턴에서 멈췠고, 한도 해제 뒤 재실행에서 9턴, 약 $1.70으로 init→intent→practices 승인까지 끝났다. intent 질문 8개·practices 질문 7개(standard 기준 5~8 안), 두 산출물 모두 `check` 통과, 가정 절에 각 3건. 관찰 둘: (a) 에이전트가 `start`와 산출물 작성을 같은 배치로 묶어 start→approve 간격이 8초였다. 답이 사전 제공된 자동 실행에서만 생기는 압축이며 log의 전이 순서는 지켜졌다. (b) greenfield 질문에서 "(제안)" 표시가 프레임워크 기본값 외 항목(커밋 형식)에도 붙어, `dlc-practices`에 "표의 네 기본값에만 붙인다"를 명시했다. analyze는 `llm-wiki/` 복사본에서 직접 실행해 codebase.md 생성·지문 기록·`check analyze` 통과·승인, 두 번째 작업의 `next`가 analyze를 건너뛰고 requirements를 가리키는 것, `start analyze --force` 재실행까지 확인했다.
 

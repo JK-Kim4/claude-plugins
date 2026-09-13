@@ -101,3 +101,16 @@ U3~U15는 문장 수정 또는 진입점 이동이며 선택지가 없다. U16�
 - **P1 0건 조건.** 이슈 #2 완료 조건 "Fable 리뷰 후 P1 0건"은 현재 미충족이다(P1 1건 보류). 보류는 해결이 아니다(Codex 4절). U1 반영 후에만 충족으로 표기한다.
 - **push.** 원격 `feature/dlc-plugin`은 기준 커밋 `c92c91c`에 있고 `1dae4d1`은 로컬에만 있다. 사용자 승인 대기.
 - **R3 메모.** U16(테스트 파서 범위), 그리고 Codex가 언급한 "에이전트가 질문하고 산출물을 쓰는 스킬 전체 실행"은 CLI QA로 대체할 수 없다는 한계 — R3의 design·plan·build·verify 실행 검증도 eval 또는 헤드리스 실행으로 한다.
+
+## 조치 결과 (2026-09-13)
+
+사용자 결정: 3-1 A(Write 입력 앵커), 3-2 A(스킬 분기만 추가). U1~U15 전부 반영, U16은 R3 착수 항목으로 남김.
+
+| 목표 | 지적 | 커밋 | 확인 |
+|---|---|---|---|
+| G4 테스트 진입점 | U6 | `e939a4d` | `python3 dlc/skills/dlc/tests/test_dlc.py` 78건, discover 78건 |
+| G3 문서·코드 일치 | U4, U8, U9, U10, U11, U12, U14 | `e939a4d` | 설계 §5 태그 5종·§4 requirements 행 정정. analyze에 "상한" 0건, intent에 "minimal이면 1~4번" 0건(grep). `StageSkillContracts` GREEN |
+| G2 스킬 안내 = 코드 전이 | U2, U3, U5, U15 | `e939a4d` | dlc-analyze:23-26 pending/done/skipped 분기, done이면 `--force` 미제안. dlc-init 표 아래 조건부 analyze 한 줄, 스캔 제외 목록은 `EXCLUDED_DIRS` 참조, `next` 첫 줄의 스킬 이름 위치 명시 |
+| G1 검증 장치 | U1, U7, U13 | 다음 커밋 | case.yaml 내용 grader 3개 → Write 입력 앵커 2개(`requirements-md-written-with-sections-and-fr1`, `questions-md-written-with-summary-confirmed`), 총 10개. 1차 trace에서 양성 매치·Write 제거 시 불매치 확인 뒤 3차 실행: 2.1.270, 18턴, $0.80, **10/10**. 설계 §8에 실행별 버전(1차 2.1.269 / 2차·3차 2.1.270), `allowed_tools`와 `--allow-tools`의 관계, "파일 내용 채점" 행 정정 |
+
+이슈 #2 완료 조건 "Fable 리뷰 후 P1 0건"은 이 조치로 충족됐다. push는 사용자 승인 대기.

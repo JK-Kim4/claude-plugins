@@ -46,14 +46,6 @@ graders:
     target: trace
     pattern: "requirements: done"
   - type: regex
-    name: fr1-defined-in-trace
-    target: trace
-    pattern: "### FR1\\."
-  - type: regex
-    name: summary-confirmed
-    target: trace
-    pattern: "\\[Answer\\]: Looks correct"
-  - type: regex
     name: no-traceback
     target: trace
     pattern: "Traceback \\(most recent call last\\)"
@@ -67,9 +59,15 @@ graders:
   - type: file_exists
     name: questions-md-written
     path: "docs/dlc/*/requirements-questions.md"
+  # 내용 검사 3개는 Write 도구 입력에 앵커링한다. trace 에는 에이전트가 Read 한 참조 문서 본문도 남아
+  # 앵커 없는 패턴은 protocol.md·grounding.md·SKILL.md 의 예시에 매치된다(R2 리뷰 U1). `<경로>","content":"` 뒤
+  # JSON 문자열 안에서만 움직이는 (?:[^"\\]|\\.)*? 로 이어 실제로 쓴 파일 본문만 본다. 러너의 regex file-source 는
+  # glob 을 받지 않아 날짜가 든 작업 폴더의 파일을 직접 가리킬 수 없다.
   - type: regex
-    name: requirements-md-has-sections
-    # 러너 제약: regex 의 {source: file, path} 는 glob 을 받지 않는다. 작업 폴더 이름에 날짜가 있어
-    # 파일을 직접 못 가리키므로, Write 도구 입력이 남는 trace 에서 필수 절 여섯 개의 순서를 본다.
+    name: requirements-md-written-with-sections-and-fr1
     target: trace
-    pattern: "## 의도 요약[\\s\\S]*## 기능 요구사항[\\s\\S]*## 비기능 요구사항[\\s\\S]*## 제약[\\s\\S]*## 범위 밖[\\s\\S]*## 가정과 열린 질문"
+    pattern: 'requirements\.md","content":"(?:[^"\\]|\\.)*?## 의도 요약(?:[^"\\]|\\.)*?## 기능 요구사항(?:[^"\\]|\\.)*?### FR1\.(?:[^"\\]|\\.)*?## 비기능 요구사항(?:[^"\\]|\\.)*?## 제약(?:[^"\\]|\\.)*?## 범위 밖(?:[^"\\]|\\.)*?## 가정과 열린 질문'
+  - type: regex
+    name: questions-md-written-with-summary-confirmed
+    target: trace
+    pattern: 'requirements-questions\.md","content":"(?:[^"\\]|\\.)*?\[Answer\]: Looks correct'
