@@ -35,7 +35,7 @@ depth는 standard(5~8개)다. 앞 산출물에서 답이 나오는 주제는 묻
 
 선택지에는 대안의 이름만 쓰지 않고 "고르면 무엇이 달라지는지"를 한 줄씩 붙인다. 질문 파일은 작업 폴더의 `design-questions.md`. 형식과 답변 검사는 protocol.md.
 
-**인터페이스 대안이 쟁점일 때.** 이 에이전트의 스킬 목록에 `craft:design-it-twice`(또는 `design-it-twice`)가 있으면 그 스킬의 절차로 대안 3개 이상을 만들어 비교한 뒤 그 결과를 5번 질문의 선택지로 쓴다. 로드 방법: Claude Code는 Skill 도구로 `craft:design-it-twice`를 호출하고(파일 경로로는 읽지 못한다), `npx skills add`로 설치한 Codex·Gemini CLI는 `<skills>/design-it-twice/SKILL.md`를 Read한다. 없으면 대안 2개 이상을 스스로 만들어 같은 방식으로 묻는다.
+**인터페이스 대안이 쟁점일 때.** 이 에이전트의 스킬 목록에 `craft:design-it-twice`(또는 `design-it-twice`)가 있으면 그 스킬의 절차로 대안 3개 이상을 만들어 비교한 뒤 그 결과를 5번 질문의 선택지로 쓴다. 로드 방법: Claude Code는 Skill 도구로 `craft:design-it-twice`를 호출하고(로드하기 전에는 다른 플러그인의 설치 경로를 알 수 없다), `npx skills add`로 설치한 Codex·Gemini CLI는 `<skills>/design-it-twice/SKILL.md`를 Read한다. 없으면 대안 2개 이상을 스스로 만들어 같은 방식으로 묻는다.
 
 ## 설계 규칙
 

@@ -24,7 +24,7 @@ metadata:
 
 ## 테스트 규율의 원천
 
-이 에이전트의 스킬 목록에 `craft:tdd`(또는 `tdd`)가 있으면 그 스킬 본문이 테스트 규율의 원천이다. 첫 유닛을 시작하기 전에 한 번 로드해 그대로 따른다. 로드 방법은 에이전트마다 다르다. Claude Code는 Skill 도구로 `craft:tdd`를 호출한다(플러그인 스킬은 파일 경로를 알 수 없어 Read로는 읽지 못한다). `npx skills add`로 설치한 Codex·Gemini CLI는 `<skills>/tdd/SKILL.md`를 Read한다. 목록에 있는데 로드하지 않고 폴백으로 가지 않는다. 이 스킬은 seam 확인·예산·기록만 자기 절차로 갖는다.
+이 에이전트의 스킬 목록에 `craft:tdd`(또는 `tdd`)가 있으면 그 스킬 본문이 테스트 규율의 원천이다. 첫 유닛을 시작하기 전에 한 번 로드해 그대로 따른다. 로드 방법은 에이전트마다 다르다. Claude Code는 Skill 도구로 `craft:tdd`를 호출한다(로드하기 전에는 다른 플러그인의 설치 경로를 알 수 없다. 로드 결과 첫 줄에 절대 경로가 온다). `npx skills add`로 설치한 Codex·Gemini CLI는 `<skills>/tdd/SKILL.md`를 Read한다. 목록에 있는데 로드하지 않고 폴백으로 가지 않는다. 이 스킬은 seam 확인·예산·기록만 자기 절차로 갖는다.
 
 *(폴백)* craft:tdd가 없으면 다음 다섯 줄이 규율이다.
 
@@ -89,7 +89,7 @@ plan.md의 순서대로 유닛을 하나씩 끝낸다. 다음 유닛을 앞당�
 
 ## 완료 기준
 
-- units.md의 모든 유닛에 `build/<unit>.md`가 있고(plan.md 순서 표의 유닛 집합은 units.md와 같아야 한다 — dlc-plan의 규칙) `dlc.py check build`가 OK: 필수 절 넷, requirements.md에 없는 ID 참조 없음, 모든 최상위 FR/NFR이 추적성 어딘가에 있음.
+- units.md의 모든 유닛에 `build/<unit>.md`가 있고(plan.md 순서 표의 유닛 집합이 units.md와 같은지는 `dlc.py check plan`이 이미 봤다) `dlc.py check build`가 OK: 필수 절 넷, requirements.md에 없는 ID 참조 없음, 모든 최상위 FR/NFR이 추적성 어딘가에 있음.
 - 전체 테스트가 GREEN이고 실제 인프라 테스트 수가 예산 이하다. plan.md의 `## 완료 정의`를 항목마다 확인했다.
 - 사용자가 승인 게이트에서 승인했다(protocol.md 10단계 — 요약에는 전체 테스트 결과와 유닛 수를 넣는다). 승인 뒤 `dlc.py approve build`.
 

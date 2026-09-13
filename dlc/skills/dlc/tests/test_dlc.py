@@ -578,10 +578,17 @@ None.
 """
 
 PLAN_OK = """## 유닛 순서
-1. u1-api — FR1.1, FR2
+| 순서 | unit | depends_on | covers | 이유 | 출처 |
+|---|---|---|---|---|---|
+| 1 | u1-api | | FR1.1, FR2, NFR1 | | [Q1] |
 
 ## Seam과 테스트 예산
-없음
+| unit | seam | 테스트 수준 | 실제 인프라 | 출처 |
+|---|---|---|---|---|
+| u1-api | `GET /stock` | 단위 | 0 | [Q1] |
+
+통합테스트 예산: 총 0건. [Q1]
+실행 명령: `./gradlew test` [practice]
 
 ## 완료 정의
 테스트 GREEN
@@ -760,6 +767,67 @@ class ExpressContract(Base):
         approve("verify", ("verify.md", VERIFY_OK))
         _, out, _ = run("next", "--root", str(self.root))
         self.assertEqual(out.strip(), "done")
+
+
+class PlanVerifyMachineChecks(Base):
+    """R3 Opus 리뷰 6·7(R4 반영): 프로즈에만 있던 plan·verify 규칙을 `check` 가 본다."""
+
+    def setUp(self):
+        super().setUp()
+        self.init(profile="express")
+        self.w = self.work()
+        self.write(self.path("requirements.md"), REQ_OK)
+        self.write(self.path("plan-questions.md"), QUESTIONS_ANSWERED)
+        self.write(self.path("units.md"), UNITS_OK)
+
+    def path(self, name):
+        return f"docs/dlc/{self.w.name}/{name}"
+
+    def test_plan_passes_when_unit_sets_match_and_run_command_present(self):
+        self.write(self.path("plan.md"), PLAN_OK)
+        code, out, _ = run("check", "plan", "--root", str(self.root))
+        self.assertEqual(code, 0, out)
+
+    def test_plan_order_table_with_unit_missing_from_units_md_is_reported(self):
+        self.write(self.path("plan.md"), PLAN_OK.replace(
+            "| 1 | u1-api | | FR1.1, FR2, NFR1 | | [Q1] |",
+            "| 1 | u1-api | | FR1.1, FR2, NFR1 | | [Q1] |\n| 2 | u2-extra | u1-api | FR2 | | [Q1] |"))
+        code, out, _ = run("check", "plan", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("u2-extra", out)
+        self.assertIn("plan.md", out)
+
+    def test_units_md_unit_missing_from_plan_order_table_is_reported(self):
+        self.write(self.path("units.md"), UNITS_OK.replace(
+            "| u1-api | service | | FR1, FR2, NFR1 |",
+            "| u1-api | service | | FR1, NFR1 |\n| u2-change | service | u1-api | FR2 |"))
+        self.write(self.path("plan.md"), PLAN_OK)
+        code, out, _ = run("check", "plan", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("u2-change", out)
+
+    def test_plan_without_run_command_is_reported(self):
+        self.write(self.path("plan.md"), PLAN_OK.replace("실행 명령: `./gradlew test` [practice]\n", ""))
+        code, out, _ = run("check", "plan", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("실행 명령", out)
+
+    def test_verify_verdict_rejected_fails_check(self):
+        self.write(self.path("verify.md"), VERIFY_OK.replace("## 판정\n승인", "## 판정\n반려. P1 1건이 남았다"))
+        code, out, _ = run("check", "verify", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("반려", out)
+
+    def test_verify_conditional_approval_passes_check(self):
+        self.write(self.path("verify.md"), VERIFY_OK.replace("## 판정\n승인", "## 판정\n조건부 승인. P2 1건은 후속 작업"))
+        code, out, _ = run("check", "verify", "--root", str(self.root))
+        self.assertEqual(code, 0, out)
+
+    def test_verify_unknown_verdict_word_is_reported(self):
+        self.write(self.path("verify.md"), VERIFY_OK.replace("## 판정\n승인", "## 판정\n보류"))
+        code, out, _ = run("check", "verify", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("판정", out)
 
 
 class RereviewFindings(Base):

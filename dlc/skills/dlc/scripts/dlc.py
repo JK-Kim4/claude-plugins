@@ -253,6 +253,9 @@ DEFINITION_SECTIONS = ("## 기능 요구사항", "## 비기능 요구사항")
 REFERENCE_STAGES = {"design", "plan", "build", "verify"}
 UNIT_ROW_RE = re.compile(r"^\|\s*(u\d+-[a-z0-9][a-z0-9-]*)\s*\|([^|]*)\|([^|]*)\|([^|]*?)\|?\s*$")
 FINGERPRINT_RE = re.compile(r"<!-- fingerprint: (\w+) -->")
+UNIT_NAME_RE = re.compile(r"\bu\d+-[a-z0-9][a-z0-9-]*\b")
+RUN_COMMAND_RE = re.compile(r"^실행 명령\s*[:：]\s*\S")
+VERDICTS = ("조건부 승인", "승인", "반려")  # 긴 것 먼저 — "조건부 승인" 이 "승인" 으로 읽히지 않게
 
 
 def h2_sections(text: str):
@@ -399,6 +402,32 @@ def check_units_coverage(work: Path, known, problems):
         problems.append("units.md: 어느 유닛도 맡지 않은 요구사항 — " + ", ".join(gaps))
 
 
+def check_plan_rules(work: Path, text: str, problems):
+    """dlc-plan 의 규칙 둘 — 유닛 순서 표의 unit 집합 = units.md 유닛 집합, 실행 명령 한 줄 (R3 Opus 리뷰 6)."""
+    planned = set(UNIT_NAME_RE.findall(section_body(text, "## 유닛 순서")))
+    declared = {u["unit"] for u in units_table(work)}
+    if declared:
+        extra = sorted(planned - declared)
+        if extra:
+            problems.append("plan.md: 유닛 순서 표에 units.md 에 없는 유닛이 있습니다 — " + ", ".join(extra))
+        missing = sorted(declared - planned)
+        if missing:
+            problems.append("plan.md: units.md 의 유닛이 유닛 순서 표에 없습니다 — " + ", ".join(missing))
+    if not any(RUN_COMMAND_RE.match(ln.strip()) for ln in section_body(text, "## Seam과 테스트 예산").splitlines()):
+        problems.append("plan.md: 'Seam과 테스트 예산' 절에 `실행 명령: <명령>` 줄이 없습니다 (build 가 테스트를 돌릴 수 없습니다)")
+
+
+def check_verdict(text: str, problems):
+    """verify.md 의 `## 판정` 첫 단어 — 승인·조건부 승인만 게이트로 간다 (R3 Opus 리뷰 7)."""
+    body = section_body(text, "## 판정")
+    first = body.strip().splitlines()[0].strip() if body.strip() else ""
+    verdict = next((v for v in VERDICTS if first.startswith(v)), None)
+    if verdict is None:
+        problems.append("verify.md: '판정' 절 첫 단어는 승인, 조건부 승인, 반려 중 하나여야 합니다")
+    elif verdict == "반려":
+        problems.append("verify.md: 판정이 '반려' 입니다 — 반려는 승인 게이트로 가지 않습니다. 고친 뒤 재검증 결과로 판정을 다시 쓰세요")
+
+
 def check_analyze_fingerprint(root: Path, text: str, problems):
     m = FINGERPRINT_RE.search(text)
     if not m:
@@ -447,6 +476,10 @@ def check_stage(root: Path, work: Path, stage: str):
             check_analyze_fingerprint(root, text, problems)
         elif stage in REFERENCE_STAGES:
             check_references(text, path.name, known, problems)
+            if path.name == "plan.md":
+                check_plan_rules(work, text, problems)
+            elif path.name == "verify.md":
+                check_verdict(text, problems)
     if stage == "design" or plan_owns_units:
         check_units_coverage(work, known, problems)
     if stage in QUESTION_STAGES:

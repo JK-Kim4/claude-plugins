@@ -48,7 +48,7 @@ depth minimal(express·bugfix)은 2~4개, standard(full)는 5~8개가 기준이�
 - **seam**은 테스트가 사는 public 경계다. 내부 구조가 바뀌어도 테스트가 살아남는 곳(함수 시그니처, HTTP 경로, CLI 인자와 출력, 이벤트 페이로드)이다. private 메서드나 내부 협력자는 seam이 아니다.
 - 유닛마다 seam이 하나 이상 있어야 한다. seam이 없는 유닛은 "테스트 없이 구현"이라는 뜻이며 사용자가 명시적으로 그렇게 답한 경우에만 허용하고 가정 절에 남긴다.
 - **통합테스트 예산**은 실제 인프라를 쓰는 테스트의 개수다. 기본 0. 예산을 넘겨야 할 이유가 있으면 이유와 함께 선택지로 묻는다. 구현 단계는 이 숫자를 넘지 않는다.
-- 이 에이전트의 스킬 목록에 `craft:tdd`(또는 `tdd`)가 있으면 그 스킬의 "Seam"·"테스트 비용 규율" 절이 seam·예산의 정의 원천이다. 여기 요약과 다르면 그쪽을 따른다. 로드 방법: Claude Code는 Skill 도구로 `craft:tdd`를 호출하고(파일 경로로는 읽지 못한다), `npx skills add`로 설치한 Codex·Gemini CLI는 `<skills>/tdd/SKILL.md`를 Read한다.
+- 이 에이전트의 스킬 목록에 `craft:tdd`(또는 `tdd`)가 있으면 그 스킬의 "Seam"·"테스트 비용 규율" 절이 seam·예산의 정의 원천이다. 여기 요약과 다르면 그쪽을 따른다. 로드 방법: Claude Code는 Skill 도구로 `craft:tdd`를 호출하고(로드하기 전에는 다른 플러그인의 설치 경로를 알 수 없다), `npx skills add`로 설치한 Codex·Gemini CLI는 `<skills>/tdd/SKILL.md`를 Read한다.
 
 ## 순서
 
@@ -106,13 +106,13 @@ design이 없는 프로파일에서만 이 단계가 만든다. 골격은 dlc-de
 None.
 ```
 
-- `## 유닛 순서` 표의 unit 집합은 units.md의 유닛 집합과 같아야 한다. 빠지거나 더해진 유닛이 없다.
+- `## 유닛 순서` 표의 unit 집합은 units.md의 유닛 집합과 같아야 한다. 빠지거나 더해진 유닛이 없다. `dlc.py check plan`이 두 집합을 비교한다.
 - `## Seam과 테스트 예산` 표의 데이터 행마다 출처를 단다. seam은 질문으로 합의한 `[Q<n>]`이거나 계약 표에서 그대로 가져온 것이어야 한다.
-- 실행 명령이 없으면 build가 테스트를 돌릴 수 없다. 반드시 한 줄 둔다.
+- 실행 명령이 없으면 build가 테스트를 돌릴 수 없다. `## Seam과 테스트 예산` 절에 `실행 명령: <명령>` 줄을 반드시 하나 둔다. `dlc.py check plan`이 이 줄을 찾는다.
 
 ## 완료 기준
 
-- `dlc.py check plan`이 OK: plan.md 필수 절 넷, requirements.md에 없는 ID 참조 없음, 질문 파일의 모든 답변과 `Looks correct`, 가정 절. 이 단계가 units.md를 만들었으면 그 필수 절과 요구사항 커버리지도.
+- `dlc.py check plan`이 OK: plan.md 필수 절 넷, requirements.md에 없는 ID 참조 없음, 유닛 순서 표의 유닛 집합 = units.md 유닛 집합, `실행 명령:` 줄 존재, 질문 파일의 모든 답변과 `Looks correct`, 가정 절. 이 단계가 units.md를 만들었으면 그 필수 절과 요구사항 커버리지도.
 - 모든 유닛에 seam이 있고(예외는 가정 절에), 통합테스트 예산이 숫자로 적혀 있고, 실행 명령이 있다.
 - 사용자가 승인 게이트에서 승인했다(protocol.md 10단계). 승인 뒤 `dlc.py approve plan`.
 
