@@ -34,8 +34,8 @@ metadata:
 4. **스캔 결과 설명.** 출력의 `workspace`·`languages`·`build`를 한 줄씩 풀어 전한다.
    - `brownfield`: 소스 파일이 발견됐다. 다음 단계는 `dlc-analyze`(코드베이스 분석)다. 단, `docs/dlc/codebase.md`가 이미 있고 지문이 같으면 자동으로 건너뛴다.
    - `greenfield`: 소스 파일이 없다. analyze는 `skipped`로 기록됐고 프로파일의 다음 단계로 간다.
-   - 결과가 사용자 인식과 다르면(코드가 있는데 greenfield 등) 스캔 규칙을 알린다: 깊이 4까지만 보고, `docs`·`build`·`dist`·`node_modules`·점으로 시작하는 폴더는 제외한다. 스캔은 참고 정보라 잘못돼도 진행은 막지 않는다.
-5. **다음 안내.** `python3 <skills>/dlc/scripts/dlc.py next`를 실행해 첫 단어의 스킬을 이 에이전트의 호출 표기로 안내한다(예: "다음은 코드베이스 분석입니다. `/dlc:dlc-analyze`를 부르세요"). 다음 스킬을 대신 실행하지 않는다.
+   - 결과가 사용자 인식과 다르면(코드가 있는데 greenfield 등) 스캔 규칙을 알린다: 깊이 4까지만 보고, `docs`·`build`·`dist`·`out`·`target`·`node_modules`·`vendor`·`venv`·`coverage` 등과 점으로 시작하는 폴더는 제외한다(정확한 목록은 `dlc.py`의 `EXCLUDED_DIRS`). 스캔은 참고 정보라 잘못돼도 진행은 막지 않는다.
+5. **다음 안내.** `python3 <skills>/dlc/scripts/dlc.py next`를 실행해 출력 첫 줄 `<stage> dlc-<stage>`의 스킬 이름을 이 에이전트의 호출 표기로 안내한다(예: "다음은 코드베이스 분석입니다. `/dlc:dlc-analyze`를 부르세요"). 다음 스킬을 대신 실행하지 않는다.
 
 ## 프로파일 설명 (사용자에게 보이는 문구)
 
@@ -44,6 +44,8 @@ metadata:
 | `full` | 착수 전 검토(intent) → 팀 관행(practices) → 요구사항 → 설계 → 계획 → 구현 → 검증. 기존 코드가 있으면 분석이 먼저 | 단계당 5~8개 | 새 기능이나 새 프로젝트. 왜 만드는지부터 확인해야 할 때 |
 | `express` | 요구사항 → 계획 → 구현 → 검증. 착수 전 검토·팀 관행·설계를 건너뛰고 계획 단계에서 유닛 표를 함께 만든다 | 단계당 2~4개 | 요구가 이미 명확한 작은 기능 |
 | `bugfix` | express와 같은 단계. 요구사항 질문이 재현 조건·기대 동작·회귀 테스트 중심 | 단계당 2~4개 | 알려진 결함 수정 |
+
+세 프로파일 모두 기존 코드가 있으면(brownfield) 분석(analyze)이 첫 단계로 끼어든다. `codebase.md`가 이미 있고 지문이 같으면 건너뛴다.
 
 프로파일은 나중에 바꿀 수 없다. 바꾸려면 새 작업을 만든다.
 

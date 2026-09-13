@@ -862,8 +862,6 @@ class Description(Base):
         self.assertEqual(D.read_state(self.work()).meta["profile"], "express")
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 # --- 스테이지 스킬 계약 (R2) --------------------------------------------------
@@ -927,3 +925,6 @@ class StageSkillContracts(Base):
         code, out, _ = run("check", "--root", str(self.root), "analyze")
         self.assertEqual(code, 1)
         self.assertIn("Q1 답변이 비어 있습니다", out)
+
+if __name__ == "__main__":
+    unittest.main()

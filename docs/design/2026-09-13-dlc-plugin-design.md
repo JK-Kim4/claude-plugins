@@ -53,7 +53,7 @@ AI-DLC(awslabs/aidlc-workflows)의 방법론을 에이전트 종속 없이 쓸 �
 | `dlc-analyze` | reverse-engineering | `docs/dlc/codebase.md` (작업 단위 밖, 프로젝트 공유). 기존 코드가 있을 때만 실행 |
 | `dlc-intent` | intent-capture·feasibility·scope-definition | `intent.md` (문제, 대상, 성공 지표, 범위 안팎, 타당성) |
 | `dlc-practices` | practices-discovery | `docs/dlc/practices.md` (작업 단위 밖, 프로젝트 공유) |
-| `dlc-requirements` | requirements-analysis·user-stories | `requirements.md` (FR/NFR ID, 스토리, 제약, 가정, 범위 밖) |
+| `dlc-requirements` | requirements-analysis·user-stories | `requirements.md` (의도 요약, FR/NFR ID, 제약, 범위 밖, 가정) |
 | `dlc-design` | domain-design·units-generation·contract-design | `design.md`, `decisions.md`(ADR), `units.md`(유닛 DAG) |
 | `dlc-plan` | delivery-planning·code-generation-plan | `plan.md` (유닛 순서, seam, 테스트 예산, 완료 정의) |
 | `dlc-build` | code-generation | 코드 + `build/<unit>.md` (변경 파일, 추적성) |
@@ -96,7 +96,7 @@ dlc/
 
 **승인 게이트.** 스테이지 끝에 에이전트가 산출물 요약과 검사 결과를 보이고 채팅으로 승인을 묻는다. 사용자가 승인하면 `dlc.py approve <stage>`로 상태를 기록한다. 에이전트가 `state.md`를 손으로 고치는 것은 금지한다.
 
-**출처 태그.** 산출물의 실질 문단·표 행은 `[desc]`, `[Q<n>]`, `[practice]`, `[assumption]` 중 하나를 단다. 근거 없는 내용은 `## 가정과 열린 질문` 절에만 둔다. 이 절은 필수이며 없으면 `None.`을 쓴다.
+**출처 태그.** 산출물의 실질 문단·표 행은 `[desc]`, `[Q<n>]`, `[practice]`, `[code:<경로>]`, `[assumption]` 중 하나를 단다. `[code:<경로>]`는 저장소 파일을 직접 읽어 확인한 사실용이며 `codebase.md`처럼 코드가 근거인 산출물에서 쓴다(R2 추가). 근거 없는 내용은 `## 가정과 열린 질문` 절에만 둔다. 이 절은 필수이며 없으면 `None.`을 쓴다.
 
 ## 6. dlc.py 책임
 

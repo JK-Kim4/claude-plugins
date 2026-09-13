@@ -20,7 +20,7 @@ metadata:
 
 ## 질문 주제
 
-depth는 `state.md`의 값을 따른다(full은 standard). standard면 5~8개, minimal이면 2~4개. 아래 순서로 빈 곳을 채우되, `description`에서 이미 답이 나오는 주제는 묻지 않는다.
+depth는 `state.md`의 값을 따른다. intent는 full 프로파일에만 있고 full은 standard라 5~8개다. 아래 순서로 빈 곳을 채우되, `description`에서 이미 답이 나오는 주제는 묻지 않는다.
 
 | 순위 | 주제 | 묻는 것 |
 |---|---|---|
@@ -33,7 +33,6 @@ depth는 `state.md`의 값을 따른다(full은 standard). standard면 5~8개, m
 | 7 | 타당성 위험 | 가장 불확실한 것 하나. 기술적으로 검증이 필요한 지점 |
 | 8 | 대안 | 만들지 않고 해결하는 길(구매, 수작업, 기존 기능 확장)을 검토했는가 |
 
-minimal이면 1~4번만 묻는다.
 
 성공 지표 답이 측정 불가능하면("더 편하게", "빨라지게") 후속 질문으로 숫자·기한·측정 방법을 받는다. 후속 질문은 protocol.md 6단계의 번호 체계를 따른다.
 

@@ -20,7 +20,10 @@ metadata:
 
 ## 순서에서 다른 점
 
-- protocol.md 1단계에서 `dlc.py next`가 analyze를 가리키지 않는데 사용자가 이 스킬을 명시 호출했다면, 지문이 같아 건너뛴 경우다. 사용자에게 "codebase.md가 현재 소스와 일치합니다. 다시 분석할까요?"를 묻고, 예면 `dlc.py start analyze --force`로 시작한다. 아니면 끝낸다.
+- protocol.md 1단계에서 `dlc.py next`가 analyze를 가리키지 않는데 사용자가 이 스킬을 명시 호출했다면, `state.md`의 analyze 상태를 먼저 본다.
+  - `pending`이면 지문이 같아 건너뛴 경우다. 사용자에게 "codebase.md가 현재 소스와 일치합니다. 다시 분석할까요?"를 묻고, 예면 `dlc.py start analyze --force`로 시작한다. 아니면 끝낸다.
+  - `done`이면 이 작업에서는 analyze가 이미 승인된 것이다. `--force`는 pending에만 통하므로 쓰지 않는다. "이 작업의 분석은 이미 승인됐습니다. codebase.md를 갱신하려면 새 작업을 만드세요. 소스가 바뀌었으면 지문 불일치로 analyze가 다시 뜹니다"라고 전하고 끝낸다.
+  - `skipped`(greenfield)면 분석할 코드가 없다고 전하고 끝낸다.
 - 조사는 아래 "조사 항목" 순서로 코드를 직접 읽는다. 코드에서 읽을 수 있는 것은 묻지 않는다.
 
 ## 조사 항목
@@ -39,7 +42,7 @@ metadata:
 
 ## 질문 주제
 
-코드로 판단할 수 없는 것만 묻는다. 대개 0~2개이며 depth 상한(minimal 4, standard 8)을 넘지 않는다. 질문이 없으면 `analyze-questions.md`를 만들지 않는다.
+코드로 판단할 수 없는 것만 묻는다. 대개 0~2개다. depth 기준(protocol.md의 minimal 2~4, standard 5~8)보다 적어도 된다. 질문이 없으면 `analyze-questions.md`를 만들지 않는다.
 
 - 곧 폐기되거나 손대면 안 되는 영역이 있는가
 - 코드에 드러나지 않는 외부 시스템의 소유자·계약(SLA, 호출 한도)
@@ -86,11 +89,11 @@ metadata:
 ```
 
 - 표의 데이터 행마다 `출처` 열에 태그를 단다. 코드에서 직접 확인한 사실은 `[code:<경로>]`, 사용자 답변은 `[Q<n>]`. 근거 없는 추정은 `## 가정과 열린 질문`에만 `[assumption]`으로 둔다.
-- 갱신 모드에서는 기존 행을 지우지 않고 바뀐 행만 고친다. 사라진 모듈은 행을 지우고 `dlc.py note analyze "<무엇을 왜 지웠는지>"`로 남긴다.
+- 갱신 모드에서는 바뀐 행만 고치고 나머지는 보존한다. 저장소에서 사라진 모듈의 행만 지우되, 지운 행은 `dlc.py note analyze "<무엇을 왜 지웠는지>"`로 남긴다.
 
 ## 완료 기준
 
-- `dlc.py check analyze`가 OK: 필수 절 다섯 개가 있고, 지문 주석이 현재 소스와 같고, 가정 절이 비어 있지 않다.
+- `dlc.py check analyze`가 OK: 필수 절 다섯 개가 있고, 지문 주석이 현재 소스와 같고, 가정 절이 비어 있지 않다. 질문 파일이 있으면 모든 답변과 `Looks correct`도 본다.
 - 뒤 단계가 이 문서만 읽고 "어디에 무엇이 있고 어떻게 테스트하는가"에 답할 수 있다.
 - 사용자가 승인 게이트에서 승인했다(protocol.md 10단계). 승인 뒤 `dlc.py approve analyze`.
 

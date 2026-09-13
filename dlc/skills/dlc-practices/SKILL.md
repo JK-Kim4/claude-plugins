@@ -18,7 +18,7 @@ metadata:
 - `state.md`의 `workspace`·`languages`·`build`.
 - `docs/dlc/codebase.md`(brownfield일 때). "관례와 제약"·"기술 스택" 절이 네 영역의 주 증거다.
 - `intent.md`(있으면). 제약 절의 기한·규제가 배포·테스트 관행에 영향을 준다.
-- `docs/dlc/practices.md`가 이미 있으면 **갱신 모드**다. 다른 작업이 이미 확정한 내용을 이 작업이 바꾸면 그 작업에도 영향이 가므로, 바꾸는 항목은 반드시 사용자에게 "기존 값 → 새 값, 다른 작업에도 적용됨"을 알리고 확인받는다.
+- `docs/dlc/practices.md`가 이미 있으면 **갱신 모드**다. 다른 작업이 이미 확정한 내용을 이 작업이 바꾸면 그 작업에도 영향이 가므로, 바꾸는 항목은 반드시 사용자에게 "기존 값 → 새 값, 다른 작업에도 적용됨"을 알리고 확인받는다. 바꿀 것이 없으면 질문 파일 없이 `dlc.py check practices` 뒤 승인 게이트로 간다.
 
 ## 네 영역과 묻는 것
 
@@ -89,7 +89,7 @@ depth를 따른다(full은 standard, 5~8개). brownfield는 빈 항목 수만큼
 
 ## 완료 기준
 
-- `dlc.py check practices`가 OK: 필수 절 다섯 개, 질문 파일의 모든 답변과 `Looks correct`, 가정 절.
+- `dlc.py check practices`가 OK: 필수 절 다섯 개, 질문 파일이 있으면 그 모든 답변과 `Looks correct`, 가정 절.
 - 네 영역에 빈 표가 없다.
 - 사용자가 승인 게이트에서 승인했다(protocol.md 10단계). 승인 뒤 `dlc.py approve practices`.
 
