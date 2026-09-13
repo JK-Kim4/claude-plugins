@@ -123,8 +123,16 @@ class Links(unittest.TestCase):
         self.assertEqual(out["fixable"][0]["new"], "../b/target.md")
 
     def test_missing_target_is_absent_not_fixable(self):
-        out = self.classify({"a.md": "[x](../../outside/spec.md)\n"})
+        out = self.classify({"a.md": "[x](./nope.md)\n"})
         self.assertEqual(len(out["absent"]), 1)
+        self.assertEqual(out["fixable"], [])
+
+    def test_outside_root_missing_is_external(self):
+        # 위키 밖(크로스 repo 등)을 가리키는데 이 머신에 없는 링크 — absent 가 아니라
+        # external 로 분류한다. 위키 안 후보로 "고쳐" 버리면 안 되는 대상이다.
+        out = self.classify({"a.md": "[x](../../outside/spec.md)\n"})
+        self.assertEqual(len(out["external"]), 1)
+        self.assertEqual(out["absent"], [])
         self.assertEqual(out["fixable"], [])
 
     def test_links_from_archive_are_never_touched(self):
