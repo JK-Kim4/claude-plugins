@@ -1,0 +1,80 @@
+schema_version: "1.1"
+name: express-requirements
+description: >
+  빈 디렉터리에서 라우터 전체 진행 모드로 init(express) → requirements 승인까지 한 번에 진행한다.
+  eval 은 단일 프롬프트라 질문 답변·요약 확인·승인을 프롬프트에 사전 제공한다(2026-09-13 R2 결정, 설계 문서 §8).
+tags: [dlc, express, r2]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 60
+  timeout_seconds: 1200
+  allowed_tools: [Bash, Read, Write, Edit, Glob, Grep]
+  prompt: |
+    /dlc:dlc --all express inventory-lookup 창고 관리자가 SKU 로 현재 재고 수량을 조회하는 사내 API
+
+    이 세션은 자동 실행이라 나는 뒤에 더 답할 수 없다. 그러니 다음을 지켜라.
+
+    - 프로파일 express, slug inventory-lookup, 설명은 위 문장 그대로다. 되묻지 말고 init 을 진행하라.
+    - requirements 단계의 질문 파일은 반드시 만들고, 각 질문의 답은 아래 표에서 주제에 맞는 것을 골라 `[Answer]:` 에 기록하라. 표에 없는 주제는 묻지 말고 가정 절에 [assumption] 으로 남겨라.
+    - 요약 확인(Consolidated Summary Confirmation)은 내가 미리 `Looks correct` 로 답한 것으로 기록하라.
+    - 승인 게이트에서는 `dlc.py check requirements` 가 OK 이면 내가 승인한 것으로 보고 `dlc.py approve requirements --note "사전 승인(eval)"` 을 실행하라. check 가 실패하면 고쳐서 다시 검사하라.
+    - requirements 승인 뒤에는 "여기까지". `dlc.py status` 를 보이고 멈춰라.
+
+    내 답변:
+    - 기능: SKU 하나를 주면 현재 총수량과 창고별 수량을 돌려준다. 없는 SKU 는 404. 입출고 등록은 하지 않는다.
+    - 시나리오: 창고 관리자가 사내 관리 화면에서 SKU 를 입력해 수량을 본다. 창고가 0개인 SKU 는 총수량 0 과 빈 목록.
+    - 기술: 기존 PostgreSQL 의 inventory 테이블을 읽기 전용으로 조회한다. 인증은 사내 SSO 토큰.
+    - 품질: 존재하는 SKU 는 200 과 수량, 없는 SKU 는 404 를 돌려주는 통합 테스트 2건이 있어야 완료다.
+    - 비기능: p95 300ms 이하 (100 rps 부하 기준).
+graders:
+  - type: regex
+    name: skill-fired-dlc-py-used
+    target: trace
+    pattern: "dlc\\.py (init|next|status|start|check|approve)"
+  - type: regex
+    name: init-created-work
+    target: trace
+    pattern: "작업 폴더: docs/dlc/\\d{6}-inventory-lookup"
+  - type: regex
+    name: requirements-check-ok
+    target: trace
+    pattern: "check requirements: OK"
+  - type: regex
+    name: requirements-approved
+    target: trace
+    pattern: "requirements: done"
+  - type: regex
+    name: no-traceback
+    target: trace
+    pattern: "Traceback \\(most recent call last\\)"
+    match: not_contains
+  - type: file_exists
+    name: state-md-written
+    path: "docs/dlc/*/state.md"
+  - type: file_exists
+    name: requirements-md-written
+    path: "docs/dlc/*/requirements.md"
+  - type: file_exists
+    name: questions-md-written
+    path: "docs/dlc/*/requirements-questions.md"
+  - type: regex
+    name: stops-after-requirements
+    target: trace
+    pattern: "dlc\\.py start plan"
+    match: not_contains
+  # 위 grader 는 라우터 --all 의 "여기까지" 중단 실측이다(설계 §9, R4 추가).
+  # 내용 검사 2개는 Write 도구 입력에 앵커링한다. trace 에는 에이전트가 Read 한 참조 문서 본문도 남아
+  # 앵커 없는 패턴은 protocol.md·grounding.md·SKILL.md 의 예시에 매치된다(R2 리뷰 U1). `<경로>","content":"` 뒤
+  # JSON 문자열 안에서만 움직이는 (?:[^"\\]|\\.)*? 로 이어 실제로 쓴 파일 본문만 본다. 러너의 regex file-source 는
+  # glob 을 받지 않아 날짜가 든 작업 폴더의 파일을 직접 가리킬 수 없다. 권한 우회 모드에서는 파일이 Bash heredoc 으로
+  # 쓰이므로(R3 관찰) 앵커에 `<<'EOF'\n` 대안을 둔다 — plan-supplies-units 케이스와 같은 형식.
+  - type: regex
+    name: requirements-md-written-with-sections-and-fr1
+    target: trace
+    pattern: 'requirements\.md(?:","content":"|\s*<<\s*-?''?\w+''?\\n)(?:[^"\\]|\\.)*?## 의도 요약(?:[^"\\]|\\.)*?## 기능 요구사항(?:[^"\\]|\\.)*?### FR1\.(?:[^"\\]|\\.)*?## 비기능 요구사항(?:[^"\\]|\\.)*?## 제약(?:[^"\\]|\\.)*?## 범위 밖(?:[^"\\]|\\.)*?## 가정과 열린 질문'
+  - type: regex
+    name: questions-md-written-with-summary-confirmed
+    target: trace
+    pattern: 'requirements-questions\.md(?:","content":"|\s*<<\s*-?''?\w+''?\\n)(?:[^"\\]|\\.)*?\[Answer\]: Looks correct'

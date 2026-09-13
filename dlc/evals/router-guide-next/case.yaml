@@ -1,0 +1,34 @@
+schema_version: "1.1"
+name: router-guide-next
+description: >
+  requirements 가 pending 인 express 작업과 커서가 있는 상태에서 라우터를 인자 없이 부른다. status 출력을 보이고 다음 스킬을 Claude Code 표기(/dlc:dlc-requirements)로 안내한 뒤 끝나야 하며, 다음 스킬을 대신 실행하지 않는다.
+tags: [dlc, router, r4]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 15
+  timeout_seconds: 300
+  allowed_tools: [Bash, Read, Write, Edit, Glob, Grep]
+  prompt: |
+    /dlc:dlc
+graders:
+  - type: regex
+    name: skill-fired-status-run
+    target: trace
+    pattern: "dlc\\.py status"
+  - type: regex
+    name: status-shows-next
+    target: trace
+    pattern: "다음: requirements → dlc-requirements"
+  # '/dlc:dlc-requirements 안내' grader 는 두지 않는다 — 라우터 SKILL.md 의 예시 문장에 같은 문자열이 있어 거짓 양성이 난다(trace 에 스킬 본문 포함).
+  - type: regex
+    name: does-not-start-next-stage
+    target: trace
+    pattern: "dlc\\.py start"
+    match: not_contains
+  - type: regex
+    name: does-not-init
+    target: trace
+    pattern: "dlc\\.py init"
+    match: not_contains

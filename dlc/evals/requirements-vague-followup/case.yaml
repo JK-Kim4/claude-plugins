@@ -1,0 +1,56 @@
+schema_version: "1.1"
+name: requirements-vague-followup
+description: >
+  requirements 단계 단독 호출. 품질 차원의 답이 모호어('적당히')다. protocol.md 6단계대로 그 답을 기록한 뒤 후속 질문 Q<n+1> 을 파일에 추가하고, 그 후속 질문의 답(사전 제공, 고유 토큰 test_stock_404 포함)까지 받아 check 통과·승인까지 가야 한다.
+tags: [dlc, requirements, r4]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 40
+  timeout_seconds: 900
+  allowed_tools: [Bash, Read, Write, Edit, Glob, Grep]
+  prompt: |
+    /dlc:dlc-requirements
+
+    이 세션은 자동 실행이라 나는 뒤에 더 답할 수 없다. 그러니 다음을 지켜라.
+
+    - 질문 파일을 만들고 각 질문의 답은 아래에서 주제에 맞는 것을 골라 `[Answer]:` 에 기록하라. 내 말을 고쳐 쓰지 말고 그대로 적어라(선택지에 없으면 `X - <내 말>`). 아래에 없는 주제는 묻지 말고 가정 절에 [assumption] 으로 남겨라.
+    - protocol.md 6단계 답변 검사를 반드시 하라. 후속 질문이 생기면 파일에 `Q<n+1>` 로 추가하고, 그 후속 질문의 답은 "후속 답변" 에서 골라 기록하라.
+    - 요약 확인은 내가 미리 `Looks correct` 로 답한 것으로 기록하라.
+    - 승인 게이트에서는 `dlc.py check requirements` 가 OK 이면 내가 승인한 것으로 보고 `dlc.py approve requirements --note "사전 승인(eval)"` 을 실행하라. check 가 실패하면 고쳐서 다시 검사하라.
+
+    내 답변:
+    - 기능: SKU 하나를 주면 현재 총수량과 창고별 수량을 돌려준다. 없는 SKU 는 404.
+    - 시나리오: 창고 관리자가 사내 관리 화면에서 SKU 를 입력해 수량을 본다.
+    - 기술: 기존 PostgreSQL 의 inventory 테이블을 읽기 전용으로 조회한다.
+    - 품질: 적당히 테스트되면 된다.
+
+    후속 답변:
+    - 테스트 수준·범위를 구체적으로 물으면: 통합 테스트 2건. 존재하는 SKU 200 을 확인하는 test_stock_200 과 없는 SKU 404 를 확인하는 test_stock_404.
+graders:
+  - type: regex
+    name: skill-fired-start-requirements
+    target: trace
+    pattern: "dlc\\.py start requirements"
+  - type: regex
+    name: vague-answer-recorded-verbatim
+    target: trace
+    pattern: "\\[Answer\\]:[^\"\\n]*적당히"  # 모호어 답을 그대로 기록했다. 프롬프트에는 `[Answer]:` 접두가 없어 프롬프트 본문에는 매치되지 않는다
+  - type: regex
+    name: followup-answer-recorded
+    target: trace
+    pattern: "\\[Answer\\]:[^\"\\n]*test_stock_404"  # 후속 질문이 실제로 파일에 추가되고 답까지 기록됐다는 증거. 고유 토큰은 프롬프트의 '후속 답변' 에만 있다
+  - type: regex
+    name: requirements-check-ok
+    target: trace
+    pattern: "check requirements: OK"
+  - type: regex
+    name: requirements-approved
+    target: trace
+    pattern: "requirements: done"
+  - type: regex
+    name: no-traceback
+    target: trace
+    pattern: "Traceback \\(most recent call last\\)"
+    match: not_contains

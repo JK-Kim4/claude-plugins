@@ -1,0 +1,7 @@
+# Codex 전용 메타. 다른 에이전트는 이 파일을 무시한다.
+# 사용자가 $dlc 로 직접 부를 때만 실행되게 한다 (Claude 의 disable-model-invocation 과 같은 뜻).
+interface:
+  display_name: "dlc"
+  short_description: "개발 생명주기 스킬셋 라우터"
+policy:
+  allow_implicit_invocation: false

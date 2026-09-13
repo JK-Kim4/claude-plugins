@@ -1,0 +1,16 @@
+{
+  "name": "dlc",
+  "version": "0.1.0",
+  "description": "AI-DLC 방법론을 에이전트 종속 없이 쓰는 명시 호출형 생명주기 스킬셋. 라우터(dlc) + 스테이지 9개(init·analyze·intent·practices·requirements·design·plan·build·verify). 산출물과 진행 상태를 저장소 안 docs/dlc/ 에 남기고, python3 stdlib 스크립트가 상태 전이·다음 단계 판정·산출물 검사를 맡는다.",
+  "author": {
+    "name": "JK-Kim4"
+  },
+  "keywords": [
+    "lifecycle",
+    "spec-driven",
+    "requirements",
+    "design",
+    "workflow"
+  ],
+  "license": "MIT"
+}
