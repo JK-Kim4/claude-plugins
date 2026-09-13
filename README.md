@@ -37,14 +37,19 @@ doc-gen-plugin/
 │       ├── SKILL.md
 │       ├── references/           # 7축 루브릭·red flags·출처
 │       └── evals/                # 스킬 평가 케이스
-└── dlc/
-    ├── .claude-plugin/plugin.json
-    ├── evals/                    # claude plugin eval 케이스 8개 + run.sh
-    └── skills/
-        ├── dlc/                  # 라우터 + 공유 스파인(references/, scripts/dlc.py, tests/)
-        ├── dlc-init/  dlc-analyze/  dlc-intent/  dlc-practices/  dlc-requirements/
-        └── dlc-design/  dlc-plan/  dlc-build/  dlc-verify/
+├── dlc/
+│   ├── .claude-plugin/plugin.json
+│   ├── evals/                    # claude plugin eval 케이스 8개 + run.sh
+│   └── skills/
+│       ├── dlc/                  # 라우터 + 공유 스파인(references/, scripts/dlc.py, tests/)
+│       ├── dlc-init/  dlc-analyze/  dlc-intent/  dlc-practices/  dlc-requirements/
+│       └── dlc-design/  dlc-plan/  dlc-build/  dlc-verify/
+└── archive/                      # 스킬 이전 버전 보관 — archive/<스킬명>/<교체일>/
 ```
+
+## 스킬 버전 관리
+
+플러그인의 `skills/` 아래에는 최신 버전만 둔다. 스킬을 고치는 PR에서 이전 버전을 `archive/<스킬명>/<YYYY-MM-DD>/`로 옮기고 `plugin.json` 버전을 올린다. 절차와 보관 목록은 [`archive/README.md`](archive/README.md).
 
 ## 설치 (다른 PC 포함)
 
