@@ -473,7 +473,7 @@ class Check(Base):
         self.write(self.path("design.md"),
                    "# 설계\n\n## 컴포넌트\n- Inventory: FR1, FR9 [Q1]\n\n## 엔티티 소유권\n- Stock: Inventory\n\n"
                    "## 상호작용\n없음\n\n## 가정과 열린 질문\nNone.\n")
-        self.write(self.path("decisions.md"), "# 결정\n\n## ADR-1 저장소 선택\n### 배경\n### 대안\n### 결정\n### 결과\n")
+        self.write(self.path("decisions.md"), "# 결정\n\n## 결정\n### ADR-1. 저장소 선택\n- 대안 A — 기각\n- 대안 B — 채택\n\n## 가정과 열린 질문\nNone.\n")
         self.write(self.path("units.md"),
                    "# 유닛\n\n## 유닛\n| unit | kind | depends_on | covers |\n|---|---|---|---|\n| u1-inventory | service | | FR1, FR2, NFR1 |\n\n"
                    "## 계약\n없음\n\n## 가정과 열린 질문\nNone.\n")
@@ -487,7 +487,7 @@ class Check(Base):
         self.write(self.path("design.md"),
                    "# 설계\n\n## 컴포넌트\n- Inventory: FR1 [Q1]\n\n## 엔티티 소유권\n- Stock: Inventory\n\n"
                    "## 상호작용\n없음\n\n## 가정과 열린 질문\nNone.\n")
-        self.write(self.path("decisions.md"), "# 결정\n\n## ADR-1 저장소 선택\n### 배경\n### 대안\n### 결정\n### 결과\n")
+        self.write(self.path("decisions.md"), "# 결정\n\n## 결정\n### ADR-1. 저장소 선택\n- 대안 A — 기각\n- 대안 B — 채택\n\n## 가정과 열린 질문\nNone.\n")
         self.write(self.path("units.md"),
                    "# 유닛\n\n## 유닛\n| unit | kind | depends_on | covers |\n|---|---|---|---|\n| u1-inventory | service | | FR1, NFR1 |\n\n"
                    "## 계약\n없음\n\n## 가정과 열린 질문\nNone.\n")
@@ -495,6 +495,28 @@ class Check(Base):
         code, out, _ = run("check", "design", "--root", str(self.root))
         self.assertNotEqual(code, 0)
         self.assertIn("FR2", out)
+
+    def test_build_traceability_must_cover_every_requirement(self):
+        """모든 최상위 FR/NFR 이 어느 유닛의 build/<unit>.md 추적성에든 나와야 한다 (R3, 하위 ID 로 맡으면 상위도 덮은 것)."""
+        self.write(self.path("requirements.md"), REQ_OK)
+        self.write(self.path("units.md"), UNITS_OK)
+        self.write(self.path("build/u1-api.md"), BUILD_OK.replace("| FR2 | src/a.kt |\n", "").replace("| NFR1 | src/a.kt |\n", ""))
+        code, out, _ = run("check", "build", "--root", str(self.root))
+        self.assertEqual(code, 1)
+        self.assertIn("어느 유닛의 추적성에도 없는 요구사항 — FR2, NFR1", out)
+        self.write(self.path("build/u1-api.md"), BUILD_OK)
+        code, out, _ = run("check", "build", "--root", str(self.root))
+        self.assertEqual(code, 0, out)
+
+    def test_build_traceability_counts_only_table_rows(self):
+        """추적성 절의 산문에 적힌 ID 는 덮은 것으로 치지 않는다 (R3 리뷰 12). 표 행만 센다."""
+        self.write(self.path("requirements.md"), REQ_OK)
+        self.write(self.path("units.md"), UNITS_OK)
+        self.write(self.path("build/u1-api.md"), BUILD_OK.replace("| FR2 | src/a.kt |\n| NFR1 | src/a.kt |\n", "")
+                   .replace("## 테스트", "FR2 와 NFR1 은 다음 유닛에서 맡는다.\n\n## 테스트"))
+        code, out, _ = run("check", "build", "--root", str(self.root))
+        self.assertEqual(code, 1)
+        self.assertIn("어느 유닛의 추적성에도 없는 요구사항 — FR2, NFR1", out)
 
     def test_build_requires_one_file_per_unit(self):
         self.write(self.path("units.md"),
@@ -577,6 +599,8 @@ BUILD_OK = """# u1-api
 | id | target |
 |---|---|
 | FR1.1 | src/a.kt |
+| FR2 | src/a.kt |
+| NFR1 | src/a.kt |
 
 ## 테스트
 통과
@@ -890,20 +914,21 @@ def skeleton_h2s(skill_md: str, artifact: str):
 
 class StageSkillContracts(Base):
     def test_skill_skeleton_h2_matches_artifacts(self):
-        """스킬 본문의 산출물 골격 H2 가 dlc.py ARTIFACTS 와 글자 단위로 같다 (순서 포함)."""
+        """스킬 본문의 산출물 골격 H2 가 dlc.py ARTIFACTS·BUILD_UNIT_SECTIONS 와 글자 단위로 같다 (순서 포함)."""
+        expected = {stage: [(rel.split("/")[-1], req) for rel, req in arts] for stage, arts in D.ARTIFACTS.items()}
+        expected["build"] = [("build/<unit>.md", D.BUILD_UNIT_SECTIONS)]  # R3: ARTIFACTS 밖에 있는 유닛별 산출물 (R2 리뷰 U16)
+        expected["plan"].append(("units.md", dict(D.ARTIFACTS["design"])["units.md"]))  # design 이 없는 프로파일에서는 plan 이 만든다
         checked = 0
-        for stage, artifacts in D.ARTIFACTS.items():
+        for stage, artifacts in expected.items():
             skill = SKILLS_DIR / f"dlc-{stage}" / "SKILL.md"
-            if not skill.exists():
-                continue  # 아직 없는 스테이지 스킬 (R3)
+            self.assertTrue(skill.exists(), f"dlc-{stage}/SKILL.md 가 없습니다")
             text = skill.read_text(encoding="utf-8")
-            for rel, required in artifacts:
-                name = rel.split("/")[-1]
+            for name, required in artifacts:
                 got = skeleton_h2s(text, name)
                 self.assertIsNotNone(got, f"dlc-{stage}/SKILL.md 에 '### {name}' 골격 블록이 없습니다")
-                self.assertEqual(got, required, f"dlc-{stage}/SKILL.md 의 {name} 골격 H2 가 ARTIFACTS 와 다릅니다")
+                self.assertEqual(got, required, f"dlc-{stage}/SKILL.md 의 {name} 골격 H2 가 dlc.py 와 다릅니다")
                 checked += 1
-        self.assertGreaterEqual(checked, 4, "R2 스킬 4개(analyze·intent·practices·requirements)의 골격이 검사돼야 합니다")
+        self.assertEqual(checked, 11, "산출물 골격 11개(codebase·intent·practices·requirements·design·decisions·units·plan·plan의 units·build/<unit>·verify)가 검사돼야 합니다")
 
     def test_every_stage_skill_is_explicit_invocation_only(self):
         for d in sorted(SKILLS_DIR.glob("dlc-*")):

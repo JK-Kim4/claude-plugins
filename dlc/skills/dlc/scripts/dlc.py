@@ -53,7 +53,7 @@ ARTIFACTS = {
     "requirements": [("requirements.md", ["## 의도 요약", "## 기능 요구사항", "## 비기능 요구사항",
                                           "## 제약", "## 범위 밖", ASSUMPTIONS])],
     "design": [("design.md", ["## 컴포넌트", "## 엔티티 소유권", "## 상호작용", ASSUMPTIONS]),
-               ("decisions.md", []),
+               ("decisions.md", ["## 결정", ASSUMPTIONS]),
                ("units.md", ["## 유닛", "## 계약", ASSUMPTIONS])],
     "plan": [("plan.md", ["## 유닛 순서", "## Seam과 테스트 예산", "## 완료 정의", ASSUMPTIONS])],
     "verify": [("verify.md", ["## 테스트 결과", "## 추적성", "## 리뷰 발견", "## 판정", ASSUMPTIONS])],
@@ -412,11 +412,18 @@ def check_build(work: Path, known, problems):
     units = units_table(work)
     if not units:
         problems.append("units.md: 유닛 표를 읽을 수 없습니다 (## 유닛 절의 `| u<n>-<slug> | kind | depends_on | covers |` 행)")
+    traced = set()
     for u in units:
         path = work / "build" / f"{u['unit']}.md"
         text = check_sections(path, BUILD_UNIT_SECTIONS, problems)
         if text is not None:
             check_references(text, path.name, known, problems)
+            rows = [ln for ln in section_body(text, "## 추적성").splitlines() if ln.startswith("|")]
+            traced |= {i.split(".")[0] for i in ids_in("\n".join(rows))}  # 표 행만 센다. 산문 언급은 덮은 것이 아니다
+    if known is not None and units:
+        gaps = sorted(i for i in known - traced if "." not in i)
+        if gaps:
+            problems.append("build/: 어느 유닛의 추적성에도 없는 요구사항 — " + ", ".join(gaps))
 
 
 def check_stage(root: Path, work: Path, stage: str):

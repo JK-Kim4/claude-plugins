@@ -55,7 +55,7 @@ AI-DLC(awslabs/aidlc-workflows)의 방법론을 에이전트 종속 없이 쓸 �
 | `dlc-practices` | practices-discovery | `docs/dlc/practices.md` (작업 단위 밖, 프로젝트 공유) |
 | `dlc-requirements` | requirements-analysis·user-stories | `requirements.md` (의도 요약, FR/NFR ID, 제약, 범위 밖, 가정) |
 | `dlc-design` | domain-design·units-generation·contract-design | `design.md`, `decisions.md`(ADR), `units.md`(유닛 DAG) |
-| `dlc-plan` | delivery-planning·code-generation-plan | `plan.md` (유닛 순서, seam, 테스트 예산, 완료 정의) |
+| `dlc-plan` | delivery-planning·code-generation-plan | `plan.md` (유닛 순서, seam, 테스트 예산, 완료 정의). design이 없는 프로파일이면 `units.md`도 |
 | `dlc-build` | code-generation | 코드 + `build/<unit>.md` (변경 파일, 추적성) |
 | `dlc-verify` | build-and-test + 리뷰 | `verify.md` (테스트 결과, 추적성 검사, 리뷰 발견) |
 
@@ -107,7 +107,7 @@ dlc/
 | `init --profile <p> --slug <s>` | 작업 폴더와 `state.md` 생성, 워크스페이스 스캔(greenfield/brownfield, 언어·빌드 도구 감지) |
 | `status` | 현재 작업, 프로파일, 스테이지별 상태 출력 |
 | `next` | 다음 실행 스테이지와 호출할 스킬 이름 출력. 완료면 `done` |
-| `check <stage>` | 산출물 필수 절 존재, 질문 파일 미답변·번호 연속, FR/NFR ID 연속성, 설계·계획·빌드·검증의 ID 참조, 유닛 커버리지, codebase.md 지문 검사. 실패 목록 출력 |
+| `check <stage>` | 산출물 필수 절 존재, 질문 파일 미답변·번호 연속, FR/NFR ID 연속성, 설계·계획·빌드·검증의 ID 참조, 유닛 커버리지, 빌드 추적성 커버리지(모든 최상위 FR/NFR이 어느 `build/<unit>.md`의 추적성에든 있음, R3 추가), codebase.md 지문 검사. 실패 목록 출력 |
 | `start`, `approve`, `skip --reason` | 상태 전이 기록. `start`·`approve`는 `next`가 가리키는 스테이지만, `approve`는 `start` 후 `check` 통과가 전제. `skip`은 pending·active만 |
 | `start analyze --force` | 지문 일치로 건너뛴 analyze를 다시 돌린다 |
 | `note <stage> <text>` | `log.md`에 결정·메모 한 줄 추가 (상태 변화 없음) |
@@ -131,8 +131,25 @@ Codex의 `agents/openai.yaml`은 Agent Skills 표준 밖의 확장이지만 다�
 |---|---|---|
 | R1 | 플러그인 골격, 마켓플레이스 등록, 라우터 스킬, 공유 참조 3개, `dlc.py` + 테스트 | unittest GREEN, `claude plugin validate`, `npx skills add` 로컬 설치로 형제 경로 가정 확인 |
 | R2 | 스테이지 스킬 5개: init, analyze, intent, practices, requirements | 빈 디렉터리에서 Claude로 express 프로파일 1회 실행 — 수동 대신 `claude plugin eval` 케이스 1건(`dlc/evals/`)으로 수행해 기록을 남기고, 명시 호출 스킬이 eval 프롬프트에서 발동되는지 확정. 기존 코드가 있는 디렉터리에서 analyze 1회 실행 |
-| R3 | 스테이지 스킬 4개: design, plan, build, verify | 같은 실행을 verify까지 완주 |
+| R3 | 스테이지 스킬 4개: design, plan, build, verify. `dlc.py check build`에 빌드 추적성 커버리지 추가, decisions.md 필수 절(`## 결정`·가정) 확정, 골격 비교 테스트를 `BUILD_UNIT_SECTIONS`·plan의 units.md까지 확장(R2 리뷰 U16) | 빈 디렉터리에서 라우터 `--all`로 express 프로파일 init→verify 완주(헤드리스). full 프로파일 픽스처 위에서 design 1회 실행. 결과는 아래 |
 | R4 | Codex `openai.yaml`, README, evals, Codex에서 1회 실행 | Codex에서 `$dlc-requirements` 동작 확인. evals는 `claude plugin eval` suite(라우터 + 스테이지 스킬)로 만들고, 발동 채점 방식은 R2 케이스 결과를 따른다 |
+
+**R3 실측 결과 (2026-09-13).** 두 실행 모두 `claude -p --plugin-dir ./dlc --dangerously-skip-permissions --output-format stream-json`(2.1.270), 빈 임시 디렉터리, 답변·승인 사전 제공. eval 러너가 아니라 헤드리스 CLI를 쓴 것은 다중 스테이지 한 프롬프트 실행에 러너의 이점(scaffold·grader)이 필요 없었기 때문이며, trace는 stream-json으로 남겼다.
+
+| 실행 | 프롬프트 | 결과 |
+|---|---|---|
+| express 완주 | `/dlc:dlc --all express wcl <설명>` + requirements·plan 답변, 전 스테이지 사전 승인, build "전부 진행" | 24턴, 약 $4.02. init→requirements(질문 4)→plan(질문 4, units.md 유닛 2개)→build(유닛 2개, 코드 `wcl/` 3파일·테스트 `tests/` 2파일, red 확인 4회 기록)→verify. `status` 전부 done, `next`가 `done`, `check` 4개 OK, 생성 테스트 10건 GREEN |
+| full design | 픽스처(practices·requirements 승인, intent skip) 위에서 `/dlc:dlc-design` + 답변 6개 | 7턴, 약 $1.88. 질문 6개(standard 5~8 안), ADR 1건에 대안 3개·기각 이유, 유닛 4개가 FR/NFR 전부를 덮음, `check design` OK, 승인 |
+
+관찰:
+
+- **verify의 반려 경로가 실제로 돌았다.** 1차 검증이 P1 1건(`except OSError`만 잡아 UTF-8이 아닌 파일에서 크래시)을 재현 테스트와 함께 찾아 판정 `반려`로 기록하고, 프롬프트의 "반려면 이 세션에서 고친다"에 따라 seam 테스트를 red로 확인한 뒤 수정, `build/u2-cli.md` 갱신, `note verify` 2줄, 재검증 통과 후 승인. log.md에 `start → note → note → approve` 순서가 남았다.
+- **라우터 `--all`이 스테이지마다 멈추고 승인 뒤 다음 스킬 파일을 읽어 이어갔다.** requirements→plan→build→verify 네 번 모두 `next` 재실행 → `../dlc-<stage>/SKILL.md` Read → 절차 수행. 사용자의 "여기까지" 중단은 이번에 실측하지 않았다.
+- **craft:tdd가 있었는데 읽지 않았다(결함, 같은 라운드에 수정).** 헤드리스 세션의 init 이벤트 `skills` 목록(147개)에 `craft:tdd`가 있었지만 에이전트는 로드하지 않고 dlc-build의 폴백 5줄로 진행했다. 스킬이 "읽는다"고만 적고 로드 방법을 안 적은 탓이다(Claude Code의 플러그인 스킬은 파일 경로로 읽을 수 없고 Skill 도구 호출로만 본문이 들어온다). R3 리뷰 1번으로 dlc-build·dlc-plan·dlc-design에 에이전트별 로드 방법을 명시했다. 폴백 자체는 동작했다: 유닛 기록에 red 확인 내역과 "red 없이 통과한 테스트"가 구분돼 적혔다.
+- **Write 도구 호출 0회.** `--dangerously-skip-permissions`로 돌린 두 실행 모두 파일을 Bash heredoc으로 썼다(Claude Code가 권한 우회 모드에서 Bash 우선을 안내한다). R2에서 확정한 "Write 입력 앵커" grader는 이 모드에서는 매치되지 않으므로, R4 evals는 러너 기본 권한 모드(R2 실행과 같음)를 유지하거나 Bash heredoc(`cat > <경로> <<'EOF'`)도 앵커로 허용해야 한다.
+- dlc-build의 "`craft:implement`를 쓸 수 있다고 한 번 안내한다"도 수행되지 않았다(리뷰 14번). 안내 시점을 첫 유닛 1단계 앞으로 옮겼다.
+- 승인이 사전 제공된 자동 실행이라 plan의 start→approve 간격이 10초였다(R2 관찰 (a)와 같은 압축). 전이 순서는 지켜졌다.
+- 두 실행 자체는 스크립트 오류 없이 끝났다. 실행 뒤 Fable 리뷰(`docs/review/2026-09-13-dlc-r3-review-fable.md`)가 위 craft 로드 결함을 포함해 스킬 문장의 결함을 찾아 같은 라운드에 반영했다.
 
 **evals 시점(2026-09-13 결정).** 평가 suite는 R4에서 만든다. R1 시점에 만들면 스테이지 스킬이 없어 라우터의 "멈추고 안내" 분기만 검사할 수 있고, R2·R3에서 프로즈가 바뀌면 grader를 다시 써야 한다. 결정적인 부분(`dlc.py`)은 unittest가 라운드마다 회귀를 잡는다. 케이스 하나가 기본 3회 실행(ablation 시 6회)이라 라운드마다 suite를 돌리면 비용이 곱해진다. 단, 라우터·스테이지 스킬이 `disable-model-invocation: true`인데 eval 프롬프트에서 발동되는지는 공식 문서에 없으므로, R2의 express 1회 실행을 eval 케이스 1건으로 수행해 이 미지수를 먼저 푼다. 저장소의 기존 `evals.json`(skill-creator 형식)과의 병행 여부는 R4에서 정한다.
 
