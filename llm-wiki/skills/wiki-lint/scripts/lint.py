@@ -90,8 +90,16 @@ def check_links(root, g, by_base, all_rel, all_set):
     문서로 갈아끼우면 스냅샷이 스냅샷이 아니게 된다. 실측에서 '복구 가능' 후보의 9/10 이
     이 경우였다.
     """
-    out = {"fixable": [], "ambiguous": [], "absent": [], "frozen": []}
+    out = {"fixable": [], "ambiguous": [], "absent": [], "frozen": [], "external": []}
     for src, target in g["broken"]:
+        # 위키 루트 밖으로 나가는 링크(크로스 repo 등)는 위키 안 후보로 고칠 대상이
+        # 아니다 — 별도 분류. 대상 실존 링크는 survey 가 links_ok 로 세므로 여기 오는
+        # 것은 전부 '밖을 가리키는데 그 파일이 이 머신에 없다'이다(경로 오탈자,
+        # 다른 머신 레이아웃, 지워진 저장소 파일).
+        dest = os.path.normpath(os.path.join(root, os.path.dirname(src), target))
+        if not (dest == root or dest.startswith(root + os.sep)):
+            out["external"].append({"from": src, "to": target, "resolved": dest})
+            continue
         if in_archive(src) or src.startswith(FROZEN_DIR):
             out["frozen"].append({"from": src, "to": target})
             continue
@@ -252,14 +260,21 @@ def report(res, which):
         L = res["links"]
         print(f"\n[깨진 링크] {sum(len(v) for v in L.values())}건")
         print(f"  복구 가능 {len(L['fixable'])} · 모호 {len(L['ambiguous'])} · "
-              f"대상 없음 {len(L['absent'])} · 불변 영역 {len(L['frozen'])}")
+              f"대상 없음 {len(L['absent'])} · 불변 영역 {len(L['frozen'])} · "
+              f"외부(위키 밖) {len(L.get('external', []))}")
         if which == ("links",):
             for f in L["fixable"][:40]:
                 print(f"  고침  {f['from']}\n          {f['to']}  →  {f['new']}")
             for a in L["ambiguous"][:20]:
                 print(f"  모호  {a['from']}\n          {a['to']}  →  {', '.join(a['candidates'][:4])}")
+            for e in L.get("external", [])[:20]:
+                print(f"  외부  {e['from']}\n          {e['to']}  (이 머신에 없음)")
             print(f"\n  대상 없음 {len(L['absent'])}건은 고칠 게 아니라 "
                   f"'여기에 문서가 있어야 한다'는 정보다. 지우지 않는다.")
+            if L.get("external"):
+                print(f"  외부 {len(L['external'])}건은 위키 밖(코드 저장소 등)을 가리키는데 "
+                      f"이 머신에 그 파일이 없다 — 경로 오탈자이거나 머신 레이아웃 차이다. "
+                      f"자동 수정하지 않는다.")
 
     if "orphans" in which:
         O = res["orphans"]
