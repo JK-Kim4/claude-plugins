@@ -1,0 +1,38 @@
+schema_version: "1.1"
+name: readme
+description: CLI 도구 README 요청에 온보딩/가이드 템플릿(요구 사항·설치·사용법)으로 파일을 쓴다.
+tags: [document-generator, onboarding]
+runs: 1
+execution:
+  max_turns: 20
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Write, Edit, Skill]
+  prompt: |
+    내가 만든 CLI 도구 README 좀 써줘. 이름은 logparser 이고 파이썬으로 만들었어. pip install logparser 로 설치하고, `logparser <파일경로> --format json` 처럼 쓰면 로그 파일을 파싱해서 JSON으로 출력해줘. --format 은 json 이나 csv 선택 가능하고 기본은 json. Python 3.10 이상 필요해.
+graders:
+  # 채점 앵커 규약: 응답은 last_message, 산출물은 파일 본문, 도구 호출은 trace. 스킬 본문·프롬프트가 실리는 trace에는 실행 형태(인자 채워진 명령·픽스처 경로)만 건다.
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?document-generator"'
+  - type: file_exists
+    name: readme-written
+    path: "README.md"
+  - type: regex
+    name: requirements
+    target:
+      source: file
+      path: README.md
+    pattern: 'Python 3\.10'
+  - type: regex
+    name: install
+    target:
+      source: file
+      path: README.md
+    pattern: 'pip install logparser'
+  - type: regex
+    name: usage-format-option
+    target:
+      source: file
+      path: README.md
+    pattern: '--format'

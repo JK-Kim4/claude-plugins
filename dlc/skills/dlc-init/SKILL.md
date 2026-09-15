@@ -11,7 +11,7 @@ metadata:
 
 생명주기의 첫 스테이지다. 작업 폴더 `docs/dlc/<YYMMDD>-<slug>/`와 `state.md`를 만들고, 저장소를 스캔해 기존 코드가 있는지(brownfield) 없는지(greenfield)를 기록한다. 질문 파일과 승인 게이트가 없는 유일한 스테이지다. `dlc.py init`이 init을 곧바로 done으로 기록한다.
 
-공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 상태 형식은 [../dlc/references/state-format.md](../dlc/references/state-format.md)에 있다. 스크립트 위치 `<skills>/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. 아래는 이 단계에서만 다른 것이다.
+공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 상태 형식은 [../dlc/references/state-format.md](../dlc/references/state-format.md)에 있다. 스크립트 위치 `${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. 아래는 이 단계에서만 다른 것이다.
 
 ## 읽을 것
 
@@ -27,7 +27,7 @@ metadata:
 3. **실행.** 프로젝트 루트에서:
 
    ```bash
-   python3 <skills>/dlc/scripts/dlc.py init --profile <profile> --slug <slug> --description "<설명>"
+   python3 ${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py init --profile <profile> --slug <slug> --description "<설명>"
    ```
 
    "이미 있습니다" 오류면 같은 날 같은 slug가 있다는 뜻이다. 다른 slug를 받거나 기존 작업을 이어간다.
@@ -35,7 +35,7 @@ metadata:
    - `brownfield`: 소스 파일이 발견됐다. 다음 단계는 `dlc-analyze`(코드베이스 분석)다. 단, `docs/dlc/codebase.md`가 이미 있고 지문이 같으면 자동으로 건너뛴다.
    - `greenfield`: 소스 파일이 없다. analyze는 `skipped`로 기록됐고 프로파일의 다음 단계로 간다.
    - 결과가 사용자 인식과 다르면(코드가 있는데 greenfield 등) 스캔 규칙을 알린다: 깊이 4까지만 보고, `docs`·`build`·`dist`·`out`·`target`·`node_modules`·`vendor`·`venv`·`coverage` 등과 점으로 시작하는 폴더는 제외한다(정확한 목록은 `dlc.py`의 `EXCLUDED_DIRS`). 스캔은 참고 정보라 잘못돼도 진행은 막지 않는다.
-5. **다음 안내.** `python3 <skills>/dlc/scripts/dlc.py next`를 실행해 출력 첫 줄 `<stage> dlc-<stage>`의 스킬 이름을 이 에이전트의 호출 표기로 안내한다(예: "다음은 코드베이스 분석입니다. `/dlc:dlc-analyze`를 부르세요"). 다음 스킬을 대신 실행하지 않는다.
+5. **다음 안내.** `python3 ${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py next`를 실행해 출력 첫 줄 `<stage> dlc-<stage>`의 스킬 이름을 이 에이전트의 호출 표기로 안내한다(예: "다음은 코드베이스 분석입니다. `/dlc:dlc-analyze`를 부르세요"). 다음 스킬을 대신 실행하지 않는다.
 
 ## 프로파일 설명 (사용자에게 보이는 문구)
 

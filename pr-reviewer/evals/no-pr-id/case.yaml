@@ -1,0 +1,28 @@
+schema_version: "1.1"
+name: no-pr-id
+description: PR 번호·URL 없이 "이 PR 리뷰해줘"라고 하면 대상 PR을 묻고 멈춘다. 현재 브랜치 PR을 추정하거나 diff를 받지 않는다.
+tags: [pr-reviewer, stop]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 10
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+  prompt: |
+    이 PR 리뷰해줘.
+graders:
+  # 채점 앵커 규약: 응답은 last_message, 산출물은 파일 본문, 도구 호출은 trace. 스킬 본문·프롬프트가 실리는 trace에는 실행 형태(인자 채워진 명령·픽스처 경로)만 건다.
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?pr-reviewer"'
+  - type: regex
+    name: asks-for-pr-id
+    target: last_message
+    pattern: '(PR|풀리퀘스트)[^\n]{0,30}(번호|URL)'
+  - type: regex
+    name: no-diff-fetch-with-real-id
+    target: trace
+    pattern: 'gh pr (diff|view) [0-9#h]'
+    match: not_contains

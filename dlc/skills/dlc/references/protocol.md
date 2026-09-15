@@ -4,10 +4,10 @@
 
 ## 스크립트 위치
 
-상태 전이와 검사는 `<skills>/dlc/scripts/dlc.py`가 맡는다. `<skills>`는 스킬이 로드될 때 보인 스킬 디렉터리의 부모다(Claude Code 플러그인이면 `<plugin>/skills`, `npx skills add`면 `.agents/skills`). 스킬 디렉터리가 형제로 설치되므로 스테이지 스킬 안에서는 `../dlc/scripts/dlc.py`와 같은 파일이다. 항상 프로젝트 루트에서 실행한다.
+상태 전이와 검사는 `${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py`가 맡는다. Claude Code는 로드 시 `${CLAUDE_PLUGIN_ROOT}`를 플러그인 절대 경로로 치환한다. 치환되지 않는 환경(`npx skills add`로 설치한 Codex·Gemini)에서는 `<skills>/dlc/scripts/dlc.py`로 읽는다. `<skills>`는 스킬 디렉터리들의 부모(`.agents/skills`)이고, 스테이지 스킬 안에서는 `../dlc/scripts/dlc.py`와 같은 파일이다. 항상 프로젝트 루트에서 실행한다.
 
 ```bash
-python3 <skills>/dlc/scripts/dlc.py next
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py next
 ```
 
 python3는 3.9 이상이어야 한다. 스크립트가 없거나 python3가 없으면 이 문서 끝의 **수동 체크리스트**로 같은 규율을 지킨다.

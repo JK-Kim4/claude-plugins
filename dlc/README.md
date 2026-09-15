@@ -24,7 +24,7 @@ AI-DLC(awslabs/aidlc-workflows) 방법론을 **에이전트 종속 없이** 쓰�
 ## 동작 원리
 
 - 산출물과 진행 상태는 프로젝트 저장소의 `docs/dlc/<YYMMDD>-<slug>/`에 남는다. 커밋 대상이라 세션·에이전트·PC가 바뀌어도 이어간다.
-- `<skills>/dlc/scripts/dlc.py`(python3 표준 라이브러리만)가 상태 전이, 다음 단계 판정, 산출물 검사(필수 절, 질문 답변, FR/NFR ID 연속·참조, 유닛·추적성 커버리지, plan 유닛 집합·실행 명령, verify 판정)를 맡는다. `<skills>`는 스킬 디렉터리들의 부모(Claude Code 플러그인이면 `<plugin>/skills`, `npx skills add`면 `.agents/skills`). 에이전트는 `state.md`를 손으로 고치지 않는다.
+- `${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py`(python3 표준 라이브러리만)가 상태 전이, 다음 단계 판정, 산출물 검사(필수 절, 질문 답변, FR/NFR ID 연속·참조, 유닛·추적성 커버리지, plan 유닛 집합·실행 명령, verify 판정)를 맡는다. Claude Code는 `${CLAUDE_PLUGIN_ROOT}`를 플러그인 절대 경로로 치환하고, `npx skills add` 설치 환경에서는 `.agents/skills/dlc/scripts/dlc.py`로 읽는다. 에이전트는 `state.md`를 손으로 고치지 않는다.
 - 질문은 A~E + `X. Other` 선택지와 `[Answer]:` 태그가 있는 파일로 주고받는다. 특정 도구의 질문 UI에 의존하지 않는다.
 - 스테이지마다 승인 게이트가 있다. 침묵은 승인이 아니다.
 

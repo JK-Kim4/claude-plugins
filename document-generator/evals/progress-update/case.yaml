@@ -1,0 +1,36 @@
+schema_version: "1.1"
+name: progress-update
+description: 기존 진행 문서를 지목해 갱신을 요청하면 새 파일을 만들지 않고 갱신 모드로 동작한다. 완료 항목은 체크로 남기고 새 항목을 기존 구조에 추가한다.
+tags: [document-generator, update-mode]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 20
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Write, Edit, Skill]
+  prompt: |
+    첨부한 payment-progress.md 가 지금 추적 중인 진행 문서야. 업데이트해줘: PG사 API 키 어제 받아서 결제 게이트웨이 연동 끝났고 샌드박스 결제 테스트도 통과했어. 환불 처리는 이OO가 설계 시작했고, 새로 웹훅 수신 처리 작업이 추가됐는데 아직 착수 전이야.
+graders:
+  # 채점 앵커 규약: 응답은 last_message, 산출물은 파일 본문, 도구 호출은 trace. 스킬 본문·프롬프트가 실리는 trace에는 실행 형태(인자 채워진 명령·픽스처 경로)만 건다.
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?document-generator"'
+  # file_exists는 에이전트가 새로 만든 파일에만 통과한다(실측). 스캐폴드가 만든 파일의 제자리 갱신은 아래 파일 본문 채점으로 증명한다.
+  - type: regex
+    name: gateway-marked-done
+    target:
+      source: file
+      path: payment-progress.md
+    pattern: '\[x\][^\n]*결제 게이트웨이'
+  - type: regex
+    name: webhook-added-as-todo
+    target:
+      source: file
+      path: payment-progress.md
+    pattern: '\[ \][^\n]*웹훅'
+  - type: file_exists
+    name: no-new-progress-file
+    path: "docs/*progress*.md"
+    exists: false

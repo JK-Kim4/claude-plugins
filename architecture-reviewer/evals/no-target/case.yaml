@@ -1,0 +1,34 @@
+schema_version: "1.1"
+name: no-target
+description: 모듈이 둘(payment·shipping)인 저장소에서 대상 지정 없이 "아키텍처 리뷰해줘"라고 하면 어느 디렉터리·모듈·파일을 볼지 묻고 멈춘다. 레포 전체를 임의 스캔하지 않는다.
+tags: [architecture-reviewer, trigger, stop]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 15
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    아키텍처 리뷰해줘.
+graders:
+  # 후보 목록을 ls/find로 보여주는 것은 허용한다(경로 문자열이 trace에 남는다). 금지는 파일 "내용"을 읽는 것이므로 Read 호출 수로 잰다.
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?architecture-reviewer"'
+  - type: regex
+    name: asks-which-target
+    target: last_message
+    pattern: '(어느|어떤|무엇|대상)[^\n]{0,40}(갈까요|볼까요|정해|알려|지정|고르|골라)'
+  - type: regex
+    name: no-rendered-report
+    target: last_message
+    pattern: '## 아키텍처 리뷰'
+    match: not_contains
+  # 픽스처 소스는 5개. 후보를 설명하려고 한두 파일을 들여다보는 것은 스캔이 아니지만 3개 이상 읽으면 리뷰 준비다.
+  - type: tool_used
+    name: no-source-scan
+    tool: Read
+    input_match: 'src/(payment|shipping)/'
+    max: 2

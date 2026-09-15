@@ -23,7 +23,7 @@
     {
       "name": "craft",
       "source": "./craft",
-      "description": "개발 파이프라인 페르소나 sub agent 4종(verifier·interface-designer·tdd-implementer·code-reviewer) + 오케스트레이션 스킬(triage·diagnosing-bugs·design-it-twice·tdd·implement·test-audit). Matt Pocock 팩 선택적 포크 + 한국 현업 관행 반영."
+      "description": "개발 파이프라인 페르소나 sub agent 4종(verifier·interface-designer·tdd-implementer·code-reviewer) + 오케스트레이션 스킬(issue-triage·diagnose·design-it-twice·test-first·implement-spec·test-audit). Matt Pocock 팩 선택적 포크 + 한국 현업 관행 반영."
     },
     {
       "name": "llm-wiki",
@@ -33,7 +33,7 @@
     {
       "name": "agent-workflow",
       "source": "./agent-workflow",
-      "description": "에이전트의 작업 위생 스킬 2종 — 도구 호출·파일 읽기·출력 처리에서 토큰 낭비를 줄이는 규율(token-efficiency), 최신 origin/develop 기준 격리 Git worktree 생성과 작업 경로 고정(worktree)."
+      "description": "최신 origin/develop 기준 격리 Git worktree 생성과 작업 경로 고정(worktree). 사용자가 명시적으로 부를 때만 동작한다."
     },
     {
       "name": "dlc",

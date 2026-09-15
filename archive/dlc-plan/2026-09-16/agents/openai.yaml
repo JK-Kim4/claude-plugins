@@ -1,0 +1,7 @@
+# Codex 전용 메타. 다른 에이전트는 이 파일을 무시한다.
+# 사용자가 $dlc-plan 로 직접 부를 때만 실행되게 한다 (Claude 의 disable-model-invocation 과 같은 뜻).
+interface:
+  display_name: "dlc-plan"
+  short_description: "구현 계획 — 유닛 순서·seam·테스트 예산·완료 정의 합의 → plan.md (+ units.md)"
+policy:
+  allow_implicit_invocation: false
