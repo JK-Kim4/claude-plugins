@@ -22,6 +22,11 @@ archive/<스킬명>/<YYYY-MM-DD>/   교체되기 직전의 스킬 디렉터리 �
 | 스킬 | 보관 디렉터리 | 플러그인·버전 | 교체한 변경 |
 |---|---|---|---|
 | `wiki-lint` | [`wiki-lint/2026-09-13/`](wiki-lint/2026-09-13/) | llm-wiki 0.2.1 | #6 — 깨진 링크에 「외부(위키 밖)」 분류 추가(llm-wiki 0.2.4) |
+| `marketing-strategy` | [`marketing-strategy/2026-09-16/`](marketing-strategy/2026-09-16/) | craft 0.2.0 | 소설비 전용 스킬을 프로젝트 저장소(soseolbi `.claude/skills/`)로 이관하며 craft에서 제거(craft 0.3.0) |
+| `pm-breakdown` | [`pm-breakdown/2026-09-16/`](pm-breakdown/2026-09-16/) | craft 0.2.0 | 소설비 전용 스킬을 프로젝트 저장소(soseolbi `.claude/skills/`)로 이관하며 craft에서 제거(craft 0.3.0) |
+| `prd-ticket-writing` | [`prd-ticket-writing/2026-09-16/`](prd-ticket-writing/2026-09-16/) | craft 0.2.0 | 소설비 전용 스킬을 프로젝트 저장소(soseolbi `.claude/skills/`)로 이관하며 craft에서 제거(craft 0.3.0) |
+| `retention-playbook` | [`retention-playbook/2026-09-16/`](retention-playbook/2026-09-16/) | craft 0.2.0 | 소설비 전용 스킬을 프로젝트 저장소(soseolbi `.claude/skills/`)로 이관하며 craft에서 제거(craft 0.3.0) |
+| `acquisition-playbook` | [`acquisition-playbook/2026-09-16/`](acquisition-playbook/2026-09-16/) | craft 0.2.0 | 소설비 전용 스킬을 프로젝트 저장소(soseolbi `.claude/skills/`)로 이관하며 craft에서 제거(craft 0.3.0) |
 
 ## 주의
 
