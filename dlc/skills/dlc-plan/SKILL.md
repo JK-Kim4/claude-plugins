@@ -48,7 +48,7 @@ depth minimal(express·bugfix)은 2~4개, standard(full)는 5~8개가 기준이�
 - **seam**은 테스트가 사는 public 경계다. 내부 구조가 바뀌어도 테스트가 살아남는 곳(함수 시그니처, HTTP 경로, CLI 인자와 출력, 이벤트 페이로드)이다. private 메서드나 내부 협력자는 seam이 아니다.
 - 유닛마다 seam이 하나 이상 있어야 한다. seam이 없는 유닛은 "테스트 없이 구현"이라는 뜻이며 사용자가 명시적으로 그렇게 답한 경우에만 허용하고 가정 절에 남긴다.
 - **통합테스트 예산**은 실제 인프라를 쓰는 테스트의 개수다. 기본 0. 예산을 넘겨야 할 이유가 있으면 이유와 함께 선택지로 묻는다. 구현 단계는 이 숫자를 넘지 않는다.
-- 이 에이전트의 스킬 목록에 `craft:tdd`(또는 `tdd`)가 있으면 그 스킬의 "Seam"·"테스트 비용 규율" 절이 seam·예산의 정의 원천이다. 여기 요약과 다르면 그쪽을 따른다. 로드 방법: Claude Code는 Skill 도구로 `craft:tdd`를 호출하고(로드하기 전에는 다른 플러그인의 설치 경로를 알 수 없다), `npx skills add`로 설치한 Codex·Gemini CLI는 `<skills>/tdd/SKILL.md`를 Read한다.
+- 이 에이전트의 스킬 목록에 `craft:test-first`(또는 `test-first`)가 있으면 그 스킬의 "Seam"·"테스트 비용 규율" 절이 seam·예산의 정의 원천이다. 여기 요약과 다르면 그쪽을 따른다. 로드 방법: Claude Code는 Skill 도구로 `craft:test-first`를 호출하고(로드하기 전에는 다른 플러그인의 설치 경로를 알 수 없다), `npx skills add`로 설치한 Codex·Gemini CLI는 `<skills>/test-first/SKILL.md`를 Read한다.
 
 ## 순서
 

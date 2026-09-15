@@ -26,6 +26,10 @@ archive/<스킬명>/<YYYY-MM-DD>/   교체되기 직전의 스킬 디렉터리 �
 | `pm-breakdown` | [`pm-breakdown/2026-09-16/`](pm-breakdown/2026-09-16/) | craft 0.2.0 | 소설비 전용 스킬을 프로젝트 저장소(soseolbi `.claude/skills/`)로 이관하며 craft에서 제거(craft 0.3.0) |
 | `prd-ticket-writing` | [`prd-ticket-writing/2026-09-16/`](prd-ticket-writing/2026-09-16/) | craft 0.2.0 | 소설비 전용 스킬을 프로젝트 저장소(soseolbi `.claude/skills/`)로 이관하며 craft에서 제거(craft 0.3.0) |
 | `retention-playbook` | [`retention-playbook/2026-09-16/`](retention-playbook/2026-09-16/) | craft 0.2.0 | 소설비 전용 스킬을 프로젝트 저장소(soseolbi `.claude/skills/`)로 이관하며 craft에서 제거(craft 0.3.0) |
+| `tdd` | [`tdd/2026-09-16/`](tdd/2026-09-16/) | craft 0.2.0 | 공식 mattpocock-skills 플러그인과의 이름 충돌 해소를 위해 `test-first`으로 개명(craft 0.3.0) |
+| `diagnosing-bugs` | [`diagnosing-bugs/2026-09-16/`](diagnosing-bugs/2026-09-16/) | craft 0.2.0 | 공식 mattpocock-skills 플러그인과의 이름 충돌 해소를 위해 `diagnose`으로 개명(craft 0.3.0) |
+| `triage` | [`triage/2026-09-16/`](triage/2026-09-16/) | craft 0.2.0 | 공식 mattpocock-skills 플러그인과의 이름 충돌 해소를 위해 `issue-triage`으로 개명(craft 0.3.0) |
+| `implement` | [`implement/2026-09-16/`](implement/2026-09-16/) | craft 0.2.0 | 공식 mattpocock-skills 플러그인과의 이름 충돌 해소를 위해 `implement-spec`으로 개명(craft 0.3.0) |
 | `acquisition-playbook` | [`acquisition-playbook/2026-09-16/`](acquisition-playbook/2026-09-16/) | craft 0.2.0 | 소설비 전용 스킬을 프로젝트 저장소(soseolbi `.claude/skills/`)로 이관하며 craft에서 제거(craft 0.3.0) |
 
 ## 주의

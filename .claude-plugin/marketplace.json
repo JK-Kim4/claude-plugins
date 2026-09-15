@@ -23,7 +23,7 @@
     {
       "name": "craft",
       "source": "./craft",
-      "description": "개발 파이프라인 페르소나 sub agent 4종(verifier·interface-designer·tdd-implementer·code-reviewer) + 오케스트레이션 스킬(triage·diagnosing-bugs·design-it-twice·tdd·implement·test-audit). Matt Pocock 팩 선택적 포크 + 한국 현업 관행 반영."
+      "description": "개발 파이프라인 페르소나 sub agent 4종(verifier·interface-designer·tdd-implementer·code-reviewer) + 오케스트레이션 스킬(issue-triage·diagnose·design-it-twice·test-first·implement-spec·test-audit). Matt Pocock 팩 선택적 포크 + 한국 현업 관행 반영."
     },
     {
       "name": "llm-wiki",
