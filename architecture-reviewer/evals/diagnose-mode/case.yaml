@@ -1,0 +1,39 @@
+schema_version: "1.1"
+name: diagnose-mode
+description: 대상 디렉터리를 지정하면 진단 모드로 7축 루브릭 리포트(총평·축별 진단·우선순위 요약)를 내고 지적마다 P0~P2를 단다.
+tags: [architecture-reviewer, diagnose]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 40
+  timeout_seconds: 600
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+  prompt: |
+    src/payment 디렉터리 아키텍처 리뷰해줘.
+graders:
+  # 채점 앵커 규약: 응답은 last_message, 산출물은 파일 본문, 도구 호출은 trace. 스킬 본문·프롬프트가 실리는 trace에는 실행 형태(인자 채워진 명령·픽스처 경로)만 건다.
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?architecture-reviewer"'
+  - type: regex
+    name: report-header
+    target: last_message
+    pattern: '## 아키텍처 리뷰'
+  - type: regex
+    name: priority-summary
+    target: last_message
+    pattern: '우선순위 요약'
+  - type: regex
+    name: labels
+    target: last_message
+    pattern: 'P[012]'
+  - type: regex
+    name: cites-fixture-symbol
+    target: last_message
+    pattern: '(StripeGateway|PaymentService|stripe_charge_id|charge_order)'
+  - type: regex
+    name: reads-fixture
+    target: trace
+    pattern: 'src/payment/service\.py'

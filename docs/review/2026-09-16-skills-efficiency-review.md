@@ -245,3 +245,18 @@ description 상한 1,536자를 넘는 스킬은 없다. 긴 순서:
 | f6b3e56 | `<skill>`·`<skills>`·`<스킬경로>` → `${CLAUDE_SKILL_DIR}`·`${CLAUDE_PLUGIN_ROOT}`. llm-wiki 0.2.5, dlc 0.1.1, document-generator 1.5.1 | G1 |
 
 검증: `claude plugin validate .` 통과, llm-wiki 138건·dlc 87건 OK. 이전 버전은 전부 `archive/<스킬>/2026-09-16/`(28건). 남은 항목(G4 description 축소, G7 에이전트 model, G8 eval 포맷 통일, G9 본문 축소, G6·G10·G12)은 다음 라운드.
+
+## 9. 2라운드 진행 기록 (2026-09-16, 같은 브랜치)
+
+사용자 지시: gh 활성 계정은 JK-Kim4로 유지, 리뷰의 나머지 P0·P1·P2 항목 진행.
+
+| 커밋 | 내용 | 항목 |
+|---|---|---|
+| 49c1c0e | craft `verifier`·`tdd-implementer`에 `model: sonnet`, `maxTurns: 50`(글로벌 룰의 tool_uses 50 cap과 정합). worktree description에 내장 EnterWorktree(기본 브랜치·`.claude/worktrees/`)와의 차이 명시 | G7, G6 |
+| 5ac013f | description 축소 11개(document-generator 488→180자, wiki-bootstrap 390→177, architecture-reviewer 384→199 등). craft "(폴백)" 단락 6곳 한 문장으로. implement-spec 병렬 스폰 시 `isolation: "worktree"` | G4, G10, G6 |
+| fe32cdb | SKILL.md 본문 축소 — llm-wiki 4종 실측 근거를 `references/rationale.md`로 분리(단어 수 1,189→775 / 1,182→777 / 1,063→733 / 1,324→739), document-generator 참조 재요약 제거(1,529→898) | G9 |
+| (아래) | `claude plugin eval`용 case.yaml 7건 신설(architecture-reviewer 3, document-generator 3, pr-reviewer 1)과 루트 `evals-run.sh`. 기존 `evals.json`(skill-creator 포맷)은 그대로 둔다 | G8 |
+
+G6의 worktree 항목은 리뷰 권고(`disable-model-invocation: true`)를 **적용하지 않았다.** 내장 EnterWorktree는 `worktree.baseRef`가 기본 브랜치 또는 로컬 HEAD뿐이라 origin/develop 기준 흐름을 대체하지 못한다. 플래그를 켜면 "워크트리 만들어줘"에 모델이 이 스킬을 못 고르고 EnterWorktree로 가서 기준 브랜치가 틀린다. 리뷰의 해당 권고는 이 사실로 정정한다.
+
+하지 않은 것: dlc 스테이지 본문 축소(G9의 dlc 항목)는 참조 3개가 이미 절별로 나뉘어 있어 이득이 작아 보류. dlc r4 잔여 17건은 사용자 결정(I8·I14)이 걸려 있어 다음 라운드.
