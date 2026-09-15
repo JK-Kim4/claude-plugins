@@ -1,7 +1,13 @@
 ---
 name: architecture-reviewer
 description: >-
-  코드의 아키텍처 품질(복잡도·모듈 깊이·정보 은닉·결합도)을 A Philosophy of Software Design과 DDD 관점 7축으로 진단하거나, 제안한 구조 변경을 현 코드 기준으로 검증한다. "구조 점검해줘", "이런 구조로 바꿔도 괜찮아?"처럼 라인 단위가 아니라 설계를 평가받으려 할 때 사용한다. PR 코멘트는 pr-reviewer 몫이다.
+  코드의 아키텍처 품질을 A Philosophy of Software Design(Ousterhout)과 DDD 관점으로
+  진단한다. 복잡도·모듈 깊이(deep vs shallow)·정보 은닉/누수·결합도·응집도를 본다.
+  사용자가 "이 모듈 아키텍처 리뷰해줘", "구조 점검해줘", "설계 봐줘", "이 디렉터리
+  아키텍처 진단", "deep module인지 봐줘", "이런 구조로 바꾸려는데 괜찮아?", "결합도
+  높지 않아?" 등 라인 단위 버그가 아니라 구조·설계를 평가받으려 할 때 사용한다.
+  진단 모드(지정 대상의 현 구조)와 방향 검증 모드(제안한 아키텍처 방향을 현 코드
+  기준으로 검증)를 지원한다. 라인 단위 코드 리뷰/PR 코멘트는 범위가 아니다(그쪽은 pr-reviewer).
 ---
 
 # Architecture Reviewer

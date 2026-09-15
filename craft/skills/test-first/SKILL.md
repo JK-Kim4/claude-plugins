@@ -1,6 +1,7 @@
 ---
 name: test-first
-description: 테스트 주도 개발(한국어 포크). 기능·버그픽스를 test-first로 만들 때, "red-green-refactor" 언급 시, 통합 테스트를 원할 때 사용한다. upstream tdd에 테스트 비용 규율(최저 충분 레벨·행위당 1테스트·통합테스트 예산)과 craft:tdd-implementer 위임 경로를 더한 것이다.
+description: >-
+  테스트 주도 개발(한국어 포크). 기능·버그픽스를 test-first로 만들거나 "red-green-refactor"를 말할 때 사용한다. upstream tdd에 테스트 비용 규율(최저 충분 레벨·행위당 1테스트·통합테스트 예산)과 craft:tdd-implementer 위임 경로를 더했다.
 ---
 
 <!-- fork: matt-pocock skills/tdd @ 2026-07-17, upstream v1.2.3(2026-08-05) 반영 @ 2026-08-13. 변경점: 테스트 비용 규율 4항목 추가(한국 현업 근거: 우아한형제들 techblog 14874, 토스 test-strategy-server), craft:tdd-implementer 위임 경로, codebase-design 어휘 포인터, 본문 한국어화 -->
@@ -52,7 +53,7 @@ TDD는 red → green 루프다. 이 스킬은 그 루프가 간직할 가치가 
 
 seam과 통합테스트 예산이 합의됐고 구현을 격리 위임하고 싶으면, Agent 도구로 `craft:tdd-implementer`를 스폰한다. 브리프에 담을 것: spec(또는 이슈 참조), 합의된 seam 목록, 통합테스트 예산, 프로젝트 컨벤션 포인터. 페르소나는 seam이 없으면 중단·보고하도록 만들어져 있다 — seam 합의를 건너뛰는 우회로가 아니다.
 
-서브에이전트 스폰을 지원하지 않는 환경(Codex 등)에서는 이 섹션은 해당 없음 — 위 본문 규율로 현재 세션에서 직접 진행한다.
+서브에이전트가 없는 환경(Codex 등)에서는 이 절은 해당 없다.
 
 ## 출력 언어
 
