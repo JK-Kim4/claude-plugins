@@ -31,6 +31,7 @@ archive/<스킬명>/<YYYY-MM-DD>/   교체되기 직전의 스킬 디렉터리 �
 | `triage` | [`triage/2026-09-16/`](triage/2026-09-16/) | craft 0.2.0 | 공식 mattpocock-skills 플러그인과의 이름 충돌 해소를 위해 `issue-triage`으로 개명(craft 0.3.0) |
 | `implement` | [`implement/2026-09-16/`](implement/2026-09-16/) | craft 0.2.0 | 공식 mattpocock-skills 플러그인과의 이름 충돌 해소를 위해 `implement-spec`으로 개명(craft 0.3.0) |
 | `acquisition-playbook` | [`acquisition-playbook/2026-09-16/`](acquisition-playbook/2026-09-16/) | craft 0.2.0 | 소설비 전용 스킬을 프로젝트 저장소(soseolbi `.claude/skills/`)로 이관하며 craft에서 제거(craft 0.3.0) |
+| `token-efficiency` | [`token-efficiency/2026-09-16/`](token-efficiency/2026-09-16/) | agent-workflow 0.1.0 | "항상 적용" 규율을 스킬로는 보장할 수 없어 사용자 글로벌 룰(`~/.claude/rules/shared/token-efficiency.md`)로 이관하고 제거(agent-workflow 0.2.0) |
 
 ## 주의
 

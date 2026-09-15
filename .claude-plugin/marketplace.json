@@ -33,7 +33,7 @@
     {
       "name": "agent-workflow",
       "source": "./agent-workflow",
-      "description": "에이전트의 작업 위생 스킬 2종 — 도구 호출·파일 읽기·출력 처리에서 토큰 낭비를 줄이는 규율(token-efficiency), 최신 origin/develop 기준 격리 Git worktree 생성과 작업 경로 고정(worktree)."
+      "description": "최신 origin/develop 기준 격리 Git worktree 생성과 작업 경로 고정(worktree). 사용자가 명시적으로 부를 때만 동작한다."
     },
     {
       "name": "dlc",

@@ -9,7 +9,7 @@ jongwan의 Claude Code 플러그인 마켓플레이스. 일곱 개의 플러그�
 | **architecture-reviewer** | 1.0.0 | 스킬 1 | APoSD·DDD 관점으로 코드의 아키텍처 품질(복잡도·모듈 깊이·정보 은닉·결합도)을 7축 루브릭으로 진단하거나, 제안한 아키텍처 방향을 현 코드 기준으로 검증. 지적마다 P0~P2 + 개선 스케치. |
 | **craft** | 0.3.0 | 에이전트 4 · 스킬 6 | 개발 파이프라인 페르소나 sub agent 4종(verifier·interface-designer·tdd-implementer·code-reviewer)과 오케스트레이션 스킬(issue-triage·diagnose·design-it-twice·test-first·implement-spec·test-audit). |
 | **llm-wiki** | 0.2.4 | 스킬 4 | 흩어진 마크다운·AI 세션 기록을 하나의 LLM wiki로 통합(wiki-bootstrap)·가공(wiki-digest)·점검(wiki-lint)·조회(wiki-recall). python3 stdlib만 사용. |
-| **agent-workflow** | 0.1.0 | 스킬 2 | 에이전트 작업 위생 — 토큰 낭비를 줄이는 규율(token-efficiency), 최신 `origin/develop` 기준 격리 Git worktree 생성과 작업 경로 고정(worktree). |
+| **agent-workflow** | 0.2.0 | 스킬 1 | 최신 `origin/develop` 기준 격리 Git worktree 생성과 작업 경로 고정(worktree). 사용자가 명시적으로 부를 때만 동작한다. |
 | **dlc** | 0.1.0 | 스킬 10 | AI-DLC 방법론의 명시 호출형 생명주기 스킬셋. 라우터(dlc) + 스테이지 9개(init·analyze·intent·practices·requirements·design·plan·build·verify), 프로파일 3개(full·express·bugfix). 산출물·진행 상태를 `docs/dlc/`에 남기고 python3 stdlib 스크립트가 상태 전이·다음 단계 판정·산출물 검사를 맡는다. |
 
 ## 구성
@@ -39,7 +39,7 @@ claude-plugins/
 ├── agent-workflow/
 │   ├── .claude-plugin/plugin.json
 │   ├── README.md
-│   └── skills/                   # token-efficiency · worktree
+│   └── skills/                   # worktree
 ├── dlc/
 │   ├── .claude-plugin/plugin.json
 │   ├── README.md
@@ -92,7 +92,7 @@ Codex·Gemini CLI 등 다른 에이전트는 스킬만 `npx skills add JK-Kim4/c
   - 진단 모드(지정 대상의 현 구조)와 방향 검증 모드(제안을 현 코드 기준으로 검증)를 지원한다.
 - **craft**: 스킬이 상황에 맞는 페르소나 agent(`craft:verifier` 등)를 스폰한다. `issue-triage`·`implement-spec`는 자동 트리거 없이 `/craft:issue-triage`·`/craft:implement-spec`로 부른다. 나머지 스킬은 "진단해줘", "TDD로", "설계 두 번" 등으로 트리거. 페르소나·스킬 표는 `craft/README.md`.
 - **llm-wiki**: "지식베이스 만들어줘", "이 세션 정리해줘", "위키 점검", "전에 어떻게 했더라" 등으로 트리거. 연산별 설명은 `llm-wiki/README.md`.
-- **agent-workflow**: `token-efficiency`는 도구를 쓰는 모든 작업에 적용된다. `worktree`는 사용자가 명시적으로 호출했을 때만 동작한다.
+- **agent-workflow**: `worktree`는 사용자가 명시적으로 호출했을 때만 동작한다. (`token-efficiency`는 0.2.0에서 제거 — 사용자 글로벌 룰로 이관.)
 - **dlc**: 자동 트리거 없음. `/dlc:dlc`(안내), `/dlc:dlc --all`(전체 진행), `/dlc:dlc-init` 등 스테이지 스킬을 이름으로 부른다. Codex CLI는 `$dlc-init`. 설치·호출·제약 표는 `dlc/README.md`.
 
 ## 스킬 버전 관리
