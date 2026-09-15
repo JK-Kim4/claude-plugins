@@ -6,6 +6,8 @@ compatibility: "python3 3.8+ 와 git 만 있으면 어느 머신에서든 동작
 
 # wiki-bootstrap
 
+`${CLAUDE_SKILL_DIR}`는 Claude Code가 스킬을 로드할 때 이 스킬 디렉터리의 절대 경로로 치환한다. 치환되지 않는 환경(`npx skills add`로 설치한 Codex·Gemini)에서는 이 SKILL.md가 있는 디렉터리를 뜻한다.
+
 흩어진 마크다운을 하나의 LLM wiki로 만드는 파이프라인. Karpathy의 3계층 모델
 (원본은 불변, 가공물은 LLM 소유, 규약은 파일로)을 따르되 상주 서버나 특정 도구에
 묶이지 않는 순수 마크다운 구조를 만든다.
@@ -31,7 +33,7 @@ compatibility: "python3 3.8+ 와 git 만 있으면 어느 머신에서든 동작
 `~/dev/*`. 마크다운이 몰려 있는 곳, `.obsidian/`이 있는 곳, `.git`이 있는 문서 저장소를 찾는다.
 
 ```bash
-python3 <skill>/scripts/survey.py ~/obsidian/vault-a ~/notes ~/dev/kb
+python3 ${CLAUDE_SKILL_DIR}/scripts/survey.py ~/obsidian/vault-a ~/notes ~/dev/kb
 ```
 
 이 스크립트는 저장소별로 마크다운 수, 링크 문법 분포(wikilink vs 마크다운 링크),
@@ -115,8 +117,8 @@ projects/...    546 → 546
 wikilink `[[대상]]`을 마크다운 경로 링크로 바꾼다. **반드시 건식 실행부터 한다.**
 
 ```bash
-python3 <skill>/scripts/wikilink_convert.py <root>            # 건식 — 아무것도 쓰지 않음
-python3 <skill>/scripts/wikilink_convert.py <root> --apply    # 적용
+python3 ${CLAUDE_SKILL_DIR}/scripts/wikilink_convert.py <root>            # 건식 — 아무것도 쓰지 않음
+python3 ${CLAUDE_SKILL_DIR}/scripts/wikilink_convert.py <root> --apply    # 적용
 ```
 
 건식 실행이 해석 성공 / 모호 / 미해결을 보고한다. 미해결이 나오면 **그게 이관 때문인지
@@ -132,7 +134,7 @@ python3 <skill>/scripts/wikilink_convert.py <root> --apply    # 적용
 변환 후 다시 조사해서 **깨진 링크가 늘지 않았는지** 확인한다.
 
 ```bash
-python3 <skill>/scripts/survey.py <root> --json after.json
+python3 ${CLAUDE_SKILL_DIR}/scripts/survey.py <root> --json after.json
 ```
 
 이관 전 원본들의 깨진 링크 합계와 이관 후 대상의 깨진 링크를 비교한다. 늘었다면 내가
@@ -170,7 +172,7 @@ EOF
 ## 테스트
 
 ```bash
-python3 -m unittest discover -s <skill>/tests
+python3 -m unittest discover -s ${CLAUDE_SKILL_DIR}/tests
 ```
 
 외부 의존 없이 stdlib 만 쓴다. **스크립트를 고치면 여기부터 돌린다** — 이 스위트의

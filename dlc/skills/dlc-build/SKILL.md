@@ -11,7 +11,7 @@ metadata:
 
 계획을 코드로 옮긴다. 코드는 프로젝트 저장소의 원래 위치(`src/`, `lib/`, `tests/` 등)에 쓰고, 작업 폴더에는 유닛마다 기록 `build/<unit>.md` 하나만 남긴다. 질문 파일이 없는 스테이지다. 빈 곳은 질문이 아니라 계획으로 돌아가 채운다.
 
-공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 출처 규칙과 ID 형식은 [../dlc/references/grounding.md](../dlc/references/grounding.md)에 있다. 스크립트 위치 `<skills>/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. protocol.md의 4~7단계(질문·답변·요약 확인)는 이 단계에 없다. 아래는 이 단계에서만 다른 것이다.
+공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 출처 규칙과 ID 형식은 [../dlc/references/grounding.md](../dlc/references/grounding.md)에 있다. 스크립트 위치 `${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. protocol.md의 4~7단계(질문·답변·요약 확인)는 이 단계에 없다. 아래는 이 단계에서만 다른 것이다.
 
 ## 읽을 것
 

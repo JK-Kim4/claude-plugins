@@ -4,13 +4,13 @@ jongwan의 Claude Code 플러그인 마켓플레이스. 일곱 개의 플러그�
 
 | 플러그인 | 버전 | 구성 | 설명 |
 |----------|------|------|------|
-| **document-generator** | 1.5.0 | 스킬 1 | 작업 보고서·진행 추적·기술 설계·온보딩 가이드를 목적과 독자에 맞는 형식으로 생성. Markdown·HTML·Notion 출력 지원. |
+| **document-generator** | 1.5.1 | 스킬 1 | 작업 보고서·진행 추적·기술 설계·온보딩 가이드를 목적과 독자에 맞는 형식으로 생성. Markdown·HTML·Notion 출력 지원. |
 | **pr-reviewer** | 1.1.1 | 스킬 1 | 지정한 GitHub PR을 컨벤션·코드(보안·동시성·로직) 두 축으로 분석해 Pn 룰(P1~P5) 우선순위 라벨을 단 단일 PR Review로 게시. `craft:code-reviewer` 페르소나 연동. 리뷰 기준 컨벤션 레포당 1회 확정·저장. |
 | **architecture-reviewer** | 1.0.0 | 스킬 1 | APoSD·DDD 관점으로 코드의 아키텍처 품질(복잡도·모듈 깊이·정보 은닉·결합도)을 7축 루브릭으로 진단하거나, 제안한 아키텍처 방향을 현 코드 기준으로 검증. 지적마다 P0~P2 + 개선 스케치. |
 | **craft** | 0.3.0 | 에이전트 4 · 스킬 6 | 개발 파이프라인 페르소나 sub agent 4종(verifier·interface-designer·tdd-implementer·code-reviewer)과 오케스트레이션 스킬(issue-triage·diagnose·design-it-twice·test-first·implement-spec·test-audit). |
-| **llm-wiki** | 0.2.4 | 스킬 4 | 흩어진 마크다운·AI 세션 기록을 하나의 LLM wiki로 통합(wiki-bootstrap)·가공(wiki-digest)·점검(wiki-lint)·조회(wiki-recall). python3 stdlib만 사용. |
+| **llm-wiki** | 0.2.5 | 스킬 4 | 흩어진 마크다운·AI 세션 기록을 하나의 LLM wiki로 통합(wiki-bootstrap)·가공(wiki-digest)·점검(wiki-lint)·조회(wiki-recall). python3 stdlib만 사용. |
 | **agent-workflow** | 0.2.0 | 스킬 1 | 최신 `origin/develop` 기준 격리 Git worktree 생성과 작업 경로 고정(worktree). 사용자가 명시적으로 부를 때만 동작한다. |
-| **dlc** | 0.1.0 | 스킬 10 | AI-DLC 방법론의 명시 호출형 생명주기 스킬셋. 라우터(dlc) + 스테이지 9개(init·analyze·intent·practices·requirements·design·plan·build·verify), 프로파일 3개(full·express·bugfix). 산출물·진행 상태를 `docs/dlc/`에 남기고 python3 stdlib 스크립트가 상태 전이·다음 단계 판정·산출물 검사를 맡는다. |
+| **dlc** | 0.1.1 | 스킬 10 | AI-DLC 방법론의 명시 호출형 생명주기 스킬셋. 라우터(dlc) + 스테이지 9개(init·analyze·intent·practices·requirements·design·plan·build·verify), 프로파일 3개(full·express·bugfix). 산출물·진행 상태를 `docs/dlc/`에 남기고 python3 stdlib 스크립트가 상태 전이·다음 단계 판정·산출물 검사를 맡는다. |
 
 ## 구성
 

@@ -6,6 +6,8 @@ compatibility: "python3 3.8+ 만 있으면 어느 머신에서든 동작한다. 
 
 # wiki-digest
 
+`${CLAUDE_SKILL_DIR}`는 Claude Code가 스킬을 로드할 때 이 스킬 디렉터리의 절대 경로로 치환한다. 치환되지 않는 환경(`npx skills add`로 설치한 Codex·Gemini)에서는 이 SKILL.md가 있는 디렉터리를 뜻한다. `${CLAUDE_PLUGIN_ROOT}/skills/wiki-bootstrap`은 같은 플러그인의 형제 스킬 wiki-bootstrap 디렉터리다.
+
 AI 세션 원본(JSONL)을 사람이 읽는 위키 문서로 가공한다. 지식베이스에서 가장 큰
 유입 경로다 — 세션은 사람이 못 읽는 형식이라 원료→가공본 2단계가 필요하고,
 그 변환이 이 스킬의 전부다. 마크다운 문서는 이미 읽을 수 있으므로 여기 오지 않는다.
@@ -26,14 +28,14 @@ AI 세션 원본(JSONL)을 사람이 읽는 위키 문서로 가공한다. 지�
 ## 1. 위키 루트 확보
 
 ```bash
-python3 <skill>/scripts/locate.py root
+python3 ${CLAUDE_SKILL_DIR}/scripts/locate.py root
 ```
 
 경로를 출력하면 그대로 쓴다. 종료 코드 3 이면 설정이 없는 것이고, 스크립트가 후보를
 같이 보여준다. **사용자에게 확인받고** 기록한다:
 
 ```bash
-python3 <skill>/scripts/locate.py root --set <경로>
+python3 ${CLAUDE_SKILL_DIR}/scripts/locate.py root --set <경로>
 ```
 
 한 번 기록하면 다음부터 묻지 않는다. 이 스킬은 경로를 본문에 담지 않는다 —
@@ -47,16 +49,16 @@ python3 <skill>/scripts/locate.py root --set <경로>
 계속 쌓이므로 관심 있는 것만 고른다.
 
 ```bash
-python3 <skill>/scripts/locate.py collect                    # 현재 목록
-python3 <skill>/scripts/locate.py collect --add ~/repo       # 프로젝트 추가
-python3 <skill>/scripts/collect.py --dry-run                 # 무엇이 복사될지
-python3 <skill>/scripts/collect.py                           # 수집 실행
+python3 ${CLAUDE_SKILL_DIR}/scripts/locate.py collect                    # 현재 목록
+python3 ${CLAUDE_SKILL_DIR}/scripts/locate.py collect --add ~/repo       # 프로젝트 추가
+python3 ${CLAUDE_SKILL_DIR}/scripts/collect.py --dry-run                 # 무엇이 복사될지
+python3 ${CLAUDE_SKILL_DIR}/scripts/collect.py                           # 수집 실행
 ```
 
 목록에 없는 프로젝트라도 막히지 않는다. 가공 직전에 그 파일만 확보하면 된다:
 
 ```bash
-python3 <skill>/scripts/collect.py --file <원본 경로>
+python3 ${CLAUDE_SKILL_DIR}/scripts/collect.py --file <원본 경로>
 ```
 
 ### 새 프로젝트 자동 등록
@@ -68,8 +70,8 @@ python3 <skill>/scripts/collect.py --file <원본 경로>
 그래서 수집 자체가 발견하게 한다:
 
 ```bash
-python3 <skill>/scripts/collect.py --auto-add                    # 세션 3개 이상이면 등록
-python3 <skill>/scripts/collect.py --auto-add --min-sessions 5   # 임계 조정
+python3 ${CLAUDE_SKILL_DIR}/scripts/collect.py --auto-add                    # 세션 3개 이상이면 등록
+python3 ${CLAUDE_SKILL_DIR}/scripts/collect.py --auto-add --min-sessions 5   # 임계 조정
 ```
 
 세션 파일에 기록된 `cwd` 를 읽어 실제 경로를 얻으므로 슬러그를 역산할 필요가 없다.
@@ -83,9 +85,9 @@ cron/launchd 에 `--auto-add` 로 걸어두면 사람이 아무것도 안 해도
 ## 2. 대상 세션 찾기
 
 ```bash
-python3 <skill>/scripts/locate.py sessions              # 실행 위치 기준
-python3 <skill>/scripts/locate.py sessions --new-only   # 아직 가공 안 된 것만
-python3 <skill>/scripts/locate.py sessions --cwd <경로> # 특정 프로젝트
+python3 ${CLAUDE_SKILL_DIR}/scripts/locate.py sessions              # 실행 위치 기준
+python3 ${CLAUDE_SKILL_DIR}/scripts/locate.py sessions --new-only   # 아직 가공 안 된 것만
+python3 ${CLAUDE_SKILL_DIR}/scripts/locate.py sessions --cwd <경로> # 특정 프로젝트
 ```
 
 **실행 위치가 곧 대상 지정이다.** 프로젝트 저장소 안이면 그 프로젝트 세션(워크트리 포함)을,
@@ -97,7 +99,7 @@ python3 <skill>/scripts/locate.py sessions --cwd <경로> # 특정 프로젝트
 ## 3. 추출 — 파일을 통째로 읽지 않는다
 
 ```bash
-python3 <skill>/scripts/extract.py <파일> --max-chars 40000
+python3 ${CLAUDE_SKILL_DIR}/scripts/extract.py <파일> --max-chars 40000
 ```
 
 원본은 수십 MB 다. 실측으로 15MB 원본이 44KB 로 줄었다. 통째로 읽으면 컨텍스트가
@@ -137,7 +139,7 @@ rg -l '<트랙 키워드>' <위키루트>/retrospectives
 ## 6. 검증
 
 ```bash
-python3 <wiki-bootstrap>/scripts/survey.py <위키루트>
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/wiki-bootstrap/scripts/survey.py <위키루트>
 ```
 
 깨진 링크가 늘지 않았는지 본다. 늘었다면 대개 `raw/` 경로에 링크를 걸었거나
@@ -179,7 +181,7 @@ python3 <wiki-bootstrap>/scripts/survey.py <위키루트>
 ## 테스트
 
 ```bash
-python3 -m unittest discover -s <skill>/tests
+python3 -m unittest discover -s ${CLAUDE_SKILL_DIR}/tests
 ```
 
 외부 의존 없이 stdlib 만 쓴다. **스크립트를 고치면 여기부터 돌린다** — 이 스위트의

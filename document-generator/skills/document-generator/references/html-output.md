@@ -10,7 +10,7 @@ HTML은 표현 형식일 뿐이다. *무엇을 담을지*는 여전히 해당 �
 
 공유·열람 시 파일 하나만 열면 바로 보이도록, **외부 의존성이 없는 단일 `.html` 파일**로 만든다.
 
-- `assets/document.css`의 **내용을 읽어 `<head>`의 `<style>` 태그 안에 그대로 임베드**한다. 외부 CSS 링크나 CDN(폰트·JS 라이브러리 포함)은 쓰지 않는다 — 오프라인에서도 깨지지 않아야 한다.
+- `${CLAUDE_SKILL_DIR}/assets/document.css`의 **내용을 읽어 `<head>`의 `<style>` 태그 안에 그대로 임베드**한다. 외부 CSS 링크나 CDN(폰트·JS 라이브러리 포함)은 쓰지 않는다 — 오프라인에서도 깨지지 않아야 한다.
 - `<html lang="ko">`, `<meta charset="utf-8">`, `<meta name="viewport" ...>`를 포함한다.
 - JavaScript는 기본적으로 넣지 않는다. 꼭 필요하면(예: 목차 토글) 외부 의존 없는 짧은 인라인 스크립트만.
 - 기본 골격:
@@ -110,7 +110,7 @@ HTML은 색·박스·배지를 얼마든지 쓸 수 있어서, 그냥 두면 **�
 파일을 쓴 뒤 반드시 실행한다. 한글 넘침은 코드를 눈으로 읽어서는 보이지 않는다 — 좌표를 계산해야 드러난다.
 
 ```bash
-python3 <스킬경로>/assets/check-layout.py report.html
+python3 ${CLAUDE_SKILL_DIR}/assets/check-layout.py report.html
 ```
 
 SVG 텍스트가 박스·viewBox를 벗어나는지, 표가 `.table-wrap`으로 감싸였는지, 표 열이 너무 많은지를 잡아낸다. **발견 0건이 될 때까지 고친다.** 지적된 텍스트는 짧게 줄이거나 문장을 SVG 밖으로 옮기고, 박스 폭을 늘렸으면 `viewBox`도 함께 늘린다.

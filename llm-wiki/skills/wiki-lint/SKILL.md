@@ -6,6 +6,8 @@ compatibility: "python3 3.8+ 만 있으면 동작한다. 외부 패키지 의존
 
 # wiki-lint
 
+`${CLAUDE_SKILL_DIR}`는 Claude Code가 스킬을 로드할 때 이 스킬 디렉터리의 절대 경로로 치환한다. 치환되지 않는 환경(`npx skills add`로 설치한 Codex·Gemini)에서는 이 SKILL.md가 있는 디렉터리를 뜻한다.
+
 Karpathy 원문의 세 연산 Ingest · Query · Lint 중 **Lint**. 지식베이스는 쓸수록 링크가
 끊기고, 아무도 안 읽는 문서가 쌓이고, 한때 맞았던 서술이 조용히 틀려진다. 이 스킬은
 그걸 찾는다.
@@ -27,8 +29,8 @@ LLM 이 읽는 방식은 성립하지 않는다. 기계로 후보를 줄인 다�
 ## 한 번에 보기 — 어느 디렉터리에서 실행해도 된다
 
 ```bash
-python3 <skill>/scripts/lint.py                 # 루트는 설정에서
-python3 <skill>/scripts/lint.py <위키루트>       # 직접 지정
+python3 ${CLAUDE_SKILL_DIR}/scripts/lint.py                 # 루트는 설정에서
+python3 ${CLAUDE_SKILL_DIR}/scripts/lint.py <위키루트>       # 직접 지정
 ```
 
 **위키 루트는 인자가 없으면 설정(`~/.config/llm-wiki/config.json` 의 `root`)에서
@@ -55,8 +57,8 @@ python3 <skill>/scripts/lint.py <위키루트>       # 직접 지정
 떨어진다는 것을 알고 읽어야 한다.
 
 ```bash
-python3 <skill>/scripts/lint.py <루트> --check links           # 건식 — 무엇을 바꿀지
-python3 <skill>/scripts/lint.py <루트> --check links --apply   # 적용
+python3 ${CLAUDE_SKILL_DIR}/scripts/lint.py <루트> --check links           # 건식 — 무엇을 바꿀지
+python3 ${CLAUDE_SKILL_DIR}/scripts/lint.py <루트> --check links --apply   # 적용
 ```
 
 **"대상 없음"은 결함이 아니라 정보다.** 없는 문서를 가리키는 링크는 "여기에 문서가
@@ -118,7 +120,7 @@ git 이력에서 파일별 최종 수정일을 얻는다. **이력 전체가 30�
 ## 테스트
 
 ```bash
-python3 -m unittest discover -s <skill>/tests
+python3 -m unittest discover -s ${CLAUDE_SKILL_DIR}/tests
 ```
 
 외부 의존 없이 stdlib 만 쓴다. **스크립트를 고치면 여기부터 돌린다** — 이 스위트의

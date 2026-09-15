@@ -11,7 +11,7 @@ metadata:
 
 생명주기의 마지막 스테이지다. 구현이 요구사항을 만족하는지 네 가지로 확인한다 — 전체 테스트, 커버리지 기준, 추적성, 코드 리뷰 — 그리고 판정을 적는다. 질문 파일이 없는 스테이지다. 리뷰 중에는 코드를 고치지 않는다. 고칠 것이 나오면 먼저 판정에 적고, 고치는 것은 반려 뒤 사용자 결정으로만 한다.
 
-공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 출처 규칙과 ID 형식은 [../dlc/references/grounding.md](../dlc/references/grounding.md)에 있다. 스크립트 위치 `<skills>/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. protocol.md의 4~7단계(질문·답변·요약 확인)는 이 단계에 없다. 아래는 이 단계에서만 다른 것이다.
+공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 출처 규칙과 ID 형식은 [../dlc/references/grounding.md](../dlc/references/grounding.md)에 있다. 스크립트 위치 `${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. protocol.md의 4~7단계(질문·답변·요약 확인)는 이 단계에 없다. 아래는 이 단계에서만 다른 것이다.
 
 ## 읽을 것
 

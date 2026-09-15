@@ -6,6 +6,8 @@ compatibility: "python3 3.8+ 만 있으면 동작한다. 외부 패키지 의존
 
 # wiki-recall
 
+`${CLAUDE_SKILL_DIR}`는 Claude Code가 스킬을 로드할 때 이 스킬 디렉터리의 절대 경로로 치환한다. 치환되지 않는 환경(`npx skills add`로 설치한 Codex·Gemini)에서는 이 SKILL.md가 있는 디렉터리를 뜻한다.
+
 위키를 **읽는** 쪽. 나머지 셋(`wiki-bootstrap` 통합 · `wiki-digest` 가공 ·
 `wiki-lint` 점검)은 전부 쓰는 쪽이라, 쌓아둔 것을 실제로 쓰는 연산이 여기다.
 
@@ -25,11 +27,11 @@ compatibility: "python3 3.8+ 만 있으면 동작한다. 외부 패키지 의존
 ## 1. 좁힌다 — 어느 디렉터리에서 실행해도 된다
 
 ```bash
-python3 <skill>/scripts/recall.py <질의> [질의...]
-python3 <skill>/scripts/recall.py <질의> --lines        # 매치 줄까지
-python3 <skill>/scripts/recall.py <질의> --limit 30
-python3 <skill>/scripts/recall.py <질의> --root ~/other # 다른 위키
-python3 <skill>/scripts/recall.py --recent             # 질의어 없이 최근 문서
+python3 ${CLAUDE_SKILL_DIR}/scripts/recall.py <질의> [질의...]
+python3 ${CLAUDE_SKILL_DIR}/scripts/recall.py <질의> --lines        # 매치 줄까지
+python3 ${CLAUDE_SKILL_DIR}/scripts/recall.py <질의> --limit 30
+python3 ${CLAUDE_SKILL_DIR}/scripts/recall.py <질의> --root ~/other # 다른 위키
+python3 ${CLAUDE_SKILL_DIR}/scripts/recall.py --recent             # 질의어 없이 최근 문서
 ```
 
 ### "가장 최근" 류 질문은 `--recent` 로
@@ -155,5 +157,5 @@ python3 <skill>/scripts/recall.py --recent             # 질의어 없이 최근
 ## 테스트
 
 ```bash
-python3 -m unittest discover -s <skill>/tests
+python3 -m unittest discover -s ${CLAUDE_SKILL_DIR}/tests
 ```

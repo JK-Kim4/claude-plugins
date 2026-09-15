@@ -1,0 +1,7 @@
+# Codex 전용 메타. 다른 에이전트는 이 파일을 무시한다.
+# 사용자가 $dlc-practices 로 직접 부를 때만 실행되게 한다 (Claude 의 disable-model-invocation 과 같은 뜻).
+interface:
+  display_name: "dlc-practices"
+  short_description: "팀 관행 확정 — 작업 방식·테스트·배포·코드 스타일 → docs/dlc/practices.md"
+policy:
+  allow_implicit_invocation: false
