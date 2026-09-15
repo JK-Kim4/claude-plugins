@@ -5,7 +5,7 @@ jongwan의 Claude Code 플러그인 마켓플레이스. 일곱 개의 플러그�
 | 플러그인 | 버전 | 구성 | 설명 |
 |----------|------|------|------|
 | **document-generator** | 1.5.0 | 스킬 1 | 작업 보고서·진행 추적·기술 설계·온보딩 가이드를 목적과 독자에 맞는 형식으로 생성. Markdown·HTML·Notion 출력 지원. |
-| **pr-reviewer** | 1.1.0 | 스킬 1 | 지정한 GitHub PR을 컨벤션·코드(보안·동시성·로직) 두 축으로 분석해 Pn 룰(P1~P5) 우선순위 라벨을 단 단일 PR Review로 게시. `craft:code-reviewer` 페르소나 연동. 리뷰 기준 컨벤션 레포당 1회 확정·저장. |
+| **pr-reviewer** | 1.1.1 | 스킬 1 | 지정한 GitHub PR을 컨벤션·코드(보안·동시성·로직) 두 축으로 분석해 Pn 룰(P1~P5) 우선순위 라벨을 단 단일 PR Review로 게시. `craft:code-reviewer` 페르소나 연동. 리뷰 기준 컨벤션 레포당 1회 확정·저장. |
 | **architecture-reviewer** | 1.0.0 | 스킬 1 | APoSD·DDD 관점으로 코드의 아키텍처 품질(복잡도·모듈 깊이·정보 은닉·결합도)을 7축 루브릭으로 진단하거나, 제안한 아키텍처 방향을 현 코드 기준으로 검증. 지적마다 P0~P2 + 개선 스케치. |
 | **craft** | 0.3.0 | 에이전트 4 · 스킬 6 | 개발 파이프라인 페르소나 sub agent 4종(verifier·interface-designer·tdd-implementer·code-reviewer)과 오케스트레이션 스킬(issue-triage·diagnose·design-it-twice·test-first·implement-spec·test-audit). |
 | **llm-wiki** | 0.2.4 | 스킬 4 | 흩어진 마크다운·AI 세션 기록을 하나의 LLM wiki로 통합(wiki-bootstrap)·가공(wiki-digest)·점검(wiki-lint)·조회(wiki-recall). python3 stdlib만 사용. |
@@ -49,11 +49,9 @@ claude-plugins/
 │       ├── dlc-init/  dlc-analyze/  dlc-intent/  dlc-practices/  dlc-requirements/
 │       └── dlc-design/  dlc-plan/  dlc-build/  dlc-verify/
 ├── archive/                      # 스킬 이전 버전 보관 — archive/<스킬명>/<교체일>/
-├── docs/                         # design/(플러그인 설계) · research/ · review/(설계·구현 리뷰 기록)
-└── pr-automator/                 # 마켓플레이스 목록에 없음 — 설치 대상 아님
+└── docs/                         # design/(플러그인 설계) · research/ · review/(설계·구현 리뷰 기록)
 ```
 
-- `pr-automator/`는 폴더와 `plugin.json`이 남아 있지만 craft 플러그인을 추가한 커밋(`d6084d8`)에서 `marketplace.json` 목록에서 빠졌다. `/plugin install`로 설치할 수 없다.
 - 로컬에만 두고 커밋하지 않는 것(`.gitignore`): `docs/handoff/`(사내 경로·이메일 포함), `*/evals/results/`(eval 실행 결과), `.omc/`(세션 상태).
 
 ## 설치 (다른 PC 포함)
