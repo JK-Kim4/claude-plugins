@@ -260,3 +260,16 @@ description 상한 1,536자를 넘는 스킬은 없다. 긴 순서:
 G6의 worktree 항목은 리뷰 권고(`disable-model-invocation: true`)를 **적용하지 않았다.** 내장 EnterWorktree는 `worktree.baseRef`가 기본 브랜치 또는 로컬 HEAD뿐이라 origin/develop 기준 흐름을 대체하지 못한다. 플래그를 켜면 "워크트리 만들어줘"에 모델이 이 스킬을 못 고르고 EnterWorktree로 가서 기준 브랜치가 틀린다. 리뷰의 해당 권고는 이 사실로 정정한다.
 
 하지 않은 것: dlc 스테이지 본문 축소(G9의 dlc 항목)는 참조 3개가 이미 절별로 나뉘어 있어 이득이 작아 보류. dlc r4 잔여 17건은 사용자 결정(I8·I14)이 걸려 있어 다음 라운드.
+
+### 9-1. eval 실측 (2026-09-16, `claude plugin eval`, 총 $4.90)
+
+| 플러그인 | 케이스 | 결과 | 비고 |
+|---|---|---|---|
+| pr-reviewer | no-pr-id | 3/3 통과 | 첫 실행은 부정 패턴 `gh pr diff`가 스킬 본문 예시에 걸려 거짓 실패 → 실행 형태(`gh pr diff [0-9#h]`)로 교체 |
+| architecture-reviewer | diagnose-mode, direction-mode | 각 6/6 통과 | 픽스처 식별자(`StripeGateway` 등)와 `last_message`로 앵커 |
+| architecture-reviewer | no-target | **0/5 실행 통과** | 발동·"리포트 없음"은 통과. 소스 Read 0~4회, 질문 표현이 실행마다 다름. 스킬 문장 강화(1.0.1) 후에도 불안정. 사용자 결정 필요(아래) |
+| document-generator | readme, postmortem, progress-update | 통과 | postmortem은 `target: files`가 동작하지 않아 저장 경로를 프롬프트로 고정하고 파일 본문 채점으로 교체. `file_exists`는 에이전트가 만든 파일에만 통과 |
+
+채점기 설계 규약(케이스 파일 주석에도 적음): 응답은 `last_message`, 산출물은 `source: file` 본문, 발동은 `tool_used: Skill` + `input_match`, trace에는 인자가 채워진 실행 형태만. 스킬 본문·참조 문서·프롬프트가 trace에 실리므로 그 안의 문자열은 양성·부정 앵커 어느 쪽으로도 쓰지 않는다.
+
+**남은 결정(no-target)**: (a) "대상 없으면 파일을 읽지 않는다"를 지키게 할 것인가 — 그러면 SKILL.md에 절차를 더 박거나(예: `ls`만 허용) 채점기를 유지하고 스킬을 더 고친다. (b) 작은 저장소에서 한두 파일을 들여다보고 묻는 것을 허용할 것인가 — 그러면 `no-source-scan`을 빼고 "리포트 없이 묻는다"만 잰다. 어느 쪽이든 `asks-which-target`의 질문 표현 패턴은 실행 3회의 실제 문장을 모아 넓힌다.
