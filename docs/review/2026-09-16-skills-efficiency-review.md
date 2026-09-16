@@ -273,3 +273,23 @@ G6의 worktree 항목은 리뷰 권고(`disable-model-invocation: true`)를 **�
 채점기 설계 규약(케이스 파일 주석에도 적음): 응답은 `last_message`, 산출물은 `source: file` 본문, 발동은 `tool_used: Skill` + `input_match`, trace에는 인자가 채워진 실행 형태만. 스킬 본문·참조 문서·프롬프트가 trace에 실리므로 그 안의 문자열은 양성·부정 앵커 어느 쪽으로도 쓰지 않는다.
 
 **남은 결정(no-target)**: (a) "대상 없으면 파일을 읽지 않는다"를 지키게 할 것인가 — 그러면 SKILL.md에 절차를 더 박거나(예: `ls`만 허용) 채점기를 유지하고 스킬을 더 고친다. (b) 작은 저장소에서 한두 파일을 들여다보고 묻는 것을 허용할 것인가 — 그러면 `no-source-scan`을 빼고 "리포트 없이 묻는다"만 잰다. 어느 쪽이든 `asks-which-target`의 질문 표현 패턴은 실행 3회의 실제 문장을 모아 넓힌다.
+
+## 10. 3라운드: architecture-reviewer no-target 확정과 dlc r4 잔여 (2026-09-17)
+
+사용자 결정: no-target은 "읽기 금지 + 인터뷰", gh 계정 JK-Kim4 유지. dlc r4 인터뷰 결과: I8 관대, I14 build eval 만든다, 범위 A·C·D·B(E의 Codex 실측은 별도), I13 X. 문구 강제하지 않음.
+
+| 커밋 | 내용 |
+|---|---|
+| 3e5c2fa | architecture-reviewer 1.0.1: 대상 없으면 `ls`·`find`·`git ls-files`로 목록만 확보하고 번호 선택지로 묻는다(Read 금지, 작은 저장소도 같다). eval은 Bash 허용 + Read 호출 JSON 부정 regex. 8회 실행 끝에 4/4 |
+| 269210a | dlc 0.1.2: I7 plan 유닛 열 파싱, I8 관대 검사(테스트 3건 추가, 90건), I12 run.sh 가드, I9 검사 표, I11 NFR 배치 규칙, I13 X. 문구 규칙, I1·I2 설계 기록 정정, I4·I5·I6·I10 채점기 정비, I14 `build-resume` eval |
+
+### 10-1. eval 실측
+
+| suite | 결과 | 비고 |
+|---|---|---|
+| dlc 9건 (`dlc/evals/run.sh`, -j 2, 398초, $5.39) | 8건 1.0. `build-resume` 9/10 → 채점기 수정 후 재실행(아래) | 실패 1건은 `resume-noted` 패턴이 명령 안의 따옴표(`"재개"` → JSON `\"재개\"`)를 `[^"]*`로 지나가지 못한 채점기 결함. 스킬·스크립트 결함 0 |
+| architecture-reviewer no-target | 4/4 | 마지막 응답: "아직 파일 내용은 열지 않았습니다" |
+
+채점기 규약에 추가된 교훈: (1) Bash 명령 앵커 뒤에 따옴표가 올 수 있으면 `(?:[^"\\]|\\.)*`로 JSON 이스케이프를 통과시킨다. (2) `tool_used`는 호출 0회를 표현하지 못한다 — "부르지 않았다"는 trace의 도구 호출 JSON에 부정 regex로. (3) 명시 호출(슬래시) 스킬의 발동은 `tool_used: Skill`이 아니라 스킬만 실행하는 Bash 명령의 도구 호출 JSON으로 잰다. (4) 스캐폴드가 만든 파일은 `file_exists`가 통과시키지 않는다.
+
+남은 것: Codex CLI 실측(I15, E), design·verify eval과 Codex·Gemini eval(I16 보류), Gemini·Cursor 실측(I17 보류).

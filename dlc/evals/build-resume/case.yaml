@@ -26,7 +26,7 @@ graders:
   - type: regex
     name: resume-noted
     target: trace
-    pattern: '"command":"[^"]*dlc\.py note build[^"]*재개'
+    pattern: '"command":"(?:[^"\\]|\\.)*dlc\.py note build(?:[^"\\]|\\.){0,12}재개'  # 명령 안의 따옴표(`"재개"`)는 JSON 에서 `\"` 라 `[^"]*` 로는 지나가지 못한다(R5 1차 실행 실패 원인)
   - type: regex
     name: start-build-not-rerun
     target: trace
