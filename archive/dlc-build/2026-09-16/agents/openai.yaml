@@ -1,0 +1,7 @@
+# Codex 전용 메타. 다른 에이전트는 이 파일을 무시한다.
+# 사용자가 $dlc-build 로 직접 부를 때만 실행되게 한다 (Claude 의 disable-model-invocation 과 같은 뜻).
+interface:
+  display_name: "dlc-build"
+  short_description: "구현 — 유닛마다 seam 에서 red-green, 코드는 원래 위치, build/<unit>.md 기록"
+policy:
+  allow_implicit_invocation: false

@@ -812,6 +812,30 @@ class PlanVerifyMachineChecks(Base):
         self.assertNotEqual(code, 0)
         self.assertIn("실행 명령", out)
 
+    def test_plan_unit_named_only_in_depends_on_column_is_reported_missing(self):  # R5 I7
+        self.write(self.path("units.md"), UNITS_OK.replace(
+            "| u1-api | service | | FR1, FR2, NFR1 |",
+            "| u1-api | service | | FR1, NFR1 |\n| u2-change | service | u1-api | FR2 |"))
+        # u2-change 가 표의 depends_on 열에만 나온다 — 절 전체 텍스트로 모으면 있는 것으로 오인된다
+        self.write(self.path("plan.md"), PLAN_OK.replace(
+            "| 1 | u1-api | | FR1.1, FR2, NFR1 | | [Q1] |",
+            "| 1 | u1-api | u2-change | FR1.1, FR2, NFR1 | | [Q1] |"))
+        code, out, _ = run("check", "plan", "--root", str(self.root))
+        self.assertNotEqual(code, 0)
+        self.assertIn("u2-change", out)
+        self.assertIn("유닛 순서 표에 없습니다", out)
+
+    def test_plan_run_command_with_list_or_bold_prefix_passes(self):  # R5 I8 관대
+        for variant in ("- 실행 명령: `./gradlew test` [practice]\n", "**실행 명령**: `./gradlew test` [practice]\n"):
+            self.write(self.path("plan.md"), PLAN_OK.replace("실행 명령: `./gradlew test` [practice]\n", variant))
+            code, out, _ = run("check", "plan", "--root", str(self.root))
+            self.assertEqual(code, 0, (variant, out))
+
+    def test_verify_bold_verdict_passes_check(self):  # R5 I8 관대
+        self.write(self.path("verify.md"), VERIFY_OK.replace("## 판정\n승인", "## 판정\n**조건부 승인** — P2 1건은 후속 작업"))
+        code, out, _ = run("check", "verify", "--root", str(self.root))
+        self.assertEqual(code, 0, out)
+
     def test_verify_verdict_rejected_fails_check(self):
         self.write(self.path("verify.md"), VERIFY_OK.replace("## 판정\n승인", "## 판정\n반려. P1 1건이 남았다"))
         code, out, _ = run("check", "verify", "--root", str(self.root))

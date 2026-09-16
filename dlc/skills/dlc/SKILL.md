@@ -11,7 +11,7 @@ metadata:
 
 `dlc-*` 스테이지 스킬 아홉 개의 입구다. 사용자가 이름을 쳐서 부를 때만 실행된다.
 
-공통 절차는 [references/protocol.md](references/protocol.md), 상태·산출물 형식은 [references/state-format.md](references/state-format.md), 출처 규칙은 [references/grounding.md](references/grounding.md)에 있다. 스크립트는 `<skills>/dlc/scripts/dlc.py`이며 항상 프로젝트 루트에서 `python3 <skills>/dlc/scripts/dlc.py <명령>`으로 실행한다. `<skills>`는 이 스킬이 로드될 때 보인 스킬 디렉터리(`dlc/`)의 부모다. Claude Code 플러그인이면 `<plugin>/skills`, `npx skills add`로 설치했으면 `.agents/skills`.
+공통 절차는 [references/protocol.md](references/protocol.md), 상태·산출물 형식은 [references/state-format.md](references/state-format.md), 출처 규칙은 [references/grounding.md](references/grounding.md)에 있다. 스크립트는 `${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py`이며 항상 프로젝트 루트에서 `python3 ${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py <명령>`으로 실행한다. Claude Code는 로드 시 `${CLAUDE_PLUGIN_ROOT}`를 이 플러그인의 절대 경로로 치환한다. 치환되지 않는 환경(`npx skills add`로 설치한 Codex·Gemini)에서는 `<skills>/dlc/scripts/dlc.py`로 읽는다. `<skills>`는 스킬 디렉터리들의 부모(`.agents/skills`)다.
 
 ## 스테이지와 스킬
 

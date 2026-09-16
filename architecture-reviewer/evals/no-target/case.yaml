@@ -1,0 +1,35 @@
+schema_version: "1.1"
+name: no-target
+description: 모듈이 둘(payment·shipping)인 저장소에서 대상 지정 없이 "아키텍처 리뷰해줘"라고 하면 어느 디렉터리·모듈·파일을 볼지 묻고 멈춘다. 레포 전체를 임의 스캔하지 않는다.
+tags: [architecture-reviewer, trigger, stop]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 15
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+  prompt: |
+    아키텍처 리뷰해줘.
+graders:
+  # 후보 목록을 ls/find로 보여주는 것은 허용한다(경로 문자열이 trace에 남는다). 금지는 파일 "내용"을 읽는 것이므로 Read 호출 수로 잰다.
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?architecture-reviewer"'
+  - type: regex
+    name: asks-which-target
+    target: last_message
+    pattern: '(어느|어떤|무엇|대상|후보)[^\n]{0,60}(갈까요|볼까요|정해|알려|지정|고르|골라|선택|번)'
+  - type: regex
+    name: no-rendered-report
+    target: last_message
+    pattern: '## 아키텍처 리뷰'
+    match: not_contains
+  # 사용자 결정(2026-09-16): 대상이 없으면 소스 파일 내용을 읽지 않는다. 목록(ls·find)만 허용.
+  # tool_used는 호출 0회를 표현하지 못해(실측: Read 미호출인데 max: 0 실패) trace의 도구 호출 JSON에 부정 regex를 건다.
+  - type: regex
+    name: no-source-read
+    target: trace
+    pattern: '"name":"Read","input":\{[^}]*src/(payment|shipping)/'
+    match: not_contains

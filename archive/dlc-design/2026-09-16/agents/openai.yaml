@@ -1,0 +1,7 @@
+# Codex 전용 메타. 다른 에이전트는 이 파일을 무시한다.
+# 사용자가 $dlc-design 로 직접 부를 때만 실행되게 한다 (Claude 의 disable-model-invocation 과 같은 뜻).
+interface:
+  display_name: "dlc-design"
+  short_description: "설계 — 컴포넌트·소유권·ADR·유닛 표 → design.md, decisions.md, units.md (full 전용)"
+policy:
+  allow_implicit_invocation: false

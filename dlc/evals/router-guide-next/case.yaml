@@ -16,7 +16,7 @@ graders:
   - type: regex
     name: skill-fired-status-run
     target: trace
-    pattern: "dlc\\.py status"
+    pattern: '"command":"[^"]*dlc\.py status'  # Bash 도구 호출 JSON 안에서만(스킬 본문의 `dlc.py status` 문자열과 구분, R5 I5)
   - type: regex
     name: status-shows-next
     target: trace
@@ -25,10 +25,14 @@ graders:
   - type: regex
     name: does-not-start-next-stage
     target: trace
-    pattern: "dlc\\.py start"
-    match: not_contains
+    pattern: '"command":"[^"]*dlc\.py start (requirements|plan|build|verify)'
+    match: not_contains  # 실행 형태만(R5 I6)
   - type: regex
     name: does-not-init
     target: trace
-    pattern: "dlc\\.py init"
-    match: not_contains
+    pattern: '"command":"[^"]*dlc\.py init --profile'
+    match: not_contains  # 실행 형태만(스킬 본문·dlc.py 안내 문구의 `dlc.py init` 제외, R5 I6)
+  - type: regex
+    name: guides-to-dlc-requirements
+    target: last_message
+    pattern: 'dlc-requirements'  # 마지막 응답만(R5 I4)

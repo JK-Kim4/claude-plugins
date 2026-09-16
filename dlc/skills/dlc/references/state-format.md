@@ -88,4 +88,20 @@ docs/dlc/
 | build/<unit>.md | 변경 파일, 추적성, 테스트, 가정과 열린 질문 |
 | verify.md | 테스트 결과, 추적성, 리뷰 발견, 판정, 가정과 열린 질문 |
 
-`build/<unit>.md`는 `units.md`의 유닛마다 하나이며, `## 추적성` 절에 적힌 FR/NFR을 모든 유닛에 걸쳐 모으면 requirements.md의 모든 최상위 ID를 덮어야 한다(`dlc.py check build`). `units.md`의 유닛 표는 `## 유닛` 절 안의 `| unit | kind | depends_on | covers |` 네 열 표이며, `unit`이 `u<n>-<slug>` 형식인 행만 유닛으로 읽는다(다른 절의 표는 무시). `covers`에 적힌 FR/NFR을 모아 requirements.md의 모든 최상위 ID를 덮어야 한다. design이 프로파일에 있고 건너뛰지 않았으면 design이, 없거나 skipped면 plan이 이 파일을 만들고 검사받는다. `plan.md`의 `## 유닛 순서` 절에 나오는 `u<n>-<slug>` 집합은 units.md의 유닛 집합과 같아야 하고, `## Seam과 테스트 예산` 절에 `실행 명령: <명령>` 줄이 하나 있어야 한다(`dlc.py check plan`). `verify.md`의 `## 판정` 첫 단어는 `승인`·`조건부 승인`·`반려` 중 하나이며 `반려`면 `check verify`가 실패한다. `codebase.md`는 첫 줄 근처에 `<!-- fingerprint: <값> -->`을 둔다. 값은 현재 소스의 지문이며 `dlc.py check analyze`가 다르면 기대 값을 알려준다(init 뒤 소스가 바뀌었으면 state.md의 값과 다를 수 있다). 유닛 표의 행 끝 `|`는 있어도 없어도 된다.
+`dlc.py check <stage>`가 보는 규칙과 실패 메시지. 스크립트가 없을 때의 수동 체크리스트(protocol.md)도 같은 항목이다.
+
+| 산출물 | 검사 항목 | 실패 메시지(요지) |
+|---|---|---|
+| 모든 산출물 | 필수 절(H2) 존재 | `필수 절 '<절>' 이(가) 없습니다` |
+| 모든 산출물 | `## 가정과 열린 질문`이 비어 있지 않음(없으면 `None.`) | `'가정과 열린 질문' 절이 비어 있습니다` |
+| `<stage>-questions.md` | 제목이 `## Q<n>.`, 번호 1부터 연속, 질문마다 `[Answer]:` 행과 값, 요약 확인이 `Looks correct` | `Q<n> 에 [Answer]: 행이 없습니다` / `답변이 비어 있습니다` |
+| requirements.md | `## 기능/비기능 요구사항` 절 안의 FR/NFR 번호가 1부터 연속, 하위 ID의 상위가 존재 | `FR 번호가 비었습니다 — FR2` / `하위 ID 의 상위 FR 가 없습니다` |
+| design·plan·build·verify 산출물 | requirements.md에 없는 ID 참조 없음 | `requirements.md 에 없는 ID 를 참조합니다 — FR9` |
+| units.md | `## 유닛` 절의 `\| u<n>-<slug> \| kind \| depends_on \| covers \|` 행만 유닛. `covers` 합집합이 모든 최상위 FR/NFR을 덮음 | `어느 유닛도 맡지 않은 요구사항 — FR3` / `유닛 표를 읽을 수 없습니다` |
+| plan.md | `## 유닛 순서` 표의 **unit 열**(2열) 집합 = units.md 유닛 집합 | `유닛 순서 표에 units.md 에 없는 유닛이 있습니다` / `units.md 의 유닛이 유닛 순서 표에 없습니다` |
+| plan.md | `## Seam과 테스트 예산` 절에 `실행 명령: <명령>` 줄 하나. `- `·`**` 접두 허용 | `'Seam과 테스트 예산' 절에 \`실행 명령: <명령>\` 줄이 없습니다` |
+| build/<unit>.md | units.md 유닛마다 하나. `## 추적성` 표 행의 FR/NFR을 모든 유닛에 걸쳐 모으면 최상위 ID 전부를 덮음(표 밖 산문은 세지 않음) | `어느 유닛의 추적성에도 없는 요구사항 — NFR1` |
+| verify.md | `## 판정` 첫 단어가 `승인`·`조건부 승인`·`반려`(`- `·`**` 접두 허용). `반려`면 실패 | `'판정' 절 첫 단어는 승인, 조건부 승인, 반려 중 하나여야 합니다` / `판정이 '반려' 입니다` |
+| codebase.md | 첫 줄 근처 `<!-- fingerprint: <값> -->`이 현재 소스 지문과 같음 | `fingerprint 가 현재 소스와 다릅니다. … <!-- fingerprint: <기대값> --> 로 적으세요` |
+
+units.md는 design이 프로파일에 있고 건너뛰지 않았으면 design이, 없거나 skipped면 plan이 만들고 검사받는다. 하위 ID(`FR1.2`)를 맡으면 상위도 덮은 것으로 친다. 유닛 표의 행 끝 `|`는 있어도 없어도 된다.

@@ -17,12 +17,12 @@
 
 ## 2. 렌더 절차
 
-다이어그램을 `.mmd` 파일로 쓰고 `mermaid-cli`로 SVG를 만든다. 설정은 `assets/mermaid-config.json`을 그대로 쓴다.
+다이어그램을 `.mmd` 파일로 쓰고 `mermaid-cli`로 SVG를 만든다. 설정은 `${CLAUDE_SKILL_DIR}/assets/mermaid-config.json`을 그대로 쓴다(`${CLAUDE_SKILL_DIR}`는 Claude Code가 로드 시 이 스킬의 절대 경로로 치환한다).
 
 ```bash
 npx -y @mermaid-js/mermaid-cli \
   -i diagram.mmd -o diagram.svg \
-  -c <스킬경로>/assets/mermaid-config.json \
+  -c ${CLAUDE_SKILL_DIR}/assets/mermaid-config.json \
   --svgId dg-fig-1 \
   -b transparent
 ```
@@ -94,7 +94,7 @@ grep -oE "id=\"dg-fig-[0-9]+\"" diagram.svg   # 지정한 고유 id 가 나와�
 
 ```bash
 npx -y @mermaid-js/mermaid-cli -i diagram.mmd -o diagram.svg \
-  -c <스킬경로>/assets/mermaid-config.json -p puppeteer.json \
+  -c ${CLAUDE_SKILL_DIR}/assets/mermaid-config.json -p puppeteer.json \
   --svgId dg-fig-1 -b transparent
 ```
 

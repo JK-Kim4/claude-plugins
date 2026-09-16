@@ -44,7 +44,7 @@ graders:
   - type: regex
     name: plan-md-has-run-command
     target: trace
-    pattern: 'plan\.md(?:","content":"|\s*<<\s*-?''?\w+''?\\n)(?:[^"\\]|\\.)*?실행 명령\s*[:：]'
+    pattern: 'plan\.md(?:","content":"|\s*<<\s*-?''?\w+''?\\n)(?:[^"\\]|\\.)*?(?:[-*]\s*)?(?:\*\*)?실행 명령(?:\*\*)?\s*[:：]'  # check 와 같은 관대 기준(R5 I8)
   - type: regex
     name: plan-check-ok
     target: trace
@@ -56,8 +56,8 @@ graders:
   - type: regex
     name: build-not-started
     target: trace
-    pattern: "dlc\\.py start build"
-    match: not_contains
+    pattern: "build: active"
+    match: not_contains  # `start build` 의 출력 부재로 본다. 명령 문자열은 dlc-build/SKILL.md 에 있어 trace 에 실린다(R5 I6)
   - type: regex
     name: no-traceback
     target: trace

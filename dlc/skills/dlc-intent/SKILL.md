@@ -11,7 +11,7 @@ metadata:
 
 요구사항을 쓰기 전에 "이걸 왜 만드는가"를 확정한다. 산출물 `intent.md`는 뒤 단계에서 범위 판단의 기준이 된다. express·bugfix 프로파일에는 이 단계가 없다.
 
-공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 출처 규칙은 [../dlc/references/grounding.md](../dlc/references/grounding.md)에 있다. 스크립트 위치 `<skills>/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. 아래는 이 단계에서만 다른 것이다.
+공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 출처 규칙은 [../dlc/references/grounding.md](../dlc/references/grounding.md)에 있다. 스크립트 위치 `${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. 아래는 이 단계에서만 다른 것이다.
 
 ## 읽을 것
 

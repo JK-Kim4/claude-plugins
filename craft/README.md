@@ -8,18 +8,18 @@
 
 | 페르소나 | 역할 | 도구 | 스폰하는 스킬 |
 |---|---|---|---|
-| `verifier` | 주장 검증·버그 재현·루프 구축·최소화 | 읽기+실행+스크래치 쓰기 | triage, diagnosing-bugs |
+| `verifier` | 주장 검증·버그 재현·루프 구축·최소화 | 읽기+실행+스크래치 쓰기 | issue-triage, diagnose |
 | `interface-designer` | deep module 인터페이스 대안 설계 | 읽기 전용 | design-it-twice |
-| `tdd-implementer` | 합의된 seam에서 red-green 구현 | 전체 | implement, tdd |
+| `tdd-implementer` | 합의된 seam에서 red-green 구현 | 전체 | implement-spec, test-first |
 | `code-reviewer` | 근거 인용 리뷰 (Fowler smell 12종 + Pn 룰 내장) | 읽기 전용 | test-audit, pr-reviewer(플러그인) |
 
 ## 스킬 (skills/)
 
-- `triage` — 포크. 주장 검증 단계를 verifier에 위임
-- `diagnosing-bugs` — 포크. Phase 1~2(루프·재현·최소화)를 verifier에 위임 가능, Phase 6 blameless+5 Whys
+- `issue-triage` — upstream `triage` 포크. 주장 검증 단계를 verifier에 위임
+- `diagnose` — upstream `diagnosing-bugs` 포크. Phase 1~2(루프·재현·최소화)를 verifier에 위임 가능, Phase 6 blameless+5 Whys
 - `design-it-twice` — codebase-design의 참조 문서를 독립 스킬로 승격. interface-designer 병렬 스폰, 착지는 테크 스펙 5섹션
-- `tdd` — 포크. 테스트 비용 규율 4항목(최저 충분 레벨·행위당 1테스트·통합테스트 예산·커버리지는 지표) 추가
-- `implement` — 포크. seam·예산 게이트 후 tdd-implementer 스폰 오케스트레이션
+- `test-first` — upstream `tdd` 포크. 테스트 비용 규율 4항목(최저 충분 레벨·행위당 1테스트·통합테스트 예산·커버리지는 지표) 추가
+- `implement-spec` — upstream `implement` 포크. seam·예산 게이트 후 tdd-implementer 스폰 오케스트레이션
 - `test-audit` — 신규. 기존 테스트 스위트를 TDD 규율로 진단, 정리 대상(삭제/병합/레벨 하강) 제안
 
 ## 설치
@@ -31,7 +31,7 @@
 /plugin install craft@jongwan-plugins
 ```
 
-설치 후 포크 원본과의 트리거 충돌을 막으려면 `~/.claude/skills/`에서 다음 심링크를 제거한다: `triage`, `diagnosing-bugs`, `tdd`, `implement`. (codebase-design은 포크하지 않았으므로 유지 — design-it-twice가 어휘 원본으로 참조한다.)
+포크 4종은 upstream(`mattpocock-skills` 플러그인 또는 `~/.claude/skills` 심링크)과 이름이 다르므로(`test-first`·`diagnose`·`issue-triage`·`implement-spec`) 함께 설치해도 이름이 충돌하지 않는다. 다만 `test-first`와 upstream `tdd`는 같은 요청("TDD로")에 둘 다 후보가 되므로, 하나만 쓰려면 다른 쪽을 `claude plugin disable`하거나 심링크를 제거한다. (codebase-design은 포크하지 않았으므로 유지 — design-it-twice가 어휘 원본으로 참조한다.)
 
 ### Codex 등 다른 에이전트 (skills CLI — 스킬만, 에이전트 선택 설치)
 

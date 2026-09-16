@@ -11,7 +11,7 @@ metadata:
 
 뒤 단계(설계·계획·구현·검증)가 가리킬 요구사항 ID를 확정한다. 산출물 `requirements.md`의 `FR<n>`·`NFR<n>`은 이후 이름을 바꾸거나 다시 번호를 매기지 않는다.
 
-공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 출처 규칙과 ID 형식은 [../dlc/references/grounding.md](../dlc/references/grounding.md)에 있다. 스크립트 위치 `<skills>/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. 아래는 이 단계에서만 다른 것이다.
+공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 출처 규칙과 ID 형식은 [../dlc/references/grounding.md](../dlc/references/grounding.md)에 있다. 스크립트 위치 `${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. 아래는 이 단계에서만 다른 것이다.
 
 ## 읽을 것
 
@@ -29,10 +29,12 @@ depth minimal(express·bugfix)은 2~4개, standard(full)는 5~8개. 앞 산출�
 | 시나리오 | 대표 사용자 여정 하나. 실패·경계 상황에서 어떻게 되어야 하는가 | 2 |
 | 기술 | 붙는 지점(기존 API·DB·외부 시스템), 다루는 데이터 | 3 |
 | 품질 | 무엇이 되면 완료인가(수용 기준). 어떤 테스트가 있어야 하는가 | 4 |
-| 비기능 | 성능·보안·가용성·호환 중 이번에 중요한 것과 그 수치 | standard |
+| 비기능 | 성능·보안·가용성·호환 중 이번에 중요한 것과 그 수치. 보안·성능 주제라도 수치·측정 방법이 없으면 NFR이 아니라 `## 제약`에 적는다 | standard |
 | 비즈니스 | 우선순위(빠져도 되는 것), 성공 조건, 일정·정책 제약 | standard |
 
 minimal이면 우선순위 1~4 차원에서 빈 것만 묻는다. standard면 여섯 차원에 각 1개 이상을 두되 앞 산출물이 답한 것은 뺀다.
+
+답을 산출물에 배치하는 규칙: 기술 차원의 답(붙는 시스템·인증 방식·데이터 저장소)은 `## 제약`으로, 품질 차원의 답(완료 조건·필요한 테스트)은 해당 FR의 `수용 기준` 줄로 간다. `NFR<n>`은 목표값과 측정 방법이 있는 것만 만든다. 이 규칙이 없으면 같은 답이 실행마다 NFR과 제약으로 다르게 배치돼 뒤 단계의 ID 참조가 달라진다.
 
 **bugfix 프로파일**이면 차원 대신 다음 주제로 바꾼다. 순서대로 빈 것만 묻는다.
 

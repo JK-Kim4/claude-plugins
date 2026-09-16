@@ -164,11 +164,11 @@ Codex의 `agents/openai.yaml`은 Agent Skills 표준 밖의 확장이지만 다�
 
 *Gemini CLI 0.34.0.* skills CLI의 에이전트 이름은 `gemini`가 아니라 `gemini-cli`다(`gemini`는 "Invalid agents"). 같은 명령으로 프로젝트 `.agents/skills/`에 복사되고 `gemini skills list`가 dlc 10개를 전부 `[Enabled]`로 발견했다(`~/.agents/skills/`의 사용자 스킬도 함께). 모델 호출은 이 PC의 인증 방식(`oauth-personal`)이 "This client is no longer supported for Gemini Code Assist for individuals"(`IneligibleTierError`)로 거부돼 실측하지 못했다. 공식 문서(2026-04-30)는 스킬 활성화를 모델의 `activate_skill` 도구 호출 + 사용자 확인으로만 정의하고, 슬래시는 `/skills list|enable|disable|link`뿐이다. 즉 §9의 "슬래시 호출" 질문은 "없다"로 닫힌다. 우회는 API 키 또는 Antigravity 계정 인증이며, 자동 활성 차단 설정이 없다는 제약은 그대로다.
 
-*evals.* 케이스 8개(R2의 express-requirements 포함). 실행기 `dlc/evals/run.sh`가 `~/.docker/cli-plugins`·`bin/lib`의 심링크 디렉터리를 실행 동안 옮기고 trap으로 되돌린다 — `DOCKER_CONFIG`를 빈 디렉터리로 바꿔도 러너가 같은 오류를 내므로(R4 확인) 이동이 유일한 우회다. 거짓 양성 회피: 라우터 SKILL.md 본문이 슬래시 명령 확장으로 trace에 들어가므로 "`/dlc:dlc-requirements`를 안내했다", "`dlc-init`을 안내했다" 같은 문자열 grader는 두지 않았고, 안내는 `dlc.py` 출력 문구(`활성 작업이 없습니다`, `다음: requirements → dlc-requirements`)와 부정 grader(`dlc.py init`·`start` 미실행)로 증명한다. 모호어 후속 질문 케이스는 `[Answer]:` 접두를 앵커로 써 프롬프트 본문과 구분하고, 후속 답에 프롬프트의 "후속 답변" 절에만 있는 토큰 `test_stock_404`를 두어 후속 질문이 실제로 파일에 추가됐음을 잡는다. 결과는 아래 표.
+*evals.* 케이스 8개(R2의 express-requirements 포함). 실행기 `dlc/evals/run.sh`가 `~/.docker/cli-plugins`·`bin/lib`의 심링크 디렉터리를 실행 동안 옮기고 trap으로 되돌린다 — `DOCKER_CONFIG`를 빈 디렉터리로 바꿔도 러너가 같은 오류를 내므로(R4 확인) 이동이 유일한 우회다. 거짓 양성 회피: trace에는 `dlc.py`의 출력과 에이전트가 Read한 스킬·참조 파일 본문이 남으므로(라우터 본문 자체는 보관 trace 3건에서 0회 — R4 Opus 리뷰 1로 정정, R5) "`/dlc:dlc-requirements`를 안내했다", "`dlc-init`을 안내했다" 같은 문자열 grader는 두지 않았고, 안내는 `dlc.py` 출력 문구(`활성 작업이 없습니다`, `다음: requirements → dlc-requirements`)와 부정 grader(`dlc.py init`·`start` 미실행)로 증명한다. 모호어 후속 질문 케이스는 `[Answer]:` 접두를 앵커로 써 프롬프트 본문과 구분하고, 후속 답에 프롬프트의 "후속 답변" 절에만 있는 토큰 `test_stock_404`를 두어 후속 질문이 실제로 파일에 추가됐음을 잡는다. 결과는 아래 표.
 
 1차 전체 실행: Claude Code 2.1.270, `-j 2`, 362초, 약 $4.41. 8 케이스 중 5개 1.0, 3개 grader 결함(스킬 결함 0). 재실행에서 2개가 1.0으로 닫혔고 plan 케이스는 계정 한도로 미완이다.
 
-| 케이스 | 대상 | 1차 (turns / $ / grader) | 재실행 (grader 수정 뒤, `--keep-temp`) |
+| 케이스 | 대상 | 1차 (turns / $ / grader) | 재실행 (`--keep-temp`; plan 행은 수정 전 패턴으로 돌았고 수정 패턴은 최종 실행에서 검증) |
 |---|---|---|---|
 | `bugfix-requirements` | bugfix 프로파일 init→requirements | 16 / 0.76 / 9/9 | — |
 | `express-requirements` | express init→requirements + "여기까지" 중단(R2 케이스 + grader 1) | 18 / 0.88 / 11/11 | — |
@@ -182,6 +182,8 @@ Codex의 `agents/openai.yaml`은 Agent Skills 표준 밖의 확장이지만 다�
 grader 교훈(R2 U1의 연장): trace에는 에이전트가 읽은 스킬·참조 문서와 `dlc.py`의 안내 문구까지 들어가므로, 부정 grader의 패턴은 실제 명령·출력에만 있는 형태(`init --profile express`, `requirements: done`)로 좁혀야 한다. Write 앵커 뒤에는 반드시 JSON 문자열 통과 구간 `(?:[^"\\]|\\.)*?`를 둔다.
 
 **최종 실행(2026-09-13 19:05 KST, 2.1.270).** grader 수정을 반영한 전체 suite 1회: 8 케이스 전부 1.0, grader 54개 전부 통과, 324초, 약 $4.15, `--threshold 1.0` 종료 코드 0. 세 실행 사이에 스킬·스크립트 변경은 없었으므로 1차 실패 3건이 채점기 결함이었음이 확정됐다. 케이스별 행위·품질 관찰과 grader가 보지 못한 것은 `docs/review/2026-09-13-dlc-r4-eval-results.md`. 위 표의 "재실행" 열 제목은 plan 행에는 맞지 않는다 — 그 재실행은 수정 전 패턴으로 돌았고(Opus 리뷰 지적 3) 수정 패턴은 최종 실행에서 검증됐다.
+
+**R5 (2026-09-17, claude-plugins feature/skills-efficiency-r1).** r4 개선 제안(`docs/review/2026-09-13-dlc-r4-improvement-proposal.md`)의 A·C·D·B와 I14를 반영했다. 검사: plan 유닛 집합을 표의 unit 열에서만(I7), `실행 명령:`·판정에 `- `·`**` 접두 허용(I8 관대, 사용자 결정), 실패 메시지에 형식 안내. 채점기: 발동 지표와 부정 패턴을 Bash 도구 호출 JSON 앵커(`"command":"…dlc.py init --profile`)로, 안내 문장은 `last_message` 대상으로(I4~I6). bugfix 프롬프트의 답변을 주제 이름 없이 섞음(I10). 새 케이스 `build-resume`(I14): 위 build 재개 실측 픽스처를 scaffold로 인라인. suite 9건 1차 실행(-j 2, 398초, $5.39) 8건 1.0, `build-resume` 9/10 — 실패 1건은 명령 안의 따옴표를 채점기 `[^"]*`가 지나가지 못한 채점기 결함으로 수정. Codex 실측(I15)과 design·verify eval(I16)은 남아 있다.
 
 **R4 잔여(계정 한도 해제 뒤).** ~~(1) `dlc/evals/run.sh --case plan-supplies-units` 재실행과 전체 suite 1회로 깨끗한 리포트 확보(Claude 세션 한도 21:40 KST 해제).~~ → 위 최종 실행으로 해소. (2) Codex 3턴 이후(답변 → 요약 확인 → 승인)와 관련 없는 프롬프트의 자동 발동 차단 확인(Codex 한도 21:08 KST 해제, `codex exec resume --last`).
 

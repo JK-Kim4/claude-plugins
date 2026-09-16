@@ -1,0 +1,39 @@
+schema_version: "1.1"
+name: direction-mode
+description: 구조 변경 제안을 물으면 방향 검증 모드로 현 코드와의 간극·마이그레이션 리스크를 평가하고 P0~P2 + 권고를 단다.
+tags: [architecture-reviewer, direction]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 40
+  timeout_seconds: 600
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+  prompt: |
+    결제 처리를 이벤트 기반으로 바꾸려는데 지금 구조에서 괜찮을까?
+graders:
+  # 채점 앵커 규약: 응답은 last_message, 산출물은 파일 본문, 도구 호출은 trace. 스킬 본문·프롬프트가 실리는 trace에는 실행 형태(인자 채워진 명령·픽스처 경로)만 건다.
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?architecture-reviewer"'
+  - type: regex
+    name: report-header
+    target: last_message
+    pattern: '## 아키텍처 리뷰'
+  - type: regex
+    name: about-event-proposal
+    target: last_message
+    pattern: '(이벤트|event)'
+  - type: regex
+    name: gap-or-migration-risk
+    target: last_message
+    pattern: '(간극|마이그레이션|리스크|위험)'
+  - type: regex
+    name: labels
+    target: last_message
+    pattern: 'P[012]'
+  - type: regex
+    name: reads-current-code
+    target: trace
+    pattern: 'src/payment/service\.py'

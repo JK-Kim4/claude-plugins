@@ -1,8 +1,7 @@
 ---
 name: worktree
-description: 사용자가 `$worktree`를 명시적으로 호출했을 때만 사용한다. 선택적으로 브랜치명을 받아 최신
-  `origin/develop` 기준의 격리 Git worktree를 생성하고 이후 작업 경로를 그 worktree로 고정한다. 일반적인 코드
-  변경 요청만으로 자동 호출하지 않는다.
+description: >-
+  사용자가 워크트리 생성을 명시적으로 요청할 때만 사용한다("워크트리 만들어줘", `$worktree`). 선택적 브랜치명을 받아 최신 origin/develop 기준 격리 Git worktree를 `.worktrees/` 아래 만들고 이후 작업 경로를 거기로 고정한다. 내장 EnterWorktree(기본 브랜치 기준, `.claude/worktrees/`)와 다르다. 요청 없이 자동으로 만들지 않는다.
 ---
 # Worktree
 

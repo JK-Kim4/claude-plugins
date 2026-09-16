@@ -24,7 +24,7 @@ AI-DLC(awslabs/aidlc-workflows) 방법론을 **에이전트 종속 없이** 쓰�
 ## 동작 원리
 
 - 산출물과 진행 상태는 프로젝트 저장소의 `docs/dlc/<YYMMDD>-<slug>/`에 남는다. 커밋 대상이라 세션·에이전트·PC가 바뀌어도 이어간다.
-- `<skills>/dlc/scripts/dlc.py`(python3 표준 라이브러리만)가 상태 전이, 다음 단계 판정, 산출물 검사(필수 절, 질문 답변, FR/NFR ID 연속·참조, 유닛·추적성 커버리지, plan 유닛 집합·실행 명령, verify 판정)를 맡는다. `<skills>`는 스킬 디렉터리들의 부모(Claude Code 플러그인이면 `<plugin>/skills`, `npx skills add`면 `.agents/skills`). 에이전트는 `state.md`를 손으로 고치지 않는다.
+- `${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py`(python3 표준 라이브러리만)가 상태 전이, 다음 단계 판정, 산출물 검사(필수 절, 질문 답변, FR/NFR ID 연속·참조, 유닛·추적성 커버리지, plan 유닛 집합·실행 명령, verify 판정)를 맡는다. Claude Code는 `${CLAUDE_PLUGIN_ROOT}`를 플러그인 절대 경로로 치환하고, `npx skills add` 설치 환경에서는 `.agents/skills/dlc/scripts/dlc.py`로 읽는다. 에이전트는 `state.md`를 손으로 고치지 않는다.
 - 질문은 A~E + `X. Other` 선택지와 `[Answer]:` 태그가 있는 파일로 주고받는다. 특정 도구의 질문 UI에 의존하지 않는다.
 - 스테이지마다 승인 게이트가 있다. 침묵은 승인이 아니다.
 
@@ -63,9 +63,9 @@ python3 3.9 이상. 외부 패키지 없음.
 ## 검증
 
 ```bash
-python3 -m unittest discover -s dlc/skills/dlc/tests   # 87건
+python3 -m unittest discover -s dlc/skills/dlc/tests   # 90건
 claude plugin validate ./dlc
-dlc/evals/run.sh                                         # eval 8 케이스 (Bash 허용 eval 의 ~/.docker 심링크 문제를 우회)
+dlc/evals/run.sh                                         # eval 9 케이스 (Bash 허용 eval 의 ~/.docker 심링크 문제를 우회)
 ```
 
-eval 케이스는 `dlc/evals/<case>/case.yaml`(+ 픽스처 `scaffold.sh`)이다. 라우터 4(안내 모드 빈 상태·다음 안내·커서 없음·`--all` 승인 게이트 대기), requirements 3(express·모호어 후속 질문·bugfix), plan 1(units.md 공급). 단일 프롬프트라 질문 답·요약 확인·승인을 프롬프트에 사전 제공한다. 내용 grader는 Write 입력과 Bash heredoc 양쪽을 앵커로 받는다.
+eval 케이스는 `dlc/evals/<case>/case.yaml`(+ 픽스처 `scaffold.sh`)이다. 라우터 4(안내 모드 빈 상태·다음 안내·커서 없음·`--all` 승인 게이트 대기), requirements 3(express·모호어 후속 질문·bugfix), plan 1(units.md 공급), build 1(재개 경로 — u1 완료·build active 픽스처에서 u2 구현). 단일 프롬프트라 질문 답·요약 확인·승인을 프롬프트에 사전 제공한다. 내용 grader는 Write 입력과 Bash heredoc 양쪽을 앵커로 받는다.

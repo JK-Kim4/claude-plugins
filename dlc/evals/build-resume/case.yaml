@@ -1,0 +1,65 @@
+schema_version: "1.1"
+name: build-resume
+description: >
+  build 가 이미 active 인 작업(u1-count 완료, u2-cli 남음)에서 `/dlc:dlc-build` 를 부르면 `start build` 를 다시 하지 않고
+  `note build "재개"` 를 남긴 뒤 남은 유닛을 seam 에서 red→green 으로 구현하고, 기록·검사·승인까지 간다(R4 헤드리스 실측을 케이스로, R5 I14).
+tags: [dlc, build, resume, r5]
+runs: 1
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 60
+  timeout_seconds: 1500
+  allowed_tools: [Bash, Read, Write, Edit, Glob, Grep]
+  prompt: |
+    /dlc:dlc-build
+
+    이 세션은 자동 실행이라 나는 뒤에 더 답할 수 없다. 그러니 다음을 지켜라.
+
+    - 이 작업의 build 는 이미 active 다(u1-count 는 끝났고 u2-cli 가 남았다). 재개 규칙대로 `start build` 를 다시 실행하지 말고 `note build "재개"` 를 기록한 뒤 u2-cli 부터 진행하라.
+    - u2-cli 는 plan.md 의 seam(`main(argv) -> int` 반환값과 stdout/stderr)에서 실패하는 테스트를 먼저 쓰고 통과시키는 방식으로 구현하라. 실행 명령은 `python3 -m unittest discover -s tests` 다.
+    - 유닛 보고 뒤 "다음 유닛으로 갈까요?" 는 내가 "전부 진행" 이라고 답한 것으로 하고 이어가라.
+    - 승인 게이트에서는 `dlc.py check build` 가 OK 이고 전체 테스트가 GREEN 이면 내가 승인한 것으로 보고 `dlc.py approve build --note "사전 승인(eval)"` 을 실행하라. check 가 실패하면 고쳐서 다시 검사하라.
+    - build 승인 뒤에는 "여기까지". `dlc.py status` 를 보이고 멈춰라. verify 를 시작하지 말라.
+graders:
+  # 앵커 규약: 도구 호출은 Bash 도구 호출 JSON(`"command":"…`), 상태 전이는 dlc.py 출력, 산출물은 file_exists.
+  - type: regex
+    name: resume-noted
+    target: trace
+    pattern: '"command":"(?:[^"\\]|\\.)*dlc\.py note build(?:[^"\\]|\\.){0,12}재개'  # 명령 안의 따옴표(`"재개"`)는 JSON 에서 `\"` 라 `[^"]*` 로는 지나가지 못한다(R5 1차 실행 실패 원인)
+  - type: regex
+    name: start-build-not-rerun
+    target: trace
+    pattern: '"command":"[^"]*dlc\.py start build'
+    match: not_contains
+  - type: file_exists
+    name: u2-record-written
+    path: "docs/dlc/*/build/u2-cli.md"
+  - type: file_exists
+    name: u2-code-written
+    path: "wcl/__main__.py"
+  - type: file_exists
+    name: u2-tests-written
+    path: "tests/test_cli.py"
+  - type: regex
+    name: tests-ran-green
+    target: trace
+    pattern: 'Ran \d+ tests? in [0-9.]+s[^"\\]{0,20}(\\n|\n)+OK'
+  - type: regex
+    name: check-build-ok
+    target: trace
+    pattern: "check build: OK"
+  - type: regex
+    name: build-approved
+    target: trace
+    pattern: "build: done"
+  - type: regex
+    name: verify-not-started
+    target: trace
+    pattern: '"command":"[^"]*dlc\.py start verify'
+    match: not_contains
+  - type: regex
+    name: no-traceback
+    target: trace
+    pattern: "Traceback \\(most recent call last\\)"
+    match: not_contains

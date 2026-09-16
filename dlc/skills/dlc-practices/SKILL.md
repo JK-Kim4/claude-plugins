@@ -11,7 +11,7 @@ metadata:
 
 뒤 단계(계획·구현·검증)가 따를 작업 규칙을 한 곳에 적는다. 산출물 `docs/dlc/practices.md`는 작업 폴더 밖에 있어 같은 저장소의 모든 작업이 공유한다. express·bugfix 프로파일에는 이 단계가 없다.
 
-공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 출처 규칙은 [../dlc/references/grounding.md](../dlc/references/grounding.md)에 있다. 스크립트 위치 `<skills>/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. 아래는 이 단계에서만 다른 것이다.
+공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 출처 규칙은 [../dlc/references/grounding.md](../dlc/references/grounding.md)에 있다. 스크립트 위치 `${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. 아래는 이 단계에서만 다른 것이다.
 
 ## 읽을 것
 

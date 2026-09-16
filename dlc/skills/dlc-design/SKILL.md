@@ -11,7 +11,7 @@ metadata:
 
 요구사항을 "무엇을 어디에 둘 것인가"로 옮긴다. 산출물 셋: `design.md`(컴포넌트·소유권·상호작용), `decisions.md`(대안을 비교한 결정 기록), `units.md`(구현 단위와 계약). express·bugfix 프로파일에는 이 단계가 없고 유닛 표는 plan이 만든다.
 
-공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 출처 규칙과 ID 형식은 [../dlc/references/grounding.md](../dlc/references/grounding.md)에 있다. 스크립트 위치 `<skills>/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. 아래는 이 단계에서만 다른 것이다.
+공통 절차는 [../dlc/references/protocol.md](../dlc/references/protocol.md), 출처 규칙과 ID 형식은 [../dlc/references/grounding.md](../dlc/references/grounding.md)에 있다. 스크립트 위치 `${CLAUDE_PLUGIN_ROOT}/skills/dlc/scripts/dlc.py`의 뜻은 protocol.md의 "스크립트 위치" 절을 따른다. 아래는 이 단계에서만 다른 것이다.
 
 ## 읽을 것
 

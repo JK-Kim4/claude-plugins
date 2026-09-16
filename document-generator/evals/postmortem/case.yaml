@@ -1,0 +1,51 @@
+schema_version: "1.1"
+name: postmortem
+description: 장애 포스트모템 요청에 Google SRE 템플릿(요약·영향·근본 원인·타임라인·잘된 점/아쉬운 점·재발 방지 액션)으로 blameless하게 쓴다.
+tags: [document-generator, postmortem]
+runs: 1
+execution:
+  max_turns: 20
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Write, Edit, Skill]
+  prompt: |
+    어젯밤 결제 API 장애 포스트모템 써줘. 타임라인: 23:10에 결제 서비스 배포, 23:25부터 결제 실패 알림 발생, 23:40에 온콜(민수)이 확인 시작, 00:05에 배포 롤백으로 복구. 원인은 배포에 포함된 DB 커넥션 풀 설정 변경(50→10)으로 커넥션 고갈. 약 40분간 결제 요청의 30% 실패. 스테이징에는 부하가 없어서 문제가 재현되지 않았고, 커넥션 풀 지표에 알림이 없어서 에러율 알림으로만 탐지됐어. 파일은 docs/postmortem-payment-api.md 로 저장해줘.
+graders:
+  # 채점 앵커 규약: 응답은 last_message, 산출물은 파일 본문. 저장 경로를 프롬프트로 고정해 파일 본문을 직접 본다.
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?document-generator"'
+  - type: file_exists
+    name: postmortem-written
+    path: "docs/postmortem-payment-api.md"
+  - type: regex
+    name: timeline-section
+    target:
+      source: file
+      path: docs/postmortem-payment-api.md
+    pattern: '## 타임라인'
+  - type: regex
+    name: detection-time
+    target:
+      source: file
+      path: docs/postmortem-payment-api.md
+    pattern: '23:25'
+  - type: regex
+    name: action-items
+    target:
+      source: file
+      path: docs/postmortem-payment-api.md
+    pattern: '재발 방지'
+  - type: regex
+    name: root-cause
+    target:
+      source: file
+      path: docs/postmortem-payment-api.md
+    pattern: '커넥션 풀'
+  - type: regex
+    name: blameless-no-personal-blame
+    target:
+      source: file
+      path: docs/postmortem-payment-api.md
+    pattern: '민수(가|의) (실수|잘못|부주의)'
+    match: not_contains
