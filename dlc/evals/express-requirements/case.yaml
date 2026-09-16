@@ -32,7 +32,7 @@ graders:
   - type: regex
     name: skill-fired-dlc-py-used
     target: trace
-    pattern: "dlc\\.py (init|next|status|start|check|approve)"
+    pattern: '"command":"[^"]*dlc\.py (init|start|check|approve)'  # Bash 도구 호출 JSON 안에서만(R5 I5)
   - type: regex
     name: init-created-work
     target: trace

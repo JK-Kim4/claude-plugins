@@ -254,7 +254,10 @@ REFERENCE_STAGES = {"design", "plan", "build", "verify"}
 UNIT_ROW_RE = re.compile(r"^\|\s*(u\d+-[a-z0-9][a-z0-9-]*)\s*\|([^|]*)\|([^|]*)\|([^|]*?)\|?\s*$")
 FINGERPRINT_RE = re.compile(r"<!-- fingerprint: (\w+) -->")
 UNIT_NAME_RE = re.compile(r"\bu\d+-[a-z0-9][a-z0-9-]*\b")
-RUN_COMMAND_RE = re.compile(r"^실행 명령\s*[:：]\s*\S")
+# 관대(R5 결정): `- 실행 명령:`(목록), `**실행 명령**:`(볼드) 접두를 허용한다. 실패 메시지는 골격 형태를 안내한다.
+RUN_COMMAND_RE = re.compile(r"^(?:[-*]\s*)?(?:\*\*)?실행 명령(?:\*\*)?\s*[:：]\s*\S")
+# plan.md `## 유닛 순서` 표의 unit 열(2열). units.md 표(UNIT_ROW_RE, unit 이 1열)와 다르므로 따로 둔다(R4 Opus 리뷰 4, R5).
+PLAN_ROW_RE = re.compile(r"^\|\s*\d+\s*\|\s*(u\d+-[a-z0-9][a-z0-9-]*)\s*\|")
 VERDICTS = ("조건부 승인", "승인", "반려")  # 긴 것 먼저 — "조건부 승인" 이 "승인" 으로 읽히지 않게
 
 
@@ -404,7 +407,8 @@ def check_units_coverage(work: Path, known, problems):
 
 def check_plan_rules(work: Path, text: str, problems):
     """dlc-plan 의 규칙 둘 — 유닛 순서 표의 unit 집합 = units.md 유닛 집합, 실행 명령 한 줄 (R3 Opus 리뷰 6)."""
-    planned = set(UNIT_NAME_RE.findall(section_body(text, "## 유닛 순서")))
+    planned = {m.group(1) for ln in section_body(text, "## 유닛 순서").splitlines()
+               for m in [PLAN_ROW_RE.match(ln.strip())] if m}  # 표의 unit 열만. depends_on 열이나 산문의 유닛명은 세지 않는다
     declared = {u["unit"] for u in units_table(work)}
     if declared:
         extra = sorted(planned - declared)
@@ -414,16 +418,17 @@ def check_plan_rules(work: Path, text: str, problems):
         if missing:
             problems.append("plan.md: units.md 의 유닛이 유닛 순서 표에 없습니다 — " + ", ".join(missing))
     if not any(RUN_COMMAND_RE.match(ln.strip()) for ln in section_body(text, "## Seam과 테스트 예산").splitlines()):
-        problems.append("plan.md: 'Seam과 테스트 예산' 절에 `실행 명령: <명령>` 줄이 없습니다 (build 가 테스트를 돌릴 수 없습니다)")
+        problems.append("plan.md: 'Seam과 테스트 예산' 절에 `실행 명령: <명령>` 줄이 없습니다 (줄머리에 그대로. `- `·`**` 접두는 허용. build 가 테스트를 돌릴 수 없습니다)")
 
 
 def check_verdict(text: str, problems):
     """verify.md 의 `## 판정` 첫 단어 — 승인·조건부 승인만 게이트로 간다 (R3 Opus 리뷰 7)."""
     body = section_body(text, "## 판정")
     first = body.strip().splitlines()[0].strip() if body.strip() else ""
+    first = re.sub(r"^(?:[-*]\s*)?\**", "", first)  # 관대(R5): `- 승인`, `**승인**` 도 읽는다
     verdict = next((v for v in VERDICTS if first.startswith(v)), None)
     if verdict is None:
-        problems.append("verify.md: '판정' 절 첫 단어는 승인, 조건부 승인, 반려 중 하나여야 합니다")
+        problems.append("verify.md: '판정' 절 첫 단어는 승인, 조건부 승인, 반려 중 하나여야 합니다 (줄머리에 그대로. `- `·`**` 접두는 허용)")
     elif verdict == "반려":
         problems.append("verify.md: 판정이 '반려' 입니다 — 반려는 승인 게이트로 가지 않습니다. 고친 뒤 재검증 결과로 판정을 다시 쓰세요")
 

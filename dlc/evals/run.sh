@@ -16,7 +16,7 @@ PLUGIN="$(dirname "$HERE")"
 STASH="$(mktemp -d /tmp/dlc-eval-docker-stash.XXXXXX)"
 MOVED=()
 restore() {
-  for d in "${MOVED[@]}"; do mv "$STASH/$(basename "$d")" "$d"; done
+  for d in ${MOVED[@]+"${MOVED[@]}"}; do mv "$STASH/$(basename "$d")" "$d"; done  # bash 3.2 + set -u 에서 빈 배열 가드(R5 I12)
   rmdir "$STASH" 2>/dev/null
 }
 trap restore EXIT
@@ -24,4 +24,4 @@ for d in "$HOME/.docker/cli-plugins" "$HOME/.docker/bin/lib"; do
   if [ -d "$d" ] && [ -n "$(find "$d" -maxdepth 1 -type l | head -1)" ]; then mv "$d" "$STASH/"; MOVED+=("$d"); fi
 done
 echo "docker symlink dirs moved: ${#MOVED[@]}"
-claude plugin eval "$PLUGIN" --runs 1 --ablation none --scaffold --allow-tools Bash Write Edit --trust-plugin --no-publish --threshold 1.0 "$@"
+claude plugin eval "$PLUGIN" -j 2 --runs 1 --ablation none --scaffold --allow-tools Bash Write Edit --trust-plugin --no-publish --threshold 1.0 "$@"

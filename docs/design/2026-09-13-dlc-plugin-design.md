@@ -164,11 +164,11 @@ Codex의 `agents/openai.yaml`은 Agent Skills 표준 밖의 확장이지만 다�
 
 *Gemini CLI 0.34.0.* skills CLI의 에이전트 이름은 `gemini`가 아니라 `gemini-cli`다(`gemini`는 "Invalid agents"). 같은 명령으로 프로젝트 `.agents/skills/`에 복사되고 `gemini skills list`가 dlc 10개를 전부 `[Enabled]`로 발견했다(`~/.agents/skills/`의 사용자 스킬도 함께). 모델 호출은 이 PC의 인증 방식(`oauth-personal`)이 "This client is no longer supported for Gemini Code Assist for individuals"(`IneligibleTierError`)로 거부돼 실측하지 못했다. 공식 문서(2026-04-30)는 스킬 활성화를 모델의 `activate_skill` 도구 호출 + 사용자 확인으로만 정의하고, 슬래시는 `/skills list|enable|disable|link`뿐이다. 즉 §9의 "슬래시 호출" 질문은 "없다"로 닫힌다. 우회는 API 키 또는 Antigravity 계정 인증이며, 자동 활성 차단 설정이 없다는 제약은 그대로다.
 
-*evals.* 케이스 8개(R2의 express-requirements 포함). 실행기 `dlc/evals/run.sh`가 `~/.docker/cli-plugins`·`bin/lib`의 심링크 디렉터리를 실행 동안 옮기고 trap으로 되돌린다 — `DOCKER_CONFIG`를 빈 디렉터리로 바꿔도 러너가 같은 오류를 내므로(R4 확인) 이동이 유일한 우회다. 거짓 양성 회피: 라우터 SKILL.md 본문이 슬래시 명령 확장으로 trace에 들어가므로 "`/dlc:dlc-requirements`를 안내했다", "`dlc-init`을 안내했다" 같은 문자열 grader는 두지 않았고, 안내는 `dlc.py` 출력 문구(`활성 작업이 없습니다`, `다음: requirements → dlc-requirements`)와 부정 grader(`dlc.py init`·`start` 미실행)로 증명한다. 모호어 후속 질문 케이스는 `[Answer]:` 접두를 앵커로 써 프롬프트 본문과 구분하고, 후속 답에 프롬프트의 "후속 답변" 절에만 있는 토큰 `test_stock_404`를 두어 후속 질문이 실제로 파일에 추가됐음을 잡는다. 결과는 아래 표.
+*evals.* 케이스 8개(R2의 express-requirements 포함). 실행기 `dlc/evals/run.sh`가 `~/.docker/cli-plugins`·`bin/lib`의 심링크 디렉터리를 실행 동안 옮기고 trap으로 되돌린다 — `DOCKER_CONFIG`를 빈 디렉터리로 바꿔도 러너가 같은 오류를 내므로(R4 확인) 이동이 유일한 우회다. 거짓 양성 회피: trace에는 `dlc.py`의 출력과 에이전트가 Read한 스킬·참조 파일 본문이 남으므로(라우터 본문 자체는 보관 trace 3건에서 0회 — R4 Opus 리뷰 1로 정정, R5) "`/dlc:dlc-requirements`를 안내했다", "`dlc-init`을 안내했다" 같은 문자열 grader는 두지 않았고, 안내는 `dlc.py` 출력 문구(`활성 작업이 없습니다`, `다음: requirements → dlc-requirements`)와 부정 grader(`dlc.py init`·`start` 미실행)로 증명한다. 모호어 후속 질문 케이스는 `[Answer]:` 접두를 앵커로 써 프롬프트 본문과 구분하고, 후속 답에 프롬프트의 "후속 답변" 절에만 있는 토큰 `test_stock_404`를 두어 후속 질문이 실제로 파일에 추가됐음을 잡는다. 결과는 아래 표.
 
 1차 전체 실행: Claude Code 2.1.270, `-j 2`, 362초, 약 $4.41. 8 케이스 중 5개 1.0, 3개 grader 결함(스킬 결함 0). 재실행에서 2개가 1.0으로 닫혔고 plan 케이스는 계정 한도로 미완이다.
 
-| 케이스 | 대상 | 1차 (turns / $ / grader) | 재실행 (grader 수정 뒤, `--keep-temp`) |
+| 케이스 | 대상 | 1차 (turns / $ / grader) | 재실행 (`--keep-temp`; plan 행은 수정 전 패턴으로 돌았고 수정 패턴은 최종 실행에서 검증) |
 |---|---|---|---|
 | `bugfix-requirements` | bugfix 프로파일 init→requirements | 16 / 0.76 / 9/9 | — |
 | `express-requirements` | express init→requirements + "여기까지" 중단(R2 케이스 + grader 1) | 18 / 0.88 / 11/11 | — |

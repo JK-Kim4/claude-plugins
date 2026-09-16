@@ -28,7 +28,7 @@ graders:
   - type: regex
     name: skill-fired-next-run
     target: trace
-    pattern: "dlc\\.py next"
+    pattern: '"command":"[^"]*dlc\.py next'  # Bash 도구 호출 JSON 안에서만(R5 I5)
   - type: regex
     name: requirements-started
     target: trace

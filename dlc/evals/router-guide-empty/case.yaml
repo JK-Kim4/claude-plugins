@@ -16,7 +16,7 @@ graders:
   - type: regex
     name: skill-fired-status-run
     target: trace
-    pattern: "dlc\\.py status"
+    pattern: '"command":"[^"]*dlc\.py status'  # Bash 도구 호출 JSON 안에서만(스킬 본문의 `dlc.py status` 문자열과 구분, R5 I5)
   - type: regex
     name: no-work-message-shown
     target: trace
@@ -32,3 +32,7 @@ graders:
     target: trace
     pattern: "Traceback \\(most recent call last\\)"
     match: not_contains
+  - type: regex
+    name: guides-to-dlc-init
+    target: last_message
+    pattern: 'dlc-init'  # 마지막 응답만 보므로 스킬 본문 문자열과 겹치지 않는다(R5 I4)

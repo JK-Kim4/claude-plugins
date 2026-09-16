@@ -21,16 +21,16 @@ execution:
     - 승인 게이트에서는 `dlc.py check requirements` 가 OK 이면 내가 승인한 것으로 보고 `dlc.py approve requirements --note "사전 승인(eval)"` 을 실행하라. check 가 실패하면 고쳐서 다시 검사하라.
     - requirements 승인 뒤에는 "여기까지". `dlc.py status` 를 보이고 멈춰라.
 
-    내 답변:
-    - 재현 조건: staging 환경, `GET /stock/{sku}`, 창고 배정 행을 모두 지운 SKU-0042 로 호출하면 항상(10/10) 500.
-    - 기대 동작과 실제 동작: 기대는 200 과 `{"sku": "SKU-0042", "total": 0, "warehouses": []}`. 실제는 500 과 빈 본문.
-    - 영향 범위: 사내 관리 화면의 재고 조회만. inventory 테이블을 직접 조회해 데이터 손상은 없음을 확인했다.
-    - 회귀 테스트: 단위 테스트(집계 로직이 빈 목록에서 0 을 돌려줌)와 API 통합 테스트(200 과 본문) 둘 다. 창고가 있는 SKU 의 200, 없는 SKU 의 404 는 그대로 유지.
+    내가 아는 것(주제 이름 없이 섞어 적는다 — 스킬이 스스로 주제를 가려 배치해야 한다, R5 I10):
+    - 원래 나와야 하는 응답은 200 과 `{"sku": "SKU-0042", "total": 0, "warehouses": []}` 인데 실제로는 500 과 빈 본문이 온다.
+    - 이걸 막는 테스트는 집계 로직이 빈 목록에서 0 을 돌려주는지 보는 단위 테스트와, 200 과 본문을 보는 API 통합 테스트 둘 다 있어야 한다. 창고가 있는 SKU 의 200, 없는 SKU 의 404 는 그대로 유지돼야 한다.
+    - staging 에서 `GET /stock/{sku}` 를 창고 배정 행을 모두 지운 SKU-0042 로 부르면 항상(10/10) 그렇다.
+    - 영향은 사내 관리 화면의 재고 조회만이다. inventory 테이블을 직접 봤고 데이터 손상은 없다.
 graders:
   - type: regex
     name: skill-fired-dlc-py-used
     target: trace
-    pattern: "dlc\\.py (init|next|status|start|check|approve)"
+    pattern: '"command":"[^"]*dlc\.py (init|start|check|approve)'  # Bash 도구 호출 JSON 안에서만(R5 I5)
   - type: regex
     name: init-created-bugfix-work
     target: trace

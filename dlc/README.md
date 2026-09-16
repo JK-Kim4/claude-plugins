@@ -63,9 +63,9 @@ python3 3.9 이상. 외부 패키지 없음.
 ## 검증
 
 ```bash
-python3 -m unittest discover -s dlc/skills/dlc/tests   # 87건
+python3 -m unittest discover -s dlc/skills/dlc/tests   # 90건
 claude plugin validate ./dlc
-dlc/evals/run.sh                                         # eval 8 케이스 (Bash 허용 eval 의 ~/.docker 심링크 문제를 우회)
+dlc/evals/run.sh                                         # eval 9 케이스 (Bash 허용 eval 의 ~/.docker 심링크 문제를 우회)
 ```
 
-eval 케이스는 `dlc/evals/<case>/case.yaml`(+ 픽스처 `scaffold.sh`)이다. 라우터 4(안내 모드 빈 상태·다음 안내·커서 없음·`--all` 승인 게이트 대기), requirements 3(express·모호어 후속 질문·bugfix), plan 1(units.md 공급). 단일 프롬프트라 질문 답·요약 확인·승인을 프롬프트에 사전 제공한다. 내용 grader는 Write 입력과 Bash heredoc 양쪽을 앵커로 받는다.
+eval 케이스는 `dlc/evals/<case>/case.yaml`(+ 픽스처 `scaffold.sh`)이다. 라우터 4(안내 모드 빈 상태·다음 안내·커서 없음·`--all` 승인 게이트 대기), requirements 3(express·모호어 후속 질문·bugfix), plan 1(units.md 공급), build 1(재개 경로 — u1 완료·build active 픽스처에서 u2 구현). 단일 프롬프트라 질문 답·요약 확인·승인을 프롬프트에 사전 제공한다. 내용 grader는 Write 입력과 Bash heredoc 양쪽을 앵커로 받는다.

@@ -10,7 +10,7 @@ jongwan의 Claude Code 플러그인 마켓플레이스. 일곱 개의 플러그�
 | **craft** | 0.3.0 | 에이전트 4 · 스킬 6 | 개발 파이프라인 페르소나 sub agent 4종(verifier·interface-designer·tdd-implementer·code-reviewer)과 오케스트레이션 스킬(issue-triage·diagnose·design-it-twice·test-first·implement-spec·test-audit). |
 | **llm-wiki** | 0.2.5 | 스킬 4 | 흩어진 마크다운·AI 세션 기록을 하나의 LLM wiki로 통합(wiki-bootstrap)·가공(wiki-digest)·점검(wiki-lint)·조회(wiki-recall). python3 stdlib만 사용. |
 | **agent-workflow** | 0.2.0 | 스킬 1 | 최신 `origin/develop` 기준 격리 Git worktree 생성과 작업 경로 고정(worktree). 사용자가 명시적으로 부를 때만 동작한다. |
-| **dlc** | 0.1.1 | 스킬 10 | AI-DLC 방법론의 명시 호출형 생명주기 스킬셋. 라우터(dlc) + 스테이지 9개(init·analyze·intent·practices·requirements·design·plan·build·verify), 프로파일 3개(full·express·bugfix). 산출물·진행 상태를 `docs/dlc/`에 남기고 python3 stdlib 스크립트가 상태 전이·다음 단계 판정·산출물 검사를 맡는다. |
+| **dlc** | 0.1.2 | 스킬 10 | AI-DLC 방법론의 명시 호출형 생명주기 스킬셋. 라우터(dlc) + 스테이지 9개(init·analyze·intent·practices·requirements·design·plan·build·verify), 프로파일 3개(full·express·bugfix). 산출물·진행 상태를 `docs/dlc/`에 남기고 python3 stdlib 스크립트가 상태 전이·다음 단계 판정·산출물 검사를 맡는다. |
 
 ## 구성
 
