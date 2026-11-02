@@ -22,6 +22,7 @@ archive/<스킬명>/<YYYY-MM-DD>/   교체되기 직전의 스킬 디렉터리 �
 | 스킬 | 보관 디렉터리 | 플러그인·버전 | 교체한 변경 |
 |---|---|---|---|
 | `wiki-lint` | [`wiki-lint/2026-09-13/`](wiki-lint/2026-09-13/) | llm-wiki 0.2.1 | #6 — 깨진 링크에 「외부(위키 밖)」 분류 추가(llm-wiki 0.2.4) |
+| `document-generator` | [`document-generator/2026-11-02/`](document-generator/2026-11-02/) | document-generator 1.5.0 | #11 — 스킬을 `doc-writing`으로 교체(document-generator 2.0.0) |
 
 ## 주의
 

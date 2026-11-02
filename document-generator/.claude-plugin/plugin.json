@@ -1,7 +1,7 @@
 {
   "name": "document-generator",
-  "version": "1.5.0",
-  "description": "작업 보고서·진행 추적·기술 설계·온보딩 가이드·회의록·장애 보고서(포스트모템)를 목적과 독자에 맞는 best-practice 형식으로 생성하고, 기존 문서 갱신도 지원하는 스킬. Markdown·HTML 파일과 Notion 페이지 출력, SVG 데이터 차트를 지원한다.",
+  "version": "2.0.0",
+  "description": "남이 읽는 문서를 쓰는 절차·쉬운 말 규칙·시각 스타일·생성기·검토 단계를 담은 doc-writing 스킬. 서비스 설계 문서 묶음(개요·기능 정의·도메인 정의·ERD·핵심 흐름)과 분석·비교·계획·리뷰·변경 보고·절차 문서를 아티팩트로 만들고, 같은 구조를 Notion·docs/ 보고서에도 쓴다.",
   "author": {
     "name": "JK-Kim4"
   },

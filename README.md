@@ -4,7 +4,7 @@ jongwan의 Claude Code 플러그인 마켓플레이스. 일곱 개의 플러그�
 
 | 플러그인 | 버전 | 구성 | 설명 |
 |----------|------|------|------|
-| **document-generator** | 1.5.0 | 스킬 1 | 작업 보고서·진행 추적·기술 설계·온보딩 가이드를 목적과 독자에 맞는 형식으로 생성. Markdown·HTML·Notion 출력 지원. |
+| **document-generator** | 2.0.0 | 스킬 1 | doc-writing 스킬. 서비스 설계 문서 묶음(개요·기능 정의·도메인 정의·ERD·핵심 흐름)과 분석·비교·계획·리뷰·절차 문서를 쉬운 말 규칙·시각 스타일·생성기·검토 단계로 작성. 아티팩트·Notion·docs/ 출력. |
 | **pr-reviewer** | 1.1.0 | 스킬 1 | 지정한 GitHub PR을 컨벤션·코드(보안·동시성·로직) 두 축으로 분석해 Pn 룰(P1~P5) 우선순위 라벨을 단 단일 PR Review로 게시. `craft:code-reviewer` 페르소나 연동. 리뷰 기준 컨벤션 레포당 1회 확정·저장. |
 | **architecture-reviewer** | 1.0.0 | 스킬 1 | APoSD·DDD 관점으로 코드의 아키텍처 품질(복잡도·모듈 깊이·정보 은닉·결합도)을 7축 루브릭으로 진단하거나, 제안한 아키텍처 방향을 현 코드 기준으로 검증. 지적마다 P0~P2 + 개선 스케치. |
 | **craft** | 0.2.0 | 에이전트 4 · 스킬 11 | 개발 파이프라인 페르소나 sub agent 4종(verifier·interface-designer·tdd-implementer·code-reviewer)과 오케스트레이션 스킬(triage·diagnosing-bugs·design-it-twice·tdd·implement·test-audit), 마케팅·PM 스킬(marketing-strategy·pm-breakdown·retention-playbook·acquisition-playbook·prd-ticket-writing). |
@@ -20,7 +20,7 @@ claude-plugins/
 │   └── marketplace.json          # 마켓플레이스 카탈로그 (플러그인 7개)
 ├── document-generator/
 │   ├── .claude-plugin/plugin.json
-│   └── skills/document-generator/  # SKILL.md · assets/ · references/ · evals/
+│   └── skills/doc-writing/         # SKILL.md · reference/ · templates/docset/
 ├── pr-reviewer/
 │   ├── .claude-plugin/plugin.json
 │   └── skills/pr-reviewer/         # SKILL.md · references/(컨벤션·코드리뷰 기준·게시 형식) · evals/
@@ -86,7 +86,8 @@ Codex·Gemini CLI 등 다른 에이전트는 스킬만 `npx skills add JK-Kim4/c
 
 ## 사용
 
-- **document-generator**: "보고서 만들어줘", "문서로 남겨줘", "노션에 정리해줘" 등으로 자동 트리거. 직접 호출: `/document-generator:document-generator`
+- **document-generator**: "문서 만들어줘", "설계 문서", "ERD", "보고서", "상세 버전" 등으로 자동 트리거. 직접 호출: `/document-generator:doc-writing`
+  - 2.0.0에서 스킬을 `document-generator`에서 `doc-writing`으로 교체했다. 이전 버전은 `archive/document-generator/2026-11-02/`.
 - **pr-reviewer**: "이 PR 리뷰해줘", "PR #123 코드리뷰 코멘트 달아줘", "PR 컨벤션 점검" 등으로 트리거. 직접 호출: `/pr-reviewer:pr-reviewer`
   - 전제: git 레포 + `gh` 설치·인증. 대상 PR 번호/URL이 필요하다.
 - **architecture-reviewer**: "이 모듈 아키텍처 리뷰해줘", "이 디렉터리 구조 점검", "이런 구조로 바꾸려는데 괜찮아?" 등으로 트리거. 직접 호출: `/architecture-reviewer:architecture-reviewer`
