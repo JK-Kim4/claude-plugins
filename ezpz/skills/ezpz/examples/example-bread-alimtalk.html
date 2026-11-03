@@ -1,0 +1,643 @@
+<!doctype html>
+<!-- ezpz 승인 예시 2: 가상 주제(동네 빵집 예약 알림). 모든 이름·숫자·필드는 지어낸 값. 모양과 밀도만 참고하고 내용·숫자는 옮기지 않는다. -->
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>확정 알림톡 그림책</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/* ezpz 그림책 틀. 펼침면 = 왼쪽 그림, 오른쪽 짧은 이야기. 폭이 760px 아래면 위아래로 쌓임.
+   새 컴포넌트·수식 클래스를 만들 때는 컴포넌트 접두사를 붙인다(ch-, fs-, win- ...). 짧은 일반 이름은 다른 컴포넌트 스타일과 부딪힌다. */
+:root{
+  --bg:#E9F1F8; --paper:#FFFFFF; --ink:#1E2A40; --ink-2:#55627A; --line:#D3DEEA;
+  --sky:#3E74D6; --sky-soft:#DCE8FA;
+  --sun:#F5B82E; --sun-soft:#FFF1CC;
+  --rose:#E2577A; --rose-soft:#FCE3EA;
+  --leaf:#2E9A6E; --leaf-soft:#DDF3E8;
+  --scrim:rgba(20,26,40,.62);
+  --c1:#9DB8E8; --c2:#B7D9C4; --c3:#F2C9A8; --c4:#C9B8E6; --c5:#A9D3E0; --c6:#E8B9C8;
+  --display:"Jua","Apple SD Gothic Neo",sans-serif;
+  --body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121826; --paper:#1B2335; --ink:#E7ECF5; --ink-2:#A6B1C6; --line:#2E3A52;
+    --sky:#82A9F0; --sky-soft:#1F2E4D; --sun:#F2C55A; --sun-soft:#3A3018;
+    --rose:#F08AA5; --rose-soft:#3D2030; --leaf:#6CCB9E; --leaf-soft:#173528;
+    --scrim:rgba(5,8,14,.7);
+    --c1:#4A6699; --c2:#4D7A60; --c3:#8C6A50; --c4:#6B5A8F; --c5:#4C7D8C; --c6:#8C5868;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121826; --paper:#1B2335; --ink:#E7ECF5; --ink-2:#A6B1C6; --line:#2E3A52;
+  --sky:#82A9F0; --sky-soft:#1F2E4D; --sun:#F2C55A; --sun-soft:#3A3018;
+  --rose:#F08AA5; --rose-soft:#3D2030; --leaf:#6CCB9E; --leaf-soft:#173528;
+  --scrim:rgba(5,8,14,.7);
+  --c1:#4A6699; --c2:#4D7A60; --c3:#8C6A50; --c4:#6B5A8F; --c5:#4C7D8C; --c6:#8C5868;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.7;margin:0}
+.book{max-width:1080px;margin:0 auto;padding-block:32px 72px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:grid;gap:28px}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;line-height:1.3}
+p{margin:0}
+/* 본문 글꼴(Gowun Dodum)에는 굵은 글씨가 없어 700을 줘도 거의 안 보인다. 강조는 제목 글꼴로 */
+b{font-family:var(--display);font-weight:400}
+
+/* 표지 */
+.cover{background:var(--paper);border-radius:28px;padding:40px clamp(20px,5vw,56px);display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center;border:2px solid var(--line)}
+.cover .cover-pic{display:flex;justify-content:center;min-width:0}
+.cover h1{font-size:clamp(30px,5.4vw,50px);letter-spacing:-.01em}
+.cover .sub{margin-top:14px;color:var(--ink-2);font-size:17px}
+.cover .ask{margin-top:22px;display:inline-flex;gap:10px;align-items:center;background:var(--sun-soft);border-radius:999px;padding:8px 18px;font-weight:700;color:var(--ink);text-decoration:none}
+.cover .ask:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
+.stamp{font-size:13px;color:var(--ink-2);margin-top:14px}
+
+/* 표지 요약: 지금 확인이 필요한 N가지 */
+.brief{margin-top:20px;display:grid;gap:10px}
+.brief-h{font-family:var(--display);font-size:18px}
+.bitem{display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start;border-radius:16px;padding:12px 16px;text-decoration:none;color:var(--ink);border:2px solid transparent}
+.bitem:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.bitem.ask-c{background:var(--sun-soft);border-color:var(--sun)}
+.bitem.bad-c{background:var(--rose-soft);border-color:var(--rose)}
+.bitem .bn{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:17px;color:var(--paper);background:var(--sun)}
+.bitem.bad-c .bn{background:var(--rose)}
+.bitem b{display:block;font-family:var(--display);font-weight:400;font-size:18px}
+.bitem .bd{display:block;font-size:15px;color:var(--ink-2);margin-top:2px}
+
+/* 펼침면 */
+.spread{background:var(--paper);border-radius:28px;border:2px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden}
+.spread .pic{background:var(--sky-soft);padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-width:0}
+.spread .story{padding:32px clamp(20px,4vw,40px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.pageno{font-family:var(--display);font-size:14px;color:var(--ink-2)}
+.story h2{font-size:clamp(24px,3.4vw,32px)}
+.story .lines{display:grid;gap:8px;font-size:17px}
+.story .lines p{max-width:42ch}
+.count{font-family:var(--display);font-size:40px;line-height:1}
+.count small{font-family:var(--body);font-size:15px;color:var(--ink-2);margin-left:6px}
+.verdict{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;border-radius:999px;padding:6px 16px;font-weight:700;font-size:15px}
+.verdict.ok{background:var(--leaf-soft);color:var(--leaf)}
+.verdict.ask{background:var(--sun-soft);color:var(--ink)}
+.verdict.bad{background:var(--rose-soft);color:var(--rose)}
+.verdict::before{content:"";width:10px;height:10px;border-radius:50%;background:currentColor}
+.verdict.ask::before{background:var(--sun)}
+.example{font-size:14px;color:var(--ink-2);border-top:1px dashed var(--line);padding-top:12px;margin-top:auto}
+
+/* 개발팀 참고: 한 줄에 정보 하나. 회색 라벨 한 줄 + 값 한 줄 */
+.dev{background:var(--bg);border-radius:14px;padding:12px 14px;font-size:13px;color:var(--ink-2);border:1.5px dashed var(--line)}
+.dev-h{font-family:var(--display);font-size:14px;color:var(--ink);margin-bottom:8px}
+.dev ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.dev li{display:grid;gap:2px;min-width:0}
+.dev .k{font-size:12px;color:var(--ink-2)}
+.dev .v{color:var(--ink);min-width:0}
+.dev code{font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--paper);border-radius:4px;padding:1px 5px;white-space:nowrap;display:inline-block;max-width:100%;overflow-x:auto;vertical-align:bottom}
+
+/* 조건 칩: 수식 클래스는 ch- 접두사만 */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border-radius:12px;padding:6px 12px;font-size:14px;background:var(--bg);border:1.5px solid var(--line);font-variant-numeric:tabular-nums}
+.chip b{font-family:var(--display);font-weight:400;font-size:17px}
+.chip.ch-a{border-color:var(--c4)}
+.chip.ch-b{border-color:var(--sky)}
+.chip.ch-c{border-color:var(--leaf)}
+
+/* 휴대폰 목업 */
+.phone{width:min(300px,100%);background:var(--paper);border-radius:30px;border:8px solid var(--ink);padding:12px 12px 16px;box-shadow:0 10px 0 -2px rgba(30,42,64,.12)}
+.ph-bar{display:flex;align-items:center;gap:8px;font-family:var(--display);font-size:16px;padding:2px 4px 8px}
+.ph-bar .back{font-size:20px;line-height:1;color:var(--ink-2)}
+.ph-total{font-size:11px;color:var(--ink-2);padding:0 4px 8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{display:grid;gap:4px;min-width:0}
+.card .cv{position:relative;aspect-ratio:4/3;border-radius:8px;display:flex;align-items:flex-end;padding:6px;font-family:var(--display);font-size:12px;color:var(--ink);overflow:hidden}
+.cv.k1{background:var(--c1)} .cv.k2{background:var(--c2)} .cv.k3{background:var(--c3)} .cv.k4{background:var(--c4)} .cv.k5{background:var(--c5)} .cv.k6{background:var(--c6)}
+.card .nm{font-size:11px;line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
+.card.me .cv{outline:3px solid var(--sun);outline-offset:2px}
+.card.full .cv::after{content:attr(data-badge);position:absolute;inset:0;background:var(--scrim);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:15px}
+.card.ghost .cv{background:transparent;border:2px dashed var(--rose);color:var(--rose);align-items:center;justify-content:center;text-align:center;font-size:12px;padding:4px}
+.card.ghost .nm{color:var(--rose)}
+.ph-btn{margin-top:10px;text-align:center;border-radius:10px;padding:8px;font-family:var(--display);font-size:14px;background:var(--sky);color:var(--paper)}
+.ph-btn.off{background:var(--line);color:var(--ink-2)}
+/* 휴대폰 안 라벨-값 행: 앱의 상세 화면 */
+.ph-rows{display:grid;gap:6px;font-size:12px}
+.ph-row{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding:4px 2px}
+.ph-row .ph-k{color:var(--ink-2)}
+.ph-row.ph-hl{background:var(--sun-soft);border-radius:6px;border-bottom:none;padding:4px 6px}
+/* 휴대폰 안 메시지: .phone 안에 .msgs를 그대로 넣는다 */
+.phone .msgs{width:100%}
+.tag-bottom{font-size:12px;color:var(--ink-2);text-align:center;margin-top:8px}
+
+/* 웹 화면(창) 목업: 어드민·웹 페이지 */
+.win{width:min(340px,100%);background:var(--paper);border:2px solid var(--ink);border-radius:12px;overflow:hidden}
+.win-bar{display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--bg);border-bottom:2px solid var(--line);font-size:12px;color:var(--ink-2)}
+.win-bar i{width:9px;height:9px;border-radius:50%;background:var(--line);flex:none}
+.win-bar span{margin-left:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.win-body{padding:12px 14px;display:grid;gap:8px;font-size:13px}
+.win-row{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding-bottom:6px}
+.win-row .win-k{color:var(--ink-2)}
+.win-row.win-hl{background:var(--sun-soft);border-radius:6px;padding:4px 6px;border-bottom:none}
+.win-btn{justify-self:start;background:var(--sky);color:var(--paper);border-radius:8px;padding:4px 12px;font-size:12px}
+.win-btn.off{background:var(--line);color:var(--ink-2)}
+
+/* 메시지 목업: 알림톡·슬랙·메일 한 통 */
+.msgs{width:min(300px,100%);display:grid;gap:8px}
+.msg{background:var(--paper);border-radius:14px 14px 14px 4px;padding:10px 12px;font-size:13px;border:2px solid var(--line);justify-self:start;max-width:92%}
+.msg .msg-from{display:block;font-size:11px;color:var(--ink-2);margin-bottom:2px}
+/* msg-me = 이 화면 주인이 보낸 말(오른쪽 말풍선). 손님 카카오톡이면 손님이 쓴 말. 서비스가 보낸 알림은 기본 .msg(왼쪽) */
+.msg.msg-me{justify-self:end;border-radius:14px 14px 4px 14px;background:var(--sun-soft);border-color:var(--sun)}
+.msg.msg-miss{background:transparent;border-style:dashed;border-color:var(--rose);color:var(--rose)}
+
+/* 값 카드: 화면 한 칸에 보이는 숫자 하나 */
+.vcard{background:var(--paper);border-radius:14px;border:2px solid var(--c4);padding:12px 16px;width:min(320px,100%);font-size:14px}
+.vcard .vc-t{font-size:12px;color:var(--ink-2)}
+.vcard .vc-v{font-family:var(--display);font-size:26px;font-variant-numeric:tabular-nums}
+
+/* 칸 격자: 자리·재고·건수처럼 셀 수 있는 것. 칸 수 = 실제 수 */
+.seatbox{background:var(--paper);border-radius:18px;padding:14px 16px;width:min(320px,100%);border:2px solid var(--line)}
+.seatbox .cap{font-size:13px;color:var(--ink-2);margin-bottom:8px}
+.seats{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.seat{aspect-ratio:1;border-radius:7px 7px 4px 4px;border:2px solid var(--ink-2)}
+.seat.t{background:var(--c1);border-color:var(--c1)}
+.seat.r{background:repeating-linear-gradient(45deg,var(--sun) 0 4px,var(--sun-soft) 4px 8px);border-color:var(--sun)}
+.seat.o{background:transparent;border-style:dashed;border-color:var(--leaf)}
+/* u = 뜻 없는 두 번째 종류(가게 종류처럼 좌석이 아닌 것을 둘로 나눌 때). r의 해 색은 '확인 필요'와 겹치므로 빌려 쓰지 않는다 */
+.seat.u{background:var(--c4);border-color:var(--c4)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:12px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend .seat{width:14px;height:14px;display:inline-block}
+
+/* 문: 규칙·판정 단계. 번호 원 + 질문 + 보는 값·갱신 주기 */
+.gates{display:grid;gap:12px;width:100%}
+.gate{background:var(--paper);border-radius:16px;padding:12px 16px;display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;border:2px solid var(--line)}
+.gate .n{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:20px;color:var(--paper);background:var(--sky)}
+.gate.g1 .n{background:var(--c4)} .gate.g2 .n{background:var(--rose)} .gate.g3 .n{background:var(--sky)} .gate.g4 .n{background:var(--leaf)}
+.gate .q{font-family:var(--display);font-size:17px}
+.gate .a{font-size:14px;color:var(--ink-2)}
+
+/* 흐름: 한 건이 거쳐 가는 단계(위→아래). 멈추는 곳은 fs-stop */
+.flow{list-style:none;margin:0;padding:0;display:grid;gap:0;width:100%}
+.flow li{display:grid;justify-items:stretch}
+.flow li + li::before{content:"↓";text-align:center;color:var(--ink-2);font-size:18px;line-height:1;padding:4px 0}
+.fstep{background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:10px 14px;display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:center}
+.fstep .fs-n{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:16px;color:var(--paper);background:var(--sky)}
+.fstep .fs-q{font-family:var(--display);font-size:16px}
+.fstep .fs-a{font-size:13px;color:var(--ink-2)}
+.fstep.fs-stop{border-color:var(--rose);background:var(--rose-soft)}
+.fstep.fs-stop .fs-n{background:var(--rose)}
+.fstep.fs-pass{border-color:var(--leaf)}
+.fstep.fs-pass .fs-n{background:var(--leaf)}
+/* fs-branch = 조건이 맞을 때만 멈추는 갈림길. 늘 멈추는 fs-stop과 구별 */
+.fstep.fs-branch{border-style:dashed;border-color:var(--rose)}
+.fstep.fs-branch .fs-n{background:var(--paper);color:var(--rose);border:2px solid var(--rose)}
+
+/* 나란히: 같은 조건인데 다른 결과, 또는 전과 후 */
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%}
+.pair .side{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0}
+.pair .lbl{font-family:var(--display);font-size:15px;text-align:center}
+.mini .phone{border-width:6px;padding:10px;border-radius:24px}
+
+/* 시간표: 한 건에 일어난 일 */
+.timeline{list-style:none;margin:0;padding:0;display:grid;gap:0;width:100%}
+.timeline li{display:grid;grid-template-columns:64px 18px 1fr;gap:10px;align-items:start}
+.timeline .tm{font-family:var(--display);font-size:16px;text-align:right;font-variant-numeric:tabular-nums}
+.timeline .dot{position:relative;height:100%}
+.timeline .dot::before{content:"";position:absolute;left:7px;top:0;bottom:0;width:3px;background:var(--line)}
+.timeline .dot::after{content:"";position:absolute;left:2px;top:8px;width:13px;height:13px;border-radius:50%;background:var(--sky)}
+.timeline li.warn .dot::after{background:var(--rose)}
+.timeline li.good .dot::after{background:var(--leaf)}
+.timeline .ev{padding-bottom:16px;font-size:15px}
+.timeline .ev small{display:block;color:var(--ink-2);font-size:13px}
+/* 시각에 날짜가 붙으면(10/28 19:42) 시각 칸을 넓힌다 */
+.timeline.tl-date li{grid-template-columns:96px 18px 1fr}
+
+/* 지금까지: 날짜별 한 줄 기록 */
+.history{list-style:none;margin:0;padding:0;display:grid;gap:10px;width:100%}
+.history li{background:var(--paper);border-radius:14px;padding:10px 14px;display:grid;grid-template-columns:86px 1fr;gap:10px;font-size:14.5px;border:2px solid var(--line)}
+.history .d{font-family:var(--display);color:var(--ink-2)}
+
+/* 정해 주세요 */
+.decide{background:var(--paper);border-radius:28px;border:3px solid var(--sun);padding:32px clamp(20px,4vw,44px);display:grid;gap:22px}
+.decide h2{font-size:clamp(26px,3.6vw,34px)}
+.qs{display:grid;gap:16px}
+.qcard{border-radius:18px;background:var(--bg);padding:18px 20px;display:grid;gap:10px}
+.qcard .qh{font-family:var(--display);font-size:20px}
+.qcard .now{font-size:14px;color:var(--ink-2)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.opt{background:var(--paper);border-radius:14px;padding:12px 14px;border:2px solid var(--line);font-size:15px}
+.opt b{display:block;font-family:var(--display);font-weight:400;font-size:17px;margin-bottom:2px}
+
+/* 숫자와 근거 */
+details.src{background:var(--paper);border-radius:18px;border:2px solid var(--line);padding:16px 20px;font-size:14px;color:var(--ink-2)}
+details.src summary{cursor:pointer;font-family:var(--display);font-size:16px;color:var(--ink)}
+details.src ul{margin:10px 0 0;padding-left:18px;display:grid;gap:4px}
+details.src code{font-size:12.5px;overflow-wrap:anywhere}
+
+@media (max-width:760px){
+  .cover,.spread{grid-template-columns:1fr}
+  .spread .pic{padding:22px 16px}
+  .pair{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion: no-preference){
+  .card.me .cv{animation:glow 2.4s ease-in-out infinite}
+  @keyframes glow{50%{outline-color:transparent}}
+}
+</style>
+</head><body>
+<main class="book">
+
+<!-- 표지 -->
+<section class="cover" aria-label="표지">
+  <div>
+    <h1>빵을 예약하면<br>확정 알림톡은<br>언제 갈까요?</h1>
+    <p class="sub">빵길 10월 확정 예약 1,240건에서 확정 알림톡이 가는 경우와 안 가는 경우를 사장님 앱·손님 앱 화면과 함께 정리했습니다.</p>
+    <div class="brief" aria-label="확인이 필요한 3가지">
+      <p class="brief-h">지금 확인이 필요한 3가지</p>
+      <a class="bitem bad-c" href="#p4">
+        <span class="bn">1</span>
+        <span><b>자동 확정 예약은 알림톡이 안 가요</b><span class="bd">자동 확정을 켠 가게 9곳의 10월 예약 214건은 확정 알림톡도 대체 문자도 받지 못했습니다.</span></span>
+      </a>
+      <a class="bitem bad-c" href="#p5">
+        <span class="bn">2</span>
+        <span><b>안 간 알림이 사장님 앱에는 '보냄'이에요</b><span class="bd">아침햇살 베이커리 예약 R-1028-031은 알림톡이 가지 않았는데 사장님 앱 예약 상세에 '보냄'으로 보입니다.</span></span>
+      </a>
+      <a class="bitem ask-c" href="#p6">
+        <span class="bn">3</span>
+        <span><b>7시 30분 픽업인데 알림은 8시에 와요</b><span class="bd">밤에 확정된 예약 중 픽업이 아침 8시 전인 31건은 빵을 찾아간 뒤에 확정 알림톡을 받았습니다. 이른 픽업도 아침 8시까지 기다려야 하나요?</span></span>
+      </a>
+    </div>
+    <a class="ask" href="#decide">마지막 장에서 3가지를 정해 주세요 →</a>
+    <p class="stamp">2026-11-03 10:00 가상 데이터 기준 · Claude Code로 작성</p>
+  </div>
+  <div class="cover-pic">
+    <div class="phone" aria-label="손님 카카오톡의 빵길 알림톡 화면 예시">
+      <div class="ph-bar"><span class="back">‹</span>빵길 알림톡</div>
+      <div class="msgs">
+        <div class="msg"><span class="msg-from">빵길 · 10/27 14:05</span>[빵길] 예약이 확정됐어요<br>골목 식빵집 · 우유식빵 1개<br>10/27 17:00 픽업</div>
+        <div class="msg msg-miss"><span class="msg-from">빵길 · 10/28 19:42</span>아침햇살 베이커리 예약의 확정 알림톡이 오지 않음</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 1쪽: 용어 -->
+<section class="spread" aria-labelledby="p1">
+  <div class="pic">
+    <div class="win">
+      <div class="win-bar"><i></i><i></i><i></i><span>사장님 앱 &gt; 가게 설정</span></div>
+      <div class="win-body">
+        <div class="win-row"><span class="win-k">가게</span><span>아침햇살 베이커리</span></div>
+        <div class="win-row win-hl"><span class="win-k">예약 자동 확정</span><span>켜짐</span></div>
+        <div class="win-row"><span class="win-k">픽업 가능 시각</span><span>08:00~20:00</span></div>
+      </div>
+    </div>
+    <div class="seatbox">
+      <div class="cap">빵길 입점 가게(전체 32)</div>
+      <div class="seats" role="img" aria-label="32칸 중 23칸 사장님 확정 가게, 9칸 자동 확정 가게">
+        <i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i>
+        <i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i>
+        <i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat t"></i><i class="seat u"></i>
+        <i class="seat u"></i><i class="seat u"></i><i class="seat u"></i><i class="seat u"></i><i class="seat u"></i><i class="seat u"></i><i class="seat u"></i><i class="seat u"></i>
+      </div>
+      <div class="legend"><span><i class="seat t"></i>사장님 확정 가게 23곳</span><span><i class="seat u"></i>자동 확정 가게 9곳</span></div>
+    </div>
+  </div>
+  <div class="story">
+    <span class="pageno">1쪽</span>
+    <h2 id="p1">예약이 확정되는 길은 두 가지예요</h2>
+    <div class="lines">
+      <p><b>사장님 확정</b>은 사장님이 사장님 앱 예약 목록에서 '확정' 버튼을 눌러 예약을 받는 방식입니다.</p>
+      <p><b>자동 확정</b>은 가게 설정에서 켜 두면 손님이 예약하는 순간 바로 확정되는 방식입니다.</p>
+      <p><b>확정 알림톡</b>은 예약이 확정됐다고 손님 카카오톡으로 보내는 메시지입니다.</p>
+    </div>
+    <div class="example">예: 아침햇살 베이커리는 자동 확정을 켠 9곳 중 하나로, 10월 예약 41건이 모두 자동 확정됐습니다.</div>
+    <div class="dev"><p class="dev-h">개발팀 참고: 두 확정 방식의 출처</p><ul>
+      <li><span class="k">확정 방식 필드</span><span class="v"><code>reservation.confirmed_by</code></span></li>
+      <li><span class="k">사장님 확정 값</span><span class="v"><code>confirmed_by = OWNER</code></span></li>
+      <li><span class="k">자동 확정 값</span><span class="v"><code>confirmed_by = AUTO</code></span></li>
+      <li><span class="k">자동 확정 설정</span><span class="v"><code>shop_setting.auto_confirm = true</code></span></li>
+      <li><span class="k">확정 알림톡 템플릿</span><span class="v"><code>BG_RSV_CONFIRM_01</code></span></li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 2쪽: 규칙 -->
+<section class="spread" aria-labelledby="p2">
+  <div class="pic">
+    <ol class="flow">
+      <li><div class="fstep"><span class="fs-n">1</span><div><div class="fs-q">예약이 확정됨</div><div class="fs-a">사장님 확정 또는 자동 확정</div></div></div></li>
+      <li><div class="fstep fs-branch"><span class="fs-n">2</span><div><div class="fs-q">확정 알림 요청을 만들까?</div><div class="fs-a">사장님이 '확정' 버튼을 눌렀을 때만 만듦 · 자동 확정이면 여기서 멈춤</div></div></div></li>
+      <li><div class="fstep"><span class="fs-n">3</span><div><div class="fs-q">지금이 야간 보류 시간인가?</div><div class="fs-a">밤 9시~아침 8시면 아침 8시까지 기다림</div></div></div></li>
+      <li><div class="fstep"><span class="fs-n">4</span><div><div class="fs-q">카카오톡으로 보냄</div><div class="fs-a">카카오톡이 없는 번호면 30초 뒤 대체 문자</div></div></div></li>
+      <li><div class="fstep fs-pass"><span class="fs-n">5</span><div><div class="fs-q">손님 휴대폰에 도착</div><div class="fs-a">보통 확정 뒤 1분 안</div></div></div></li>
+    </ol>
+  </div>
+  <div class="story">
+    <span class="pageno">2쪽</span>
+    <h2 id="p2">알림은 다섯 단계를 지나요</h2>
+    <div class="lines">
+      <p>확정 알림 요청은 <b>사장님이 '확정' 버튼을 눌렀을 때만</b> 만들어집니다.</p>
+      <p>밤 9시부터 아침 8시까지를 야간 보류 시간이라 부르고, 이 시간에 확정된 예약의 확정 알림톡은 아침 8시에 보냅니다.</p>
+      <p>카카오톡이 없는 번호에는 30초 뒤 같은 내용을 문자로 보내고, 이 문자를 대체 문자라고 부릅니다.</p>
+    </div>
+    <div class="example">1단계는 예약 서버, 2단계는 사장님 앱 서버, 3~5단계는 알림 발송기가 맡고 있습니다.</div>
+    <div class="dev"><p class="dev-h">개발팀 참고: 단계마다 보는 코드와 값</p><ul>
+      <li><span class="k">2단계 조건</span><span class="v"><code>ReservationConfirmedByOwner</code> 이벤트가 있을 때만</span></li>
+      <li><span class="k">2단계 위치</span><span class="v">bg-owner-api <code>ConfirmReservationHandler</code></span></li>
+      <li><span class="k">자동 확정 위치</span><span class="v">bg-reservation-api <code>ReservationService.create()</code></span></li>
+      <li><span class="k">3단계 조건</span><span class="v"><code>now &gt;= 21:00 || now &lt; 08:00</code>(KST)</span></li>
+      <li><span class="k">3단계 위치</span><span class="v">bg-notify-worker <code>QuietHourScheduler</code></span></li>
+      <li><span class="k">4단계 대체 문자 조건</span><span class="v">카카오 응답 <code>result_code = 3018</code></span></li>
+      <li><span class="k">발송 기록</span><span class="v"><code>alimtalk_log.result</code></span></li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 3쪽: 장면 1 -->
+<section class="spread" aria-labelledby="p3">
+  <div class="pic">
+    <div class="phone" aria-label="손님 카카오톡에 확정 알림톡이 도착한 모습">
+      <div class="ph-bar"><span class="back">‹</span>빵길 알림톡</div>
+      <div class="msgs">
+        <div class="msg"><span class="msg-from">빵길 · 10/27 14:05</span>[빵길] 예약이 확정됐어요<br>골목 식빵집 · 우유식빵 1개<br>10/27 17:00 픽업</div>
+      </div>
+    </div>
+    <div class="chips"><span class="chip ch-a">확정 방식 <b>사장님 확정</b></span><span class="chip ch-b">확정 시각 <b>아침 8시~밤 9시</b></span></div>
+  </div>
+  <div class="story">
+    <span class="pageno">3쪽 · 장면 1</span>
+    <h2 id="p3">사장님이 낮에 확정하면 바로 가요</h2>
+    <p class="count">862건<small>/ 대상 1,240건</small></p>
+    <div class="lines">
+      <p>사장님이 아침 8시~밤 9시에 '확정'을 누르면 확정 알림톡이 <b>1분 안에 손님 카카오톡에 도착합니다</b>.</p>
+      <p>손님 앱의 내 예약 화면도 같은 때 '예약 확정'으로 바뀝니다.</p>
+    </div>
+    <span class="verdict ok">의도대로 동작</span>
+    <div class="example">예: 골목 식빵집 사장님이 10/27 14:04에 확정한 우유식빵 예약은 14:05에 알림톡이 도착했습니다.</div>
+    <div class="dev"><p class="dev-h">개발팀 참고: 이 장면을 정하는 값</p><ul>
+      <li><span class="k">확정 방식</span><span class="v"><code>confirmed_by = OWNER</code></span></li>
+      <li><span class="k">이벤트</span><span class="v"><code>ReservationConfirmedByOwner</code> 발행</span></li>
+      <li><span class="k">야간 보류</span><span class="v"><code>confirmed_at 14:04</code> → 보류 없음</span></li>
+      <li><span class="k">발송 결과</span><span class="v"><code>alimtalk_log.result = SENT</code>(14:05)</span></li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 4쪽: 장면 2 -->
+<section class="spread" aria-labelledby="p4">
+  <div class="pic">
+    <div class="pair mini">
+      <div class="side">
+        <span class="lbl">손님 앱</span>
+        <div class="phone">
+          <div class="ph-bar"><span class="back">‹</span>내 예약</div>
+          <div class="grid">
+            <div class="card me"><div class="cv k3">소금빵</div><p class="nm">아침햇살 베이커리 소금빵 4개 · 예약 확정</p></div>
+          </div>
+          <div class="ph-btn">픽업 QR 보기</div>
+        </div>
+      </div>
+      <div class="side">
+        <span class="lbl">손님 카카오톡</span>
+        <div class="phone">
+          <div class="ph-bar"><span class="back">‹</span>빵길 알림톡</div>
+          <div class="msgs">
+            <div class="msg msg-miss"><span class="msg-from">빵길</span>확정 알림톡이 오지 않음</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="chips"><span class="chip ch-a">확정 방식 <b>자동 확정</b></span></div>
+  </div>
+  <div class="story">
+    <span class="pageno">4쪽 · 장면 2</span>
+    <h2 id="p4">자동 확정 예약은 알림톡이 안 가요</h2>
+    <p class="count">214건<small>/ 대상 1,240건</small></p>
+    <div class="lines">
+      <p>자동 확정 가게 9곳의 예약은 손님이 예약하는 순간 손님 앱에 '예약 확정'으로 보입니다.</p>
+      <p>자동 확정은 확정 알림 요청을 만들지 않아서 <b>확정 알림톡이 가지 않습니다</b>.</p>
+      <p>대체 문자도 확정 알림 요청이 있어야 보내므로 자동 확정 예약에는 문자도 가지 않습니다.</p>
+    </div>
+    <span class="verdict bad">의도와 다름: 확정됐는데 알림이 안 감</span>
+    <div class="example">예: 아침햇살 베이커리 예약 R-1028-031은 10/28 19:42에 자동 확정됐고, 알림톡과 문자 모두 받지 못했습니다.</div>
+    <div class="dev"><p class="dev-h">개발팀 참고: 이 장면을 정하는 값</p><ul>
+      <li><span class="k">확정 방식</span><span class="v"><code>confirmed_by = AUTO</code></span></li>
+      <li><span class="k">확정하는 곳</span><span class="v">bg-reservation-api <code>ReservationService.create()</code></span></li>
+      <li><span class="k">이벤트</span><span class="v"><code>ReservationConfirmedByOwner</code> 발행 안 함</span></li>
+      <li><span class="k">R-1028-031 발송 기록</span><span class="v"><code>alimtalk_log</code> 0행</span></li>
+      <li><span class="k">손님 앱 표시</span><span class="v"><code>status = CONFIRMED</code> → '예약 확정'</span></li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 5쪽: 장면 2를 사장님 앱에서 -->
+<section class="spread" aria-labelledby="p5">
+  <div class="pic">
+    <div class="win">
+      <div class="win-bar"><i></i><i></i><i></i><span>사장님 앱 &gt; 예약 상세 R-1028-031</span></div>
+      <div class="win-body">
+        <div class="win-row"><span class="win-k">상품</span><span>우유식빵 1개, 소금빵 4개</span></div>
+        <div class="win-row"><span class="win-k">픽업</span><span>10/29 09:00</span></div>
+        <div class="win-row"><span class="win-k">확정 방식</span><span>자동 확정</span></div>
+        <div class="win-row win-hl"><span class="win-k">손님 알림</span><span>보냄</span></div>
+      </div>
+    </div>
+    <div class="msgs">
+      <div class="msg msg-miss"><span class="msg-from">같은 예약, 손님 카카오톡</span>확정 알림톡이 오지 않음</div>
+    </div>
+  </div>
+  <div class="story">
+    <span class="pageno">5쪽 · 장면 2를 사장님 앱에서</span>
+    <h2 id="p5">안 간 알림이 사장님 앱에는 '보냄'이에요</h2>
+    <p class="count">214건<small>/ 장면 2와 같은 예약</small></p>
+    <div class="lines">
+      <p>사장님 앱 예약 상세의 '손님 알림' 칸은 예약이 확정 상태이기만 하면 '보냄'을 보여 줍니다.</p>
+      <p>그래서 자동 확정 예약 214건은 알림톡이 가지 않았는데도 <b>'보냄'으로 보입니다</b>.</p>
+      <p>CS도 이 칸을 보고 제보한 손님에게 알림을 보냈다고 안내했습니다.</p>
+    </div>
+    <span class="verdict bad">의도와 다름: 안 간 알림을 보냄으로 표시</span>
+    <div class="dev"><p class="dev-h">개발팀 참고: 이 장면을 정하는 값</p><ul>
+      <li><span class="k">칸 계산</span><span class="v"><code>status == CONFIRMED ? "보냄" : "-"</code></span></li>
+      <li><span class="k">칸 위치</span><span class="v">bg-owner-app <code>NotifyStatusBadge</code></span></li>
+      <li><span class="k">읽지 않는 값</span><span class="v"><code>alimtalk_log.result</code></span></li>
+      <li><span class="k">R-1028-031 값</span><span class="v"><code>status CONFIRMED</code>, <code>alimtalk_log</code> 0행</span></li>
+      <li><span class="k">야간 보류 중인 예약</span><span class="v">아침 8시 발송 전에도 '보냄'</span></li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 6쪽: 장면 3과 4 -->
+<section class="spread" aria-labelledby="p6">
+  <div class="pic">
+    <div class="pair">
+      <div class="side">
+        <span class="lbl">픽업이 아침 8시 이후</span>
+        <ol class="timeline">
+          <li><span class="tm">22:10</span><span class="dot"></span><div class="ev">사장님 확정<small>야간 보류 시작</small></div></li>
+          <li class="good"><span class="tm">08:00</span><span class="dot"></span><div class="ev">알림톡 도착</div></li>
+          <li><span class="tm">08:30</span><span class="dot"></span><div class="ev">픽업</div></li>
+        </ol>
+      </div>
+      <div class="side">
+        <span class="lbl">픽업이 아침 8시 전</span>
+        <ol class="timeline">
+          <li><span class="tm">22:40</span><span class="dot"></span><div class="ev">사장님 확정<small>야간 보류 시작</small></div></li>
+          <li class="warn"><span class="tm">07:30</span><span class="dot"></span><div class="ev">픽업<small>알림톡 아직 없음</small></div></li>
+          <li class="warn"><span class="tm">08:00</span><span class="dot"></span><div class="ev">알림톡 도착<small>픽업 30분 뒤</small></div></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <div class="story">
+    <span class="pageno">6쪽 · 장면 3과 4</span>
+    <h2 id="p6">둘 다 밤에 확정됐는데 한쪽만 늦어요</h2>
+    <div class="lines">
+      <p>두 예약 모두 사장님이 야간 보류 시간에 확정해서 확정 알림톡이 아침 8시에 갑니다.</p>
+      <p>픽업이 아침 8시 30분인 예약은 <b>픽업 전에 알림을 받습니다</b>.</p>
+      <p>픽업이 아침 7시 30분인 예약은 <b>빵을 찾아간 뒤에 알림을 받습니다</b>.</p>
+    </div>
+    <div class="chips"><span class="chip">픽업 전에 받음 <b>97건</b></span><span class="chip">픽업 뒤에 받음 <b>31건</b></span></div>
+    <span class="verdict ask">조직 확인 필요: 이른 픽업도 8시까지 기다릴까요?</span>
+    <div class="example">예: 아침 7시에 여는 밀알 제과의 예약이 픽업 뒤에 받은 31건 중 19건입니다.</div>
+    <div class="dev"><p class="dev-h">개발팀 참고: 이 장면을 정하는 값</p><ul>
+      <li><span class="k">야간 보류 시간</span><span class="v"><code>QUIET_START 21:00</code>, <code>QUIET_END 08:00</code></span></li>
+      <li><span class="k">보류 위치</span><span class="v">bg-notify-worker <code>QuietHourScheduler</code></span></li>
+      <li><span class="k">8시 이후 픽업 예약의 확정 시각</span><span class="v"><code>confirmed_at 22:10</code></span></li>
+      <li><span class="k">8시 이후 픽업 예약의 픽업 시각</span><span class="v"><code>pickup_at 08:30</code></span></li>
+      <li><span class="k">8시 전 픽업 예약의 확정 시각</span><span class="v"><code>confirmed_at 22:40</code></span></li>
+      <li><span class="k">8시 전 픽업 예약의 픽업 시각</span><span class="v"><code>pickup_at 07:30</code></span></li>
+      <li><span class="k">보류할 때 픽업 시각을 보나</span><span class="v"><code>pickup_at</code>을 읽지 않음</span></li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 7쪽: 장면 5 -->
+<section class="spread" aria-labelledby="p7">
+  <div class="pic">
+    <div class="msgs">
+      <div class="msg msg-miss"><span class="msg-from">빵길 알림톡 · 15:20</span>카카오톡이 없는 번호라 보내지 못함</div>
+      <div class="msg"><span class="msg-from">문자 · 15:21</span>[빵길] 예약이 확정됐어요<br>밀알 제과 · 크루아상 2개<br>11/1 10:00 픽업</div>
+    </div>
+    <div class="chips"><span class="chip ch-a">확정 방식 <b>사장님 확정</b></span><span class="chip ch-c">손님 번호 <b>카카오톡 없음</b></span></div>
+  </div>
+  <div class="story">
+    <span class="pageno">7쪽 · 장면 5</span>
+    <h2 id="p7">카카오톡이 없으면 문자로 가요</h2>
+    <p class="count">36건<small>/ 대상 1,240건</small></p>
+    <div class="lines">
+      <p>카카오톡을 쓰지 않는 번호는 확정 알림톡을 받을 수 없습니다.</p>
+      <p>이때 같은 내용이 30초 뒤 <b>대체 문자로 도착합니다</b>.</p>
+    </div>
+    <span class="verdict ok">의도대로 동작</span>
+    <div class="example">예: 밀알 제과 사장님이 10/31 15:20에 확정한 크루아상 예약은 15:21에 대체 문자가 도착했습니다.</div>
+    <div class="dev"><p class="dev-h">개발팀 참고: 이 장면을 정하는 값</p><ul>
+      <li><span class="k">카카오 응답</span><span class="v"><code>result_code = 3018</code>(카카오톡 미사용 번호)</span></li>
+      <li><span class="k">대체 문자 지연</span><span class="v">30초</span></li>
+      <li><span class="k">발송 결과</span><span class="v"><code>alimtalk_log.result = FALLBACK_SMS</code></span></li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 8쪽: 제보 이야기 -->
+<section class="spread" aria-labelledby="p8">
+  <div class="pic">
+    <ol class="timeline tl-date">
+      <li><span class="tm">10/28 19:42</span><span class="dot"></span><div class="ev">손님이 우유식빵 1개, 소금빵 4개 예약<small>아침햇살 베이커리, 예약하자마자 자동 확정</small></div></li>
+      <li class="warn"><span class="tm">19:42</span><span class="dot"></span><div class="ev">확정 알림톡이 만들어지지 않음<small>사장님 앱 '손님 알림' 칸은 '보냄'</small></div></li>
+      <li class="warn"><span class="tm">10/29 08:50</span><span class="dot"></span><div class="ev">손님이 CS 채팅으로 제보<small>"확정 알림이 안 왔는데 예약된 건가요"</small></div></li>
+      <li><span class="tm">09:05</span><span class="dot"></span><div class="ev">CS가 사장님 앱 칸을 보고 알림을 보냈다고 안내</div></li>
+      <li class="good"><span class="tm">09:20</span><span class="dot"></span><div class="ev">손님이 빵을 찾아감</div></li>
+    </ol>
+  </div>
+  <div class="story">
+    <span class="pageno">8쪽</span>
+    <h2 id="p8">제보한 손님에게 있었던 일</h2>
+    <div class="lines">
+      <p>제보한 손님의 예약 R-1028-031은 자동 확정 가게 예약이라 장면 2에 해당합니다.</p>
+      <p>CS는 사장님 앱의 '손님 알림' 칸이 '보냄'이라 원인을 찾지 못했습니다.</p>
+      <p>손님은 빵을 찾아갔지만 픽업 10분 전까지 예약이 확정됐는지 확신하지 못했습니다.</p>
+    </div>
+    <span class="verdict bad">의도와 다름: 장면 2와 같은 원인</span>
+    <div class="example">손님 앱 내 예약 화면에는 10/28 19:42부터 '예약 확정'이 보였지만, 손님은 알림톡을 기다렸다고 적었습니다.</div>
+    <div class="dev"><p class="dev-h">개발팀 참고: 이 장면을 정하는 값</p><ul>
+      <li><span class="k">예약 번호</span><span class="v"><code>R-1028-031</code></span></li>
+      <li><span class="k">확정 방식</span><span class="v"><code>confirmed_by = AUTO</code></span></li>
+      <li><span class="k">확정 시각</span><span class="v"><code>confirmed_at 2026-10-28 19:42</code></span></li>
+      <li><span class="k">발송 기록</span><span class="v"><code>alimtalk_log</code> 0행</span></li>
+      <li><span class="k">CS 문의 번호</span><span class="v"><code>CS-20261029-014</code></span></li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 9쪽: 지금까지 -->
+<section class="spread" aria-labelledby="p9">
+  <div class="pic">
+    <ul class="history">
+      <li><span class="d">2025-04</span><span>확정 알림톡 시작, 이때는 사장님 확정만 있었음</span></li>
+      <li><span class="d">2025-11</span><span>야간 보류 시간을 밤 9시~아침 8시로 정함</span></li>
+      <li><span class="d">2026-03</span><span>아침 7시에 여는 밀알 제과 입점</span></li>
+      <li><span class="d">2026-06</span><span>자동 확정 출시, 확정 알림톡은 출시 범위에 없었음</span></li>
+      <li><span class="d">2026-10-29</span><span>"확정 알림이 안 왔다"는 CS 제보</span></li>
+    </ul>
+  </div>
+  <div class="story">
+    <span class="pageno">9쪽</span>
+    <h2 id="p9">자동 확정의 알림은 정한 적이 없어요</h2>
+    <div class="lines">
+      <p>확정 알림톡은 자동 확정이 생기기 14개월 전에 <b>사장님 확정 버튼에 맞춰</b> 만들어졌습니다.</p>
+      <p>2026-06에 자동 확정을 출시할 때 확정 알림톡을 함께 보낼지는 정하지 않았습니다.</p>
+      <p>야간 보류 시간은 밀알 제과처럼 아침 8시 전에 여는 가게가 입점하기 전에 정했습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 정해 주세요 -->
+<section class="decide" id="decide" aria-labelledby="pd">
+  <span class="pageno">마지막 장</span>
+  <h2 id="pd">정해 주세요</h2>
+  <div class="qs">
+    <div class="qcard">
+      <div class="qh">1. 사장님 앱에서 '자동 확정'을 켠 가게의 예약에도 확정 알림톡을 보낼까요?</div>
+      <div class="now">지금: 자동 확정 가게 9곳의 10월 예약 214건은 확정 알림톡도 대체 문자도 받지 못했습니다.</div>
+      <div class="opts">
+        <div class="opt"><b>보낸다</b>자동 확정되는 순간 확정 알림톡이 가고, 10월 기준으로 한 달 214건이 더 나갑니다.</div>
+        <div class="opt"><b>보내지 않는다</b>자동 확정 가게 손님은 지금처럼 손님 앱 내 예약 화면에서만 확정을 확인합니다.</div>
+      </div>
+    </div>
+    <div class="qcard">
+      <div class="qh">2. 사장님 앱 예약 상세의 '손님 알림' 칸은 무엇을 보여 줘야 하나요?</div>
+      <div class="now">지금: 예약이 확정 상태면 실제 발송과 상관없이 '보냄'으로 보여, 10월에 알림톡이 안 간 214건도 '보냄'입니다.</div>
+      <div class="opts">
+        <div class="opt"><b>실제 발송 결과</b>보냄, 대체 문자, 안 감, 아침 8시 발송 예정 중 하나가 보여 사장님과 CS가 같은 칸으로 확인합니다.</div>
+        <div class="opt"><b>칸을 뺀다</b>사장님 앱에서는 알림 여부를 볼 수 없고, CS는 발송 기록을 개발팀에 따로 물어봅니다.</div>
+      </div>
+    </div>
+    <div class="qcard">
+      <div class="qh">3. 픽업이 아침 8시 전인 예약을 밤 9시~아침 8시에 확정하면 확정 알림톡을 언제 보낼까요?</div>
+      <div class="now">지금: 모두 아침 8시에 보내서 10월에 31건은 빵을 찾아간 뒤에 알림이 갔습니다.</div>
+      <div class="opts">
+        <div class="opt"><b>바로 보낸다</b>31건은 밤에 알림을 받고, 나머지 97건은 지금처럼 아침 8시에 받습니다.</div>
+        <div class="opt"><b>픽업 1시간 전에 보낸다</b>아침 7시 30분 픽업이면 아침 6시 30분에 알림을 받습니다.</div>
+        <div class="opt"><b>지금처럼 아침 8시</b>이른 픽업 손님은 계속 빵을 찾아간 뒤에 알림을 받습니다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<details class="src">
+  <summary>숫자와 근거</summary>
+  <ul>
+    <li>이 문서의 서비스·가게·예약 번호·숫자·필드·서버 이름은 모두 지어낸 가상 데이터입니다.</li>
+    <li>대상: 2026-10-01~10-31에 빵길에서 확정된 예약 1,240건. 확정 전에 취소된 예약 58건은 대상에서 뺐습니다.</li>
+    <li>장면을 나눈 순서: 자동 확정이면 장면 2, 아니고 야간 보류 시간에 확정됐으면 장면 3·4, 아니고 카카오톡 없는 번호면 장면 5, 나머지는 장면 1.</li>
+    <li>장면별 수: 장면 1 862건, 장면 2 214건, 장면 3 97건, 장면 4 31건, 장면 5 36건, 합 1,240건.</li>
+    <li>5쪽은 장면 2의 214건을 사장님 앱에서 본 것이라 따로 세지 않았습니다.</li>
+    <li>밤에 확정된 128건(장면 3·4) 중 카카오톡 없는 번호 4건은 아침 8시에 대체 문자를 받았고, 장면 5가 아니라 장면 3·4에 셌습니다.</li>
+    <li>가게: 입점 32곳 중 자동 확정 9곳. 아침햇살 베이커리 자동 확정 예약 41건, 밀알 제과의 픽업 뒤 알림 19건.</li>
+    <li>데이터: 가상 발송 기록, 2026-11-03 10:00 기준.</li>
+    <li>대조: 가상 데이터라 실제 화면과 대조하지 않았습니다.</li>
+  </ul>
+</details>
+
+</main>
+</body></html>

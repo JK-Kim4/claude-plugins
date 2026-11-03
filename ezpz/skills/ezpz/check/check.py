@@ -15,7 +15,7 @@ MODIFIERS = {
     "fstep": re.compile(r"^fs-[a-z0-9-]+$"),
     "msg": re.compile(r"^msg-[a-z0-9-]+$"),
     "win-row": re.compile(r"^win-[a-z0-9-]+$"),
-    "seat": re.compile(r"^[tro]$"),
+    "seat": re.compile(r"^[trou]$"),
     "card": re.compile(r"^(me|full|ghost)$"),
     "bitem": re.compile(r"^(ask-c|bad-c)$"),
 }
@@ -112,7 +112,7 @@ def main(path):
         if "seats" in n.classes:
             cnt = sum(1 for c in n.children if "seat" in c.classes)
             label = n.attrs.get("aria-label", "")
-            m = re.search(r"(\d+)\s*(자리|칸|개|건|명)\s*중", label)
+            m = re.search(r"(\d+)\s*(자리|칸|개|건|명|곳)\s*중", label)
             if not m:
                 add(n, f"칸 격자에 'N칸 중 …' 형식 aria-label이 없음: {label[:40]}")
             elif int(m.group(1)) != cnt:
@@ -163,6 +163,20 @@ def main(path):
     ph = re.search(r"\{[^{}<>]{0,40}[가-힣][^{}<>]{0,40}\}", text_all)
     if ph:
         add(None, "틀의 {자리표시}가 남아 있음: " + ph.group(0))
+
+    # 6-1. 표지 숫자: '확인이 필요한 N가지'의 N = 카드 수, 'N가지를 정해 주세요'의 N = 질문 수 (둘은 달라도 된다)
+    brief_h = next((n for n in nodes if "brief-h" in n.classes), None)
+    bitems = [n for n in nodes if "bitem" in n.classes]
+    if brief_h:
+        m = re.search(r"(\d+)\s*가지", brief_h.all_text())
+        if m and int(m.group(1)) != len(bitems):
+            add(brief_h, f"표지 '{m.group(0)}'인데 확인 카드는 {len(bitems)}개")
+    qcards = [n for n in nodes if "qcard" in n.classes]
+    ask_btn = next((n for n in nodes if n.tag == "a" and "ask" in n.classes), None)
+    if ask_btn:
+        m = re.search(r"(\d+)\s*가지", ask_btn.all_text())
+        if m and int(m.group(1)) != len(qcards):
+            add(ask_btn, f"표지 버튼 '{m.group(0)}'인데 정해 주세요 질문은 {len(qcards)}개")
 
     # 7. 판정 알약 문구는 짧게
     for n in nodes:
