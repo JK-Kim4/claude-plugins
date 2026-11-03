@@ -1,6 +1,6 @@
 # jongwan-plugins 마켓플레이스
 
-jongwan의 Claude Code 플러그인 마켓플레이스. 일곱 개의 플러그인을 제공한다. 목록의 정본은 `.claude-plugin/marketplace.json`이다.
+jongwan의 Claude Code 플러그인 마켓플레이스. 여덟 개의 플러그인을 제공한다. 목록의 정본은 `.claude-plugin/marketplace.json`이다.
 
 | 플러그인 | 버전 | 구성 | 설명 |
 |----------|------|------|------|
@@ -11,13 +11,14 @@ jongwan의 Claude Code 플러그인 마켓플레이스. 일곱 개의 플러그�
 | **llm-wiki** | 0.2.4 | 스킬 4 | 흩어진 마크다운·AI 세션 기록을 하나의 LLM wiki로 통합(wiki-bootstrap)·가공(wiki-digest)·점검(wiki-lint)·조회(wiki-recall). python3 stdlib만 사용. |
 | **agent-workflow** | 0.1.0 | 스킬 2 | 에이전트 작업 위생 — 토큰 낭비를 줄이는 규율(token-efficiency), 최신 `origin/develop` 기준 격리 Git worktree 생성과 작업 경로 고정(worktree). |
 | **dlc** | 0.1.0 | 스킬 10 | AI-DLC 방법론의 명시 호출형 생명주기 스킬셋. 라우터(dlc) + 스테이지 9개(init·analyze·intent·practices·requirements·design·plan·build·verify), 프로파일 3개(full·express·bugfix). 산출물·진행 상태를 `docs/dlc/`에 남기고 python3 stdlib 스크립트가 상태 전이·다음 단계 판정·산출물 검사를 맡는다. |
+| **ezpz** | 0.1.0 | 스킬 1 | 이지피지. 조건·규칙·흐름이 실제 화면이나 결과에 어떻게 나타나는지 목업·칸 격자·흐름·시간표 그림으로 한 장면씩 보여 주는 그림책 형식 설명 문서(HTML). 표지에 확인할 것, 마지막 장에 조직이 정할 것. 게시 전 점검 스크립트 포함. |
 
 ## 구성
 
 ```
 claude-plugins/
 ├── .claude-plugin/
-│   └── marketplace.json          # 마켓플레이스 카탈로그 (플러그인 7개)
+│   └── marketplace.json          # 마켓플레이스 카탈로그 (플러그인 8개)
 ├── document-generator/
 │   ├── .claude-plugin/plugin.json
 │   └── skills/doc-writing/         # SKILL.md · reference/ · templates/docset/
@@ -49,6 +50,9 @@ claude-plugins/
 │       ├── dlc/                  # 라우터 + 공유 스파인(references/, scripts/dlc.py, tests/)
 │       ├── dlc-init/  dlc-analyze/  dlc-intent/  dlc-practices/  dlc-requirements/
 │       └── dlc-design/  dlc-plan/  dlc-build/  dlc-verify/
+├── ezpz/
+│   ├── .claude-plugin/plugin.json
+│   └── skills/ezpz/                # SKILL.md · templates/book.html · reference/pictures.md · check/check.py · examples/
 ├── archive/                      # 스킬 이전 버전 보관 — archive/<스킬명>/<교체일>/
 ├── docs/                         # design/(플러그인 설계) · research/ · review/(설계·구현 리뷰 기록)
 └── pr-automator/                 # 마켓플레이스 목록에 없음 — 설치 대상 아님
@@ -71,6 +75,7 @@ claude-plugins/
 /plugin install llm-wiki@jongwan-plugins
 /plugin install agent-workflow@jongwan-plugins
 /plugin install dlc@jongwan-plugins
+/plugin install ezpz@jongwan-plugins
 ```
 
 > 로컬 개발·테스트: `/plugin marketplace add <이 저장소를 클론한 경로>`
@@ -96,6 +101,8 @@ Codex·Gemini CLI 등 다른 에이전트는 스킬만 `npx skills add JK-Kim4/c
 - **llm-wiki**: "지식베이스 만들어줘", "이 세션 정리해줘", "위키 점검", "전에 어떻게 했더라" 등으로 트리거. 연산별 설명은 `llm-wiki/README.md`.
 - **agent-workflow**: `token-efficiency`는 도구를 쓰는 모든 작업에 적용된다. `worktree`는 사용자가 명시적으로 호출했을 때만 동작한다.
 - **dlc**: 자동 트리거 없음. `/dlc:dlc`(안내), `/dlc:dlc --all`(전체 진행), `/dlc:dlc-init` 등 스테이지 스킬을 이름으로 부른다. Codex CLI는 `$dlc-init`. 설치·호출·제약 표는 `dlc/README.md`.
+
+- **ezpz**: 자동 트리거를 좁혀 두었다. 프롬프트에 "ezpz", "이지피지", "그림책"을 적거나 `/ezpz:ezpz`로 부를 때만 동작하고, 일반 문서 요청은 document-generator가 맡는다. 게시 전 `python3 -I <스킬 경로>/check/check.py <파일>`이 0건이어야 한다.
 
 ## 스킬 버전 관리
 
