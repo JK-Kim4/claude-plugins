@@ -1,0 +1,16 @@
+{
+  "name": "ezpz",
+  "version": "0.1.0",
+  "description": "이지피지 — 조건·규칙·흐름이 실제 화면이나 결과에 어떻게 나타나는지 목업·칸 격자·흐름·시간표 그림으로 한 장면씩 보여 주는 그림책 형식 설명 문서(HTML)를 만든다. ezpz·이지피지·그림책을 명시했을 때만 동작.",
+  "author": {
+    "name": "JK-Kim4"
+  },
+  "keywords": [
+    "document",
+    "picture-book",
+    "mockup",
+    "html",
+    "explainer"
+  ],
+  "license": "MIT"
+}
