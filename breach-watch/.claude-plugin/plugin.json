@@ -1,0 +1,18 @@
+{
+  "name": "breach-watch",
+  "version": "0.1.0",
+  "description": "최근 국내·해외 해킹 사고(AI 관여 공격 포함)를 근본 원인별로 분류한 버전 관리 카탈로그로 현재 시스템을 읽기 전용 점검하고(breach-audit), 새 사고를 조사해 사건·점검 항목을 추가하고 카탈로그 버전과 변경 이력을 갱신한다(breach-update). 증분 점검은 이전 보고서의 카탈로그 버전 이후 바뀐 항목만 본다. python3 stdlib만 사용.",
+  "author": {
+    "name": "JK-Kim4"
+  },
+  "keywords": [
+    "security",
+    "breach",
+    "vulnerability",
+    "audit",
+    "threat-intelligence",
+    "supply-chain",
+    "ai-security"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "version": "1.0.0",
+  "released": "2026-11-07",
+  "researched_through": "2026-11-07",
+  "categories": [
+    {
+      "id": "unpatched-exposed",
+      "name": "인터넷 노출 자산·미패치",
+      "description": "인터넷에 노출된 서버·VPN·방화벽·미들웨어·업무 앱의 알려진 취약점(CVE)이 패치되지 않아 첫 침입 지점이 된 경우. AI 정찰이 가장 먼저 찾는 곳."
+    },
+    {
+      "id": "credential-key",
+      "name": "자격증명·키·토큰 관리",
+      "description": "평문 저장·하드코딩된 비밀, 폐기되지 않은 서명키·접근 토큰, 장기 유효 자격증명, 재사용 비밀번호가 침해 경로나 확산 경로가 된 경우."
+    },
+    {
+      "id": "authn-authz",
+      "name": "인증·인가 결함",
+      "description": "인증 우회, 객체 단위 인가 누락(IDOR/BOLA), 크리덴셜 스터핑 방어 부재, 약한 MFA처럼 애플리케이션이 '누가 무엇을 할 수 있는가'를 잘못 판정한 경우."
+    },
+    {
+      "id": "cloud-baas-config",
+      "name": "클라우드·BaaS 설정 오류",
+      "description": "Firebase·Supabase 보안 규칙, 공개 스토리지 버킷, 인증 없는 DB·검색엔진·관리 콘솔 노출, 과도한 IAM 권한처럼 설정 때문에 데이터가 열린 경우."
+    },
+    {
+      "id": "software-supply-chain",
+      "name": "소프트웨어 공급망·CI/CD",
+      "description": "악성·탈취된 오픈소스 패키지와 자가 전파 웜, 유지관리자 계정 피싱, CI 워크플로 취약 설정, 빌드·배포 파이프라인 변조로 들어온 경우."
+    },
+    {
+      "id": "saas-oauth-thirdparty",
+      "name": "서드파티 SaaS·OAuth 연동",
+      "description": "CRM·지원도구 등 SaaS에 연결된 서드파티 앱의 OAuth 토큰·API 키가 탈취되거나, 위탁·협력사를 거쳐 고객 데이터가 빠져나간 경우."
+    },
+    {
+      "id": "social-engineering-identity",
+      "name": "사회공학·헬프데스크·내부자",
+      "description": "보이스피싱·헬프데스크 사칭으로 비밀번호·MFA를 재설정하거나, 내부자 매수·퇴사자 권한 잔존으로 접근한 경우. 대부분 조직 절차 점검."
+    },
+    {
+      "id": "ai-app-security",
+      "name": "AI·LLM 애플리케이션",
+      "description": "프롬프트 인젝션(간접 포함), 과도한 에이전트 권한, 모델 출력의 무검증 실행, RAG·도구 호출을 통한 데이터 유출처럼 서비스에 들어간 AI 구성요소가 공격면이 된 경우."
+    },
+    {
+      "id": "ai-dev-tooling",
+      "name": "AI 개발 도구·에이전트 환경",
+      "description": "개발자 PC의 AI 코딩 에이전트·MCP 서버·IDE 확장이 악용되거나, AI가 환각한 패키지명 선점(slopsquatting)·악성 MCP 서버로 비밀과 코드가 빠져나간 경우."
+    },
+    {
+      "id": "ransomware-resilience",
+      "name": "랜섬웨어 대응력·내부 확산",
+      "description": "침입 이후 내부망 측면 이동, 백업 동시 암호화, 망 분리 미흡으로 피해가 서비스 중단까지 커진 경우. 첫 침입 경로는 다른 카테고리에 함께 분류한다."
+    },
+    {
+      "id": "data-minimization",
+      "name": "데이터 최소화·파기",
+      "description": "탈퇴·휴면 계정, 옛 시스템 데이터, 임시 파일, 로그·메모리 덤프, 협업 도구 속 신분증처럼 남겨 둘 필요가 없던 데이터가 유출 규모를 키운 경우. 개인정보보호법 파기 의무와 직결."
+    },
+    {
+      "id": "detection-response",
+      "name": "탐지·로깅·신고",
+      "description": "로그 부재·보존 기간 부족, 이상 징후 미탐지로 수개월 뒤 발견되거나, 법정 신고 기한(정보통신망법 24시간, 개인정보보호법 72시간)을 놓친 경우."
+    }
+  ]
+}
