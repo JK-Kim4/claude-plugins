@@ -1,0 +1,2859 @@
+[
+  {
+    "id": "2025-01-gs-retail-credential-stuffing",
+    "date": "2025-01",
+    "region": "KR",
+    "org": "GS리테일(GS25·GS SHOP)",
+    "sector": "커머스",
+    "impact": "약 166만 명 정보 열람. 개보위 과징금 128억 3600만 원(2026-08)",
+    "summary": "다른 사이트에서 유출된 ID·비밀번호를 대입해 로그인한 뒤 회원정보 수정 페이지에서 개인정보를 열람했다. GS25 유출을 인지한 뒤에도 같은 IP 대역의 GS SHOP 공격을 한 달 넘게 막지 못했다.",
+    "attack_vector": "크리덴셜 스터핑",
+    "root_causes": [
+      "동일 IP 대량 로그인 탐지·차단 부재",
+      "한 서비스에서 인지한 공격 IP를 계열 서비스에 공유·차단하지 않음",
+      "8개월간 미인지"
+    ],
+    "cves": [],
+    "categories": [
+      "authn-authz",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "개인정보위, GS리테일에 과징금 128억원 (ZDNet)",
+        "url": "https://zdnet.co.kr/view?no=20260831091556"
+      },
+      {
+        "title": "GS리테일, 홈쇼핑만 158만건 개인정보 유출 (보안뉴스)",
+        "url": "https://m.boannews.com/html/detail.html?idx=136291"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-02-bybit-safe-wallet",
+    "date": "2025-02",
+    "region": "global",
+    "org": "Bybit / Safe{Wallet}",
+    "sector": "가상자산",
+    "impact": "약 14.6억 달러 상당 ETH 탈취",
+    "summary": "Safe{Wallet} 개발자 PC가 악성 프로젝트로 감염됐고, 탈취한 AWS 세션 토큰으로 S3에 올라간 지갑 웹 UI에 특정 지갑만 노리는 악성 JS를 심었다. 서명자들은 정상처럼 보이는 화면에서 악성 트랜잭션에 서명했다.",
+    "attack_vector": "개발자 PC 감염 → 클라우드 세션 토큰 → 프런트엔드 JS 변조 → 블라인드 서명",
+    "root_causes": [
+      "개발자 엔드포인트 침해",
+      "장기 유효 클라우드 세션 토큰",
+      "프런트엔드 정적 자산 무결성 검증 부재",
+      "서명 내용을 독립 검증하지 않는 블라인드 서명"
+    ],
+    "cves": [],
+    "categories": [
+      "software-supply-chain",
+      "credential-key",
+      "social-engineering-identity"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "FBI PSA: North Korea Responsible for $1.5 Billion Bybit Hack",
+        "url": "https://www.ic3.gov/PSA/2025/PSA250226"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-03-oracle-cloud-legacy-sso",
+    "date": "2025-03",
+    "region": "global",
+    "org": "Oracle Cloud(레거시 로그인 서버)",
+    "sector": "클라우드",
+    "impact": "약 600만 건 SSO/LDAP 레코드 유출 주장",
+    "summary": "수년간 패치되지 않은 레거시 Fusion Middleware 로그인 서버가 공격받았다. Oracle은 공개 부인했으나 고객에게는 레거시 서버 침해를 비공개로 시인했다는 보도가 있다.",
+    "attack_vector": "미패치 레거시 미들웨어 로그인 서버",
+    "root_causes": [
+      "EOL 레거시 서버 패치 누락",
+      "공개 커뮤니케이션 불투명"
+    ],
+    "cves": [
+      "CVE-2021-35587"
+    ],
+    "categories": [
+      "unpatched-exposed"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "Oracle privately confirms Cloud breach to customers (BleepingComputer)",
+        "url": "https://www.bleepingcomputer.com/news/security/oracle-privately-confirms-cloud-breach-to-customers/"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-04-skt-usim-hss",
+    "date": "2025-04",
+    "region": "KR",
+    "org": "SK텔레콤",
+    "sector": "통신",
+    "impact": "유심정보 25종 9.82GB, 약 2,324만 명(개보위). 서버 28대에서 악성코드 33종(BPFDoor 27종). 과징금 1,347억 원",
+    "summary": "2021년경 시스템 관리망 서버에 침투한 뒤 서버에 평문으로 저장된 계정정보로 수평 이동해 HSS 관리서버 계정을 탈취하고 BPFDoor를 설치해 유심 데이터를 유출했다. 약 4년간 탐지되지 않았다.",
+    "attack_vector": "관리망 서버 침투 → 평문 계정정보로 수평 이동 → HSS 서버 백도어",
+    "root_causes": [
+      "시스템 관리망 서버 계정·비밀번호를 평문 파일로 저장",
+      "관리망 접근통제 미비로 수평 이동 허용",
+      "유심 인증키 등 주요 정보 암호화 미흡",
+      "BPFDoor 장기 미탐지",
+      "과거 침해 미신고, 유출 통지 지연"
+    ],
+    "cves": [],
+    "categories": [
+      "credential-key",
+      "ransomware-resilience",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "조사단·개보위 발표에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "정부 'SKT 과실'...최종 조사결과 발표 (디지털데일리)",
+        "url": "https://www.ddaily.co.kr/page/view/2025070412563749518"
+      },
+      {
+        "title": "고학수 개보위원장 'SKT 보안 체계, 장기간 허술' (뉴시스)",
+        "url": "https://www.newsis.com/view/NISX20250828_0003306783"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-04-uk-retail-helpdesk",
+    "date": "2025-04",
+    "region": "global",
+    "org": "Marks & Spencer, Co-op",
+    "sector": "커머스",
+    "impact": "M&S 온라인 주문 약 7주 중단·이익 손실 약 £300m, Co-op 회원 약 650만 명 정보 유출",
+    "summary": "헬프데스크·외주 IT 제공자를 사칭하는 사회공학으로 자격증명을 얻은 뒤 랜섬웨어를 배포했다(M&S는 가상화 서버 암호화 보도).",
+    "attack_vector": "헬프데스크 사칭 → 계정 재설정 → 랜섬웨어",
+    "root_causes": [
+      "헬프데스크의 비밀번호·MFA 재설정 본인확인 취약",
+      "외주 IT 서비스 제공자 경유",
+      "가상화 관리 평면 암호화"
+    ],
+    "cves": [],
+    "categories": [
+      "social-engineering-identity",
+      "ransomware-resilience"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "M&S Chair Details Ransomware Attack (Infosecurity)",
+        "url": "https://infosecurity-magazine.com/news/ms-chairman-declines-ransom-payment"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-05-coinbase-insider-bribery",
+    "date": "2025-05",
+    "region": "global",
+    "org": "Coinbase",
+    "sector": "가상자산",
+    "impact": "약 6.9만 명 고객정보(신분증 이미지 포함), 비용 추정 1.8억~4억 달러",
+    "summary": "해외 고객지원 외주 인력을 매수해 지원 도구에서 고객 데이터를 빼내 고객 대상 사칭 사기에 썼다.",
+    "attack_vector": "외주 지원 인력 매수",
+    "root_causes": [
+      "외주 지원 인력의 과도한 고객 데이터 조회 권한",
+      "지원 도구 이상 조회 모니터링 미흡"
+    ],
+    "cves": [],
+    "categories": [
+      "social-engineering-identity",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "Coinbase: Protecting Our Customers",
+        "url": "https://www.coinbase.com/blog/protecting-our-customers-standing-up-to-extortionists"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-05-github-mcp-toxic-flow",
+    "date": "2025-05",
+    "region": "global",
+    "org": "GitHub MCP 서버 사용자",
+    "sector": "AI 개발 도구",
+    "impact": "공개 저장소 이슈를 통한 비공개 저장소 정보 유출 가능(연구 공개)",
+    "summary": "공개·비공개 저장소 모두에 권한이 있는 토큰을 가진 에이전트가 신뢰할 수 없는 이슈 본문을 읽고 그 지시대로 비공개 정보를 공개 쪽으로 옮길 수 있었다. 비공개 데이터, 신뢰할 수 없는 입력, 외부로 보내는 통로가 한 에이전트에 모인 구조 문제다.",
+    "attack_vector": "에이전트가 읽는 외부 텍스트 속 지시(간접 프롬프트 인젝션)",
+    "root_causes": [
+      "에이전트 토큰이 저장소 전체에 걸친 과다 권한",
+      "이슈·PR 본문을 신뢰할 수 없는 입력으로 다루지 않음"
+    ],
+    "cves": [],
+    "categories": [
+      "ai-app-security",
+      "ai-dev-tooling"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 에이전트 자체가 공격면. 악용 정황 미공개(연구 공개)"
+    },
+    "sources": [
+      {
+        "title": "GitHub MCP Exploited (Invariant Labs)",
+        "url": "https://invariantlabs.ai/blog/mcp-github-vulnerability"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-05-lovable-supabase-rls",
+    "date": "2025-05",
+    "region": "global",
+    "org": "Lovable로 생성된 앱",
+    "sector": "AI 생성 앱",
+    "impact": "다수 앱에서 공개 anon 키만으로 테이블 조회 가능",
+    "summary": "AI가 만든 앱의 Supabase 백엔드에 Row Level Security가 꺼져 있어, 클라이언트에 노출되는 공개 키만으로 데이터를 읽고 쓸 수 있었다.",
+    "attack_vector": "RLS 미설정 BaaS + 공개 클라이언트 키",
+    "root_causes": [
+      "Supabase 테이블 RLS 미설정",
+      "AI 생성 코드의 백엔드 접근통제 미검토"
+    ],
+    "cves": [
+      "CVE-2025-48757"
+    ],
+    "categories": [
+      "cloud-baas-config",
+      "ai-app-security"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 코드 생성 플랫폼이 만든 앱의 구조적 결함(CVE)"
+    },
+    "sources": [
+      {
+        "title": "NVD CVE-2025-48757",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-48757"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-05-luxury-brands-saas-vishing",
+    "date": "2025-05",
+    "region": "KR",
+    "org": "디올·티파니·루이비통 코리아",
+    "sector": "커머스",
+    "impact": "디올 약 195만, 루이비통 약 555만, 티파니 약 4,600명. 과징금 합계 360억 원(2026-02)",
+    "summary": "디올·티파니는 고객센터 직원이 보이스피싱에 속아 고객관리 SaaS 접근권한을 공격자에게 줬고, 루이비통은 직원 기기 악성코드로 SaaS 계정을 빼앗겼다. 대량 다운로드가 통제되지 않았고 접속기록 점검을 하지 않아 3개월 넘게 몰랐다.",
+    "attack_vector": "보이스피싱·악성코드로 고객관리 SaaS 계정 탈취 → 대량 다운로드",
+    "root_causes": [
+      "고객센터 직원 대상 보이스피싱",
+      "SaaS 접근에 IP 제한·OTP 등 추가 인증 없음",
+      "SaaS 대량 다운로드 도구 미통제",
+      "접속기록 정기 점검 미이행",
+      "유출 통지 72시간 초과"
+    ],
+    "cves": [],
+    "categories": [
+      "social-engineering-identity",
+      "saas-oauth-thirdparty",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "클라우드 계정 뺏긴 루이비통·보이스피싱에 속은 디올·티파니 (뉴시스)",
+        "url": "https://mobile.newsis.com/view/NISX20260212_0003512428"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-06-citrixbleed2",
+    "date": "2025-06",
+    "region": "global",
+    "org": "Citrix NetScaler 사용 기관",
+    "sector": "네트워크 장비",
+    "impact": "노출 장비 다수에서 세션 토큰 탈취",
+    "summary": "메모리 과다 읽기 결함으로 세션 토큰이 새어 나갔고, 공격자는 토큰을 재사용해 MFA를 우회했다. 패치 후 세션을 무효화하지 않은 곳은 계속 위험했다.",
+    "attack_vector": "엣지 장비 메모리 노출 → 세션 하이재킹",
+    "root_causes": [
+      "엣지 장비 메모리 안전성 결함",
+      "패치 후 기존 세션 미무효화"
+    ],
+    "cves": [
+      "CVE-2025-5777"
+    ],
+    "categories": [
+      "unpatched-exposed"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "CISA KEV catalog",
+        "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-06-echoleak-m365-copilot",
+    "date": "2025-06",
+    "region": "global",
+    "org": "Microsoft 365 Copilot",
+    "sector": "AI 앱",
+    "impact": "사용자 조작 없이 조직 데이터 유출 가능(제로클릭)",
+    "summary": "외부에서 받은 이메일 내용을 어시스턴트가 처리하면서 그 안의 지시를 따르고, 출력 채널(이미지·링크 렌더링)로 데이터를 내보낼 수 있었다.",
+    "attack_vector": "외부 이메일 속 지시 → 출력 채널로 유출",
+    "root_causes": [
+      "신뢰할 수 없는 외부 콘텐츠를 프롬프트에 섞음",
+      "모델 출력의 외부 이미지·링크 렌더링"
+    ],
+    "cves": [
+      "CVE-2025-32711"
+    ],
+    "categories": [
+      "ai-app-security"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 구성요소 자체가 공격면(벤더 패치·CVE). 악용 정황 미공개"
+    },
+    "sources": [
+      {
+        "title": "MSRC CVE-2025-32711",
+        "url": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-32711"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-06-unc6040-salesforce-vishing",
+    "date": "2025-06",
+    "region": "global",
+    "org": "Salesforce 고객사 다수(Google, Qantas, Allianz Life 등)",
+    "sector": "SaaS",
+    "impact": "Qantas 570만 명 등, 유출 사이트에서 약 10억 건 주장",
+    "summary": "IT 지원을 사칭한 보이스피싱으로 직원이 공격자의 변조 데이터 로더 '연결된 앱'을 승인하게 만든 뒤 OAuth로 대량 export했다. 플랫폼 취약점은 없었다.",
+    "attack_vector": "보이스피싱 → 악성 OAuth 연결 앱 승인 → 대량 export",
+    "root_causes": [
+      "보이스피싱",
+      "사용자가 OAuth 연결 앱을 직접 승인할 수 있음",
+      "API 대량 조회 탐지 미흡"
+    ],
+    "cves": [],
+    "categories": [
+      "saas-oauth-thirdparty",
+      "social-engineering-identity",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "GTIG: The Cost of a Call",
+        "url": "https://cloud.google.com/blog/topics/threat-intelligence/voice-phishing-data-extortion"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-06-yes24-ransomware",
+    "date": "2025-06",
+    "region": "KR",
+    "org": "예스24",
+    "sector": "커머스",
+    "impact": "1차(6월) 5일간, 2차(8월) 약 7시간 전 서비스 중단",
+    "summary": "랜섬웨어로 도서·티켓 등 전 서비스가 멈췄다. KISA는 오프사이트 백업 부재를 지적했고, 복구 뒤 재침투를 막지 못해 두 달 만에 다시 감염됐다. 최초 침투 경로는 공개되지 않았다.",
+    "attack_vector": "랜섬웨어(최초 경로 미공개)",
+    "root_causes": [
+      "오프사이트·격리 백업 부재(KISA 지적)",
+      "1차 복구 후 재침투 경로 차단 실패",
+      "초동 대응 불투명"
+    ],
+    "cves": [],
+    "categories": [
+      "ransomware-resilience",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "예스24는 랜섬웨어에 왜 또 당했나? (바이라인네트워크)",
+        "url": "https://byline.network/2025/08/12-446/"
+      },
+      {
+        "title": "KISA, 예스24 2차 랜섬웨어 조사 착수 (보안뉴스)",
+        "url": "https://m.boannews.com/html/detail.html?idx=138652"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-07-amazon-q-vscode-extension",
+    "date": "2025-07",
+    "region": "global",
+    "org": "Amazon Q Developer VS Code 확장",
+    "sector": "AI 개발 도구",
+    "impact": "악성 프롬프트가 들어간 확장 버전 배포",
+    "summary": "CI/빌드 환경의 과다 권한 GitHub 토큰으로 악성 코드가 릴리스에 섞여 들어갔다. 코딩 에이전트에 파괴적 지시를 넣은 프롬프트였다.",
+    "attack_vector": "CI 과다 권한 토큰 → 릴리스 변조",
+    "root_causes": [
+      "CI 토큰 과다 권한",
+      "릴리스 전 검토 부재"
+    ],
+    "cves": [
+      "CVE-2025-8217"
+    ],
+    "categories": [
+      "software-supply-chain",
+      "ai-dev-tooling"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 코딩 에이전트에 지시를 주입하는 페이로드(벤더 보안 공지)"
+    },
+    "sources": [
+      {
+        "title": "AWS Security Bulletin AWS-2025-015",
+        "url": "https://aws.amazon.com/security/security-bulletins/AWS-2025-015/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-07-base44-auth-bypass",
+    "date": "2025-07",
+    "region": "global",
+    "org": "Base44(바이브 코딩 플랫폼)",
+    "sector": "AI 생성 앱",
+    "impact": "비공개 앱에 인증 우회 접근 가능",
+    "summary": "비밀이 아닌 app_id만으로 인증 엔드포인트를 통과해 비공개 앱에 가입·접근할 수 있었다.",
+    "attack_vector": "비밀이 아닌 식별자만 요구하는 인증 엔드포인트",
+    "root_causes": [
+      "인증 흐름이 비밀이 아닌 값을 신뢰",
+      "플랫폼 인증에만 의존"
+    ],
+    "cves": [],
+    "categories": [
+      "authn-authz",
+      "ai-app-security"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 앱 생성 플랫폼 자체 결함. 악용 정황 미공개"
+    },
+    "sources": [
+      {
+        "title": "Wiz uncovers critical access bypass (The Hacker News)",
+        "url": "https://thehackernews.com/2025/07/wiz-uncovers-critical-access-bypass.html"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-07-deepfake-voice-official",
+    "date": "2025-07",
+    "region": "global",
+    "org": "미 국무장관 사칭 → 외국 외교장관·주지사 등",
+    "sector": "공공",
+    "impact": "고위 관료 대상 AI 음성 사칭",
+    "summary": "메신저 계정으로 AI 생성 음성메일과 문자를 보내 실존 고위 인사를 사칭했다. FBI는 같은 수법의 캠페인을 경고했다.",
+    "attack_vector": "AI 음성 복제 사칭",
+    "root_causes": [
+      "음성·문자만으로 신원을 믿는 절차",
+      "고위험 요청의 대역 외 확인 부재"
+    ],
+    "cves": [],
+    "categories": [
+      "social-engineering-identity"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 생성 음성 사용이 공식 경고·보도로 확인"
+    },
+    "sources": [
+      {
+        "title": "Marco Rubio's AI imposter (Engadget)",
+        "url": "https://www.engadget.com/ai/marco-rubios-ai-imposter-has-been-contacting-senior-government-officials-153436657.html"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-07-mchire-ai-chatbot",
+    "date": "2025-07",
+    "region": "global",
+    "org": "McDonald's 채용 AI 챗봇(Paradox.ai)",
+    "sector": "AI 앱",
+    "impact": "지원자 대화 최대 6,400만 건 노출 가능",
+    "summary": "AI 채용 챗봇 관리자 화면에 기본·테스트 계정(123456)이 남아 있었고, 순차 ID로 다른 지원자 기록을 조회할 수 있었다.",
+    "attack_vector": "기본 계정 + 순차 ID(IDOR)",
+    "root_causes": [
+      "기본·테스트 관리자 계정 방치",
+      "객체 단위 인가 누락(순차 ID)"
+    ],
+    "cves": [],
+    "categories": [
+      "credential-key",
+      "authn-authz"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 챗봇 서비스의 관리 백엔드가 공격면"
+    },
+    "sources": [
+      {
+        "title": "123456 password exposed chats for 64 million McDonald's job applications (BleepingComputer)",
+        "url": "https://www.bleepingcomputer.com/news/security/123456-password-exposed-chats-for-64-million-mcdonalds-job-chatbot-applications"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-07-sgi-seoul-guarantee-ransomware",
+    "date": "2025-07",
+    "region": "KR",
+    "org": "SGI서울보증",
+    "sector": "금융",
+    "impact": "보증 업무 수일 마비, 내부 시스템 완전 복구 약 6개월(보도). 공격자는 13.2TB 탈취 주장, 회사는 부인",
+    "summary": "Gunra 랜섬웨어가 백신·DB 프로세스를 끄고 섀도 카피를 지운 뒤 암호화했다. 최초 침투 경로는 공개되지 않았고 백업·복구 체계 미흡이 지적됐다.",
+    "attack_vector": "랜섬웨어(최초 경로 미공개)",
+    "root_causes": [
+      "백업·복구 체계 미흡(보도)",
+      "섀도 카피 등 로컬 복구 수단이 공격자 손에 함께 삭제됨"
+    ],
+    "cves": [],
+    "categories": [
+      "ransomware-resilience"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "SGI서울보증 해킹, 이렇게 당했다 (보안뉴스)",
+        "url": "http://www.boannews.com/news/articleView.html?idxno=138199"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-07-sharepoint-toolshell",
+    "date": "2025-07",
+    "region": "global",
+    "org": "온프레미스 SharePoint 운영 기관 400곳+",
+    "sector": "협업 SW",
+    "impact": "웹셸 설치, machineKey 탈취, 일부 랜섬웨어",
+    "summary": "7월 패치를 우회하는 역직렬화 RCE 체인이 대량 악용됐다. 패치 후에도 machineKey를 교체하지 않으면 공격자가 계속 접근할 수 있었다.",
+    "attack_vector": "인터넷 노출 온프렘 서버 RCE 제로데이",
+    "root_causes": [
+      "불완전한 패치(우회 변종)",
+      "인터넷 노출 온프렘 서버",
+      "패치 후 machineKey 미교체"
+    ],
+    "cves": [
+      "CVE-2025-53770",
+      "CVE-2025-53771"
+    ],
+    "categories": [
+      "unpatched-exposed"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "Microsoft: Disrupting active exploitation of on-premises SharePoint",
+        "url": "https://www.microsoft.com/en-us/security/blog/2025/07/22/disrupting-active-exploitation-of-on-premises-sharepoint-vulnerabilities/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-07-tea-app-firebase",
+    "date": "2025-07",
+    "region": "global",
+    "org": "Tea Dating Advice",
+    "sector": "소비자 앱",
+    "impact": "셀피·신분증 포함 이미지 약 7.2만 장, DM 약 110만 건 노출",
+    "summary": "인증 없이 열려 있던 레거시 Firebase Storage 버킷이 발견돼 통째로 덤프됐다. 지웠어야 할 옛 데이터였다.",
+    "attack_vector": "공개 접근 가능한 레거시 스토리지 버킷",
+    "root_causes": [
+      "스토리지 보안 규칙 설정 오류",
+      "폐기했어야 할 레거시 데이터 보관"
+    ],
+    "cves": [],
+    "categories": [
+      "cloud-baas-config",
+      "data-minimization"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "'바이브 코딩' 원인설은 근거 없는 논평뿐"
+    },
+    "sources": [
+      {
+        "title": "Women Dating Safety App 'Tea' Breached (404 Media)",
+        "url": "https://www.404media.co/women-dating-safety-app-tea-breached-users-ids-posted-to-4chan/"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-08-ai-vibe-hacking-extortion",
+    "date": "2025-08",
+    "region": "global",
+    "org": "의료·응급서비스·정부 등 최소 17개 조직",
+    "sector": "다업종",
+    "impact": "데이터 탈취 후 공개 협박(요구액 50만 달러 초과 사례)",
+    "summary": "공격자가 AI 코딩 에이전트로 정찰, 자격증명 수집, 네트워크 침투, 탈취 데이터 선별, 협박문 작성까지 자동화했다.",
+    "attack_vector": "AI 에이전트가 정찰·침투·탈취를 수행",
+    "root_causes": [
+      "수집 가능한 자격증명",
+      "노출된 네트워크 침투 경로"
+    ],
+    "cves": [],
+    "categories": [
+      "unpatched-exposed",
+      "credential-key"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 벤더 위협 인텔리전스 보고서가 자사 모델 악용을 확인"
+    },
+    "sources": [
+      {
+        "title": "Detecting and countering misuse of AI: August 2025 (Anthropic)",
+        "url": "https://www.anthropic.com/news/detecting-countering-misuse-aug-2025"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-08-cursor-mcp-config-trust",
+    "date": "2025-08",
+    "region": "global",
+    "org": "Cursor IDE",
+    "sector": "AI 개발 도구",
+    "impact": "MCP 설정 변조로 개발자 권한 원격 실행 가능",
+    "summary": "한 번 승인한 MCP 설정이 나중에 바뀌어도 다시 묻지 않았고, 에이전트가 신뢰할 수 없는 데이터를 개발자 권한으로 처리했다.",
+    "attack_vector": "저장소 속 MCP 설정 변조",
+    "root_causes": [
+      "MCP 설정 변경 시 재승인 없음",
+      "에이전트가 외부 데이터를 개발자 권한으로 처리"
+    ],
+    "cves": [
+      "CVE-2025-54135",
+      "CVE-2025-54136"
+    ],
+    "categories": [
+      "ai-dev-tooling"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 코딩 도구 자체 결함(CVE)"
+    },
+    "sources": [
+      {
+        "title": "Cursor AI code editor vulnerability (The Hacker News)",
+        "url": "https://thehackernews.com/2025/08/cursor-ai-code-editor-vulnerability.html"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-08-dprk-it-workers-ai",
+    "date": "2025-08",
+    "region": "global",
+    "org": "원격 채용 기술기업",
+    "sector": "다업종",
+    "impact": "북한 IT 노동자의 위장 취업과 내부 접근",
+    "summary": "북한 IT 노동자가 AI로 가짜 신원·경력을 만들고 코딩 테스트를 통과해 채용된 뒤 실제 업무까지 AI로 수행했다. 신분증 얼굴 합성과 인터뷰 음성 변조에도 AI를 썼다.",
+    "attack_vector": "AI 생성 신원으로 원격 채용 통과",
+    "root_causes": [
+      "원격 채용의 신원 확인 절차",
+      "화상 인터뷰 신원 검증",
+      "신규 입사자 접근 권한"
+    ],
+    "cves": [],
+    "categories": [
+      "social-engineering-identity"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 벤더와 Microsoft 위협 보고서가 확인"
+    },
+    "sources": [
+      {
+        "title": "Anthropic August 2025",
+        "url": "https://www.anthropic.com/news/detecting-countering-misuse-aug-2025"
+      },
+      {
+        "title": "AI as tradecraft (Microsoft)",
+        "url": "https://microsoft.com/en-us/security/blog/2026/03/06/ai-as-tradecraft-how-threat-actors-operationalize-ai"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-08-lguplus-apt-down",
+    "date": "2025-08",
+    "region": "KR",
+    "org": "LG유플러스",
+    "sector": "통신",
+    "impact": "임직원 성명, 일부 서버 목록·계정정보(APPM 관련) 유출 확인(조사단 2025-12)",
+    "summary": "Phrack 'APT Down' 보고서에 따르면 보안 솔루션 협력사를 거쳐 내부망에 들어가 계정·비밀번호 파일을 확보했다. 회사가 해당 서버를 폐기·재설치해 조사단이 경로를 확정하지 못했고 수사 의뢰로 이어졌다.",
+    "attack_vector": "보안 솔루션 협력사 경유 내부망 침투(보고서 주장)",
+    "root_causes": [
+      "협력사 경유 접근 통제 미흡(보고서 주장)",
+      "계정정보 파일 관리 부실",
+      "증거 서버 폐기·재설치로 조사 방해",
+      "침해 자진신고 거부"
+    ],
+    "cves": [],
+    "categories": [
+      "saas-oauth-thirdparty",
+      "credential-key",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "KT·LG유플러스 최종 조사결과 (경향신문)",
+        "url": "https://www.khan.co.kr/article/202512291739001"
+      },
+      {
+        "title": "[2025 보안 사고·이슈 결산-1] 프랙 보고서 (보안뉴스)",
+        "url": "https://m.boannews.com/html/detail.html?idx=140890"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-08-nx-s1ngularity",
+    "date": "2025-08",
+    "region": "global",
+    "org": "Nx npm 패키지 사용자",
+    "sector": "오픈소스 공급망",
+    "impact": "GitHub·npm·클라우드 비밀 수천 건 공개 유출",
+    "summary": "GitHub Actions 워크플로 인젝션으로 게시 토큰을 빼앗아 악성 버전을 올렸다. postinstall 악성코드는 개발자 PC에 설치된 AI 코딩 CLI를 위험한 권한 플래그로 실행해 비밀 파일을 찾게 했다.",
+    "attack_vector": "CI 인젝션 → 악성 postinstall → 로컬 AI CLI로 비밀 탐색",
+    "root_causes": [
+      "CI 워크플로 인젝션(pull_request_target)",
+      "장기 npm 게시 토큰",
+      "postinstall 자동 실행",
+      "로컬 AI CLI가 권한 확인 없이 실행 가능"
+    ],
+    "cves": [
+      "CVE-2025-10894"
+    ],
+    "categories": [
+      "software-supply-chain",
+      "ai-dev-tooling",
+      "credential-key"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "악성코드가 설치된 AI 코딩 CLI를 호출해 비밀을 탐색(Nx 사후 분석)"
+    },
+    "sources": [
+      {
+        "title": "Nx s1ngularity postmortem",
+        "url": "https://nx.dev/blog/s1ngularity-postmortem"
+      },
+      {
+        "title": "NVD CVE-2025-10894",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-10894"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-08-oracle-ebs-cl0p",
+    "date": "2025-08",
+    "region": "global",
+    "org": "Oracle E-Business Suite 고객 수십~100곳+",
+    "sector": "ERP",
+    "impact": "대규모 데이터 탈취 후 경영진 협박 메일",
+    "summary": "인터넷에 노출된 EBS의 인증 없는 RCE 제로데이와 7월에 패치된 취약점 체인이 악용됐다.",
+    "attack_vector": "인터넷 노출 ERP 제로데이",
+    "root_causes": [
+      "인터넷 노출 ERP",
+      "분기 패치(CPU) 적용 지연"
+    ],
+    "cves": [
+      "CVE-2025-61882",
+      "CVE-2025-61884"
+    ],
+    "categories": [
+      "unpatched-exposed"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "GTIG: Oracle E-Business Suite Zero-Day Exploited",
+        "url": "https://cloud.google.com/blog/topics/threat-intelligence/oracle-ebusiness-suite-zero-day-exploitation"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-08-salesloft-drift-oauth",
+    "date": "2025-08",
+    "region": "global",
+    "org": "Salesloft Drift 경유 Salesforce 고객 700곳+",
+    "sector": "SaaS 공급망",
+    "impact": "Salesforce 데이터 대량 탈취, 데이터 속 AWS 키·Snowflake 토큰 수집",
+    "summary": "공격자가 Salesloft GitHub 계정에 들어간 뒤 Drift AWS 환경에서 고객 통합용 OAuth 토큰을 훔쳐 고객 Salesforce를 대량 조회했다. 고객이 지원 케이스에 적어 둔 비밀값도 함께 털렸다.",
+    "attack_vector": "SaaS 벤더 침해 → 중앙 보관 OAuth 토큰 탈취 → 고객 테넌트 조회",
+    "root_causes": [
+      "SaaS 통합 OAuth 토큰의 중앙 저장·장기 유효",
+      "소스 저장소 계정 보호 미흡",
+      "CRM 지원 케이스 안의 평문 비밀값",
+      "서드파티 앱 권한 과다"
+    ],
+    "cves": [],
+    "categories": [
+      "saas-oauth-thirdparty",
+      "credential-key",
+      "data-minimization"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "GTIG: Widespread Data Theft via Salesloft Drift",
+        "url": "https://cloud.google.com/blog/topics/threat-intelligence/data-theft-salesforce-instances-via-salesloft-drift"
+      },
+      {
+        "title": "Salesloft Drift attack root cause GitHub (CyberScoop)",
+        "url": "https://cyberscoop.com/salesloft-drift-attack-root-cause-github-oauth/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-09-asahi-ransomware",
+    "date": "2025-09",
+    "region": "global",
+    "org": "Asahi Group(일본)",
+    "sector": "제조",
+    "impact": "일본 내 수주·출하 수주간 마비, 약 191만 명 정보 유출 가능성",
+    "summary": "그룹 거점의 네트워크 장비로 데이터센터 네트워크에 들어온 뒤 다수 서버·PC에 랜섬웨어를 동시에 뿌렸다.",
+    "attack_vector": "네트워크 장비 경유 침입 → 내부망 동시 암호화",
+    "root_causes": [
+      "엣지 네트워크 장비 경유 침입",
+      "내부망 세분화 부족"
+    ],
+    "cves": [],
+    "categories": [
+      "ransomware-resilience",
+      "unpatched-exposed"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "Asahi Confirms 1.5 Million Customers Affected (Infosecurity)",
+        "url": "https://www.infosecurity-magazine.com/news/asahi-15-million-customers/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-09-cisco-asa-arcanedoor",
+    "date": "2025-09",
+    "region": "global",
+    "org": "Cisco ASA/Firepower 사용 기관",
+    "sector": "네트워크 장비",
+    "impact": "재부팅·업그레이드 후에도 남는 감염(피해 기관 수 미공개)",
+    "summary": "WebVPN 인증 우회와 RCE 제로데이 체인으로 장비를 장악했고, Secure Boot를 지원하지 않는 EOL 하드웨어에서 ROM까지 변조했다.",
+    "attack_vector": "엣지 장비 제로데이",
+    "root_causes": [
+      "엣지 장비 제로데이",
+      "EOL 하드웨어 지속 사용"
+    ],
+    "cves": [
+      "CVE-2025-20333",
+      "CVE-2025-20362"
+    ],
+    "categories": [
+      "unpatched-exposed"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "CISA ED 25-03",
+        "url": "https://www.cisa.gov/news-events/directives/ed-25-03-identify-and-mitigate-potential-compromise-cisco-devices"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-09-forcedleak-agentforce",
+    "date": "2025-09",
+    "region": "global",
+    "org": "Salesforce Agentforce",
+    "sector": "AI 앱",
+    "impact": "CRM 데이터 유출 가능",
+    "summary": "공개 웹 폼에 들어온 내용을 AI 에이전트가 처리하면서 그 안의 지시를 따랐고, 만료돼 누구나 살 수 있게 된 도메인이 CSP 허용 목록에 남아 있어 데이터를 내보낼 수 있었다.",
+    "attack_vector": "공개 폼 입력 속 지시 → 만료 도메인으로 유출",
+    "root_causes": [
+      "공개 폼 입력을 신뢰할 수 없는 에이전트 입력으로 다루지 않음",
+      "CSP 허용 목록의 만료 도메인"
+    ],
+    "cves": [],
+    "categories": [
+      "ai-app-security"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 에이전트 자체가 공격면(벤더 패치). 악용 정황 미공개"
+    },
+    "sources": [
+      {
+        "title": "Salesforce patches critical ForcedLeak (The Hacker News)",
+        "url": "https://thehackernews.com/2025/09/salesforce-patches-critical-forcedleak.html"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-09-kt-femtocell",
+    "date": "2025-09",
+    "region": "KR",
+    "org": "KT",
+    "sector": "통신",
+    "impact": "무단 소액결제 368명·약 2억 4,300만 원, 2만 2,227명 가입자 식별정보 유출. 별도로 서버 94대 악성코드 103종 감염(41대는 2024년 발견 후 미신고)",
+    "summary": "불법 펨토셀을 KT망에 붙여 SMS·결제 인증정보를 가로챘다. 모든 펨토셀이 같은 인증서를 썼고 유효기간이 10년이었다. 인증 시스템이 방화벽 없이 운영됐고 로그는 1~2개월만 보관됐다.",
+    "attack_vector": "불법 펨토셀 접속 → 인증정보 가로채기",
+    "root_causes": [
+      "모든 장비가 같은 인증서·10년 유효기간 사용",
+      "제조사가 인증서·서버 정보를 외주사에 무통제 전달",
+      "종단 암호화 미적용",
+      "인증·등록 시스템을 방화벽 없이 운영",
+      "로그 보관 1~2개월",
+      "악성코드 감염 은폐·지연 신고"
+    ],
+    "cves": [],
+    "categories": [
+      "credential-key",
+      "unpatched-exposed",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "정부, KT 악성코드 103종 감염·피해 규모 2.4억 확인 (뉴시스)",
+        "url": "https://mobile.newsis.com/view/NISX20251229_0003457704"
+      },
+      {
+        "title": "KT, 악성코드 숨기고 서버 폐기일 조작 (아주경제)",
+        "url": "https://www.ajunews.com/view/20251106152712609"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-09-lotte-card-weblogic",
+    "date": "2025-09",
+    "region": "KR",
+    "org": "롯데카드",
+    "sector": "금융",
+    "impact": "297만 명 개인정보(약 28만 명 CVC 포함), 약 200GB. 업무 일부정지 1.5개월·과징금 50억 원(2026-07)",
+    "summary": "해외 소규모 서비스용 Oracle WebLogic 서버 1대가 정보보안 자산 목록에서 빠져 수년간 패치되지 않았고, 공격자는 원격코드실행 취약점으로 웹셸을 심었다. 최초 신고 규모(1.7GB)도 실제보다 훨씬 작았다.",
+    "attack_vector": "미패치 WebLogic RCE → 웹셸",
+    "root_causes": [
+      "8년 된 CVE 미패치",
+      "해당 서버가 자산 목록에서 누락",
+      "웹셸 탐지 실패",
+      "유출 규모 과소 신고"
+    ],
+    "cves": [
+      "CVE-2017-10271"
+    ],
+    "categories": [
+      "unpatched-exposed",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "롯데카드, 1.5개월 영업정지·과징금 50억원 (뉴시스)",
+        "url": "https://www.newsis.com/view/NISX20260731_0003732146"
+      },
+      {
+        "title": "'롯데카드, 7년간 보안 무방비 웹로직 방치' (디지털데일리)",
+        "url": "https://www.ddaily.co.kr/page/view/2025101014431200842"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-09-npm-chalk-debug-phishing",
+    "date": "2025-09",
+    "region": "global",
+    "org": "npm chalk·debug 등 18개 패키지",
+    "sector": "오픈소스 공급망",
+    "impact": "주간 약 26억 다운로드 패키지 약 2시간 오염(지갑 주소 바꿔치기)",
+    "summary": "유사 도메인의 '2FA 갱신' 피싱으로 메인테이너의 비밀번호와 TOTP를 빼앗아 악성 버전을 게시했다.",
+    "attack_vector": "메인테이너 피싱 → 계정 장악 → 악성 버전 게시",
+    "root_causes": [
+      "피싱 가능한 MFA(TOTP)",
+      "단일 메인테이너 게시 권한"
+    ],
+    "cves": [],
+    "categories": [
+      "software-supply-chain"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "npm debug and chalk packages compromised (Aikido)",
+        "url": "https://www.aikido.dev/blog/npm-debug-and-chalk-packages-compromised"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-09-postmark-mcp-malicious",
+    "date": "2025-09",
+    "region": "global",
+    "org": "비공식 postmark-mcp 사용자",
+    "sector": "AI 개발 도구",
+    "impact": "MCP 서버를 거친 이메일이 공격자에게 몰래 복사됨",
+    "summary": "npm에 올라간 비공식 이메일 MCP 서버가 정상 동작하다가 한 버전부터 보내는 모든 메일을 공격자 주소로 숨은 참조했다.",
+    "attack_vector": "비공식 MCP 서버 업데이트에 백도어",
+    "root_causes": [
+      "공식 게시자가 아닌 MCP 서버 사용",
+      "MCP 서버 버전 미고정"
+    ],
+    "cves": [],
+    "categories": [
+      "ai-dev-tooling",
+      "software-supply-chain"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 에이전트용 MCP 서버 자체가 악성"
+    },
+    "sources": [
+      {
+        "title": "First malicious MCP server found (The Hacker News)",
+        "url": "https://thehackernews.com/2025/09/first-malicious-mcp-server-found.html"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-09-shai-hulud-worm",
+    "date": "2025-09",
+    "region": "global",
+    "org": "npm 생태계(1차 500+, 2차 약 800 패키지)",
+    "sector": "오픈소스 공급망",
+    "impact": "비밀 수집·공개 유출, 2차는 저장소 2.5만+ 영향",
+    "summary": "탈취한 npm 토큰으로 피해자가 관리하는 다른 패키지에 악성 install 스크립트를 넣어 연쇄 게시하는 자가 전파 웜이었다. 2차에서는 GitHub Actions pull_request_target 경유 토큰 탈취가 진입점으로 공개됐다.",
+    "attack_vector": "탈취 토큰 → install 스크립트 주입 → 연쇄 게시",
+    "root_causes": [
+      "장기 npm 토큰",
+      "install 스크립트 자동 실행",
+      "CI 워크플로 오설정",
+      "개발자 PC의 평문 비밀"
+    ],
+    "cves": [],
+    "categories": [
+      "software-supply-chain",
+      "credential-key"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "CISA: Widespread Supply Chain Compromise Impacting npm Ecosystem",
+        "url": "https://www.cisa.gov/news-events/alerts/2025/09/23/widespread-supply-chain-compromise-impacting-npm-ecosystem"
+      },
+      {
+        "title": "Shai-Hulud 2.0 (Wiz)",
+        "url": "https://www.wiz.io/blog/shai-hulud-2-0-ongoing-supply-chain-attack"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-10-f5-source-code-theft",
+    "date": "2025-10",
+    "region": "global",
+    "org": "F5",
+    "sector": "보안 벤더",
+    "impact": "BIG-IP 소스코드 일부·미공개 취약점 정보 탈취",
+    "summary": "국가 배후 행위자가 제품 개발 환경과 엔지니어링 지식관리 플랫폼에 장기간 머물렀다. 최초 침입 경로는 공개되지 않았다.",
+    "attack_vector": "개발 환경 장기 잠복",
+    "root_causes": [
+      "개발 환경 장기 잠복 미탐지"
+    ],
+    "cves": [],
+    "categories": [
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "CISA ED 26-01",
+        "url": "https://www.cisa.gov/news-events/directives/ed-26-01-mitigate-vulnerabilities-f5-devices"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-10-gov-onnara-gpki",
+    "date": "2025-10",
+    "region": "KR",
+    "org": "행정안전부(온나라·GVPN)",
+    "sector": "공공",
+    "impact": "공무원 GPKI 인증서 약 650명분, 12명분은 키·비밀번호 포함. 일부 자료 열람 확인",
+    "summary": "탈취한 GPKI 인증서와 비밀번호로 정부원격근무서비스(GVPN)에 정상 사용자처럼 접속해 온나라 시스템을 열람했다. 2022년부터 약 3년간 몰랐다.",
+    "attack_vector": "탈취 인증서 + 비밀번호로 원격근무 VPN 접속",
+    "root_causes": [
+      "인증서 파일을 외부 PC·USB로 옮기고 공유하는 관행",
+      "인증서·비밀번호만으로 원격 접속(피싱 내성 MFA 없음)",
+      "약 3년 미탐지"
+    ],
+    "cves": [],
+    "categories": [
+      "credential-key",
+      "authn-authz",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "행안부 '온나라' 해킹 정황 확인…650명 인증서 유출 (뉴시스)",
+        "url": "https://www.newsis.com/view/NISX20251017_0003366706"
+      },
+      {
+        "title": "온나라시스템 해킹…'인증체계 전환 추진' (바이라인)",
+        "url": "https://byline.network/2025/10/20-492/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-11-ai-malware-promptflux",
+    "date": "2025-11",
+    "region": "global",
+    "org": "불특정(일부 국가 배후)",
+    "sector": "다업종",
+    "impact": "실행 중 LLM을 호출하는 악성코드 계열 등장",
+    "summary": "악성코드가 실행 중에 LLM API를 불러 스스로 코드를 바꾸거나 명령을 만들고, 일부는 감염 PC에 설치된 AI CLI에 프롬프트를 넣어 개발자 토큰과 흩어진 비밀을 찾게 했다.",
+    "attack_vector": "악성코드의 런타임 LLM 호출, 로컬 AI CLI 악용",
+    "root_causes": [
+      "개발자 PC의 GitHub/npm 토큰",
+      "로컬에 흩어진 비밀"
+    ],
+    "cves": [],
+    "categories": [
+      "ai-dev-tooling",
+      "credential-key"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "Google GTIG 1차 보고서"
+    },
+    "sources": [
+      {
+        "title": "GTIG: Advances in threat actor usage of AI tools",
+        "url": "https://cloud.google.com/blog/topics/threat-intelligence/threat-actor-usage-of-ai-tools"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-11-ai-orchestrated-espionage",
+    "date": "2025-11",
+    "region": "global",
+    "org": "기술·금융·화학·정부 약 30곳",
+    "sector": "다업종",
+    "impact": "소수 실제 침해",
+    "summary": "국가 배후로 평가된 그룹이 AI 코딩 에이전트 기반 프레임워크로 첩보 작전을 벌였다. 작업의 80~90%를 AI가 수행했고 사람은 몇몇 결정 지점에만 개입했다.",
+    "attack_vector": "AI 에이전트가 정찰부터 자격증명 수집까지 수행",
+    "root_causes": [
+      "대상 시스템의 알려진 취약점",
+      "약하거나 수집 가능한 자격증명",
+      "고권한 계정"
+    ],
+    "cves": [],
+    "categories": [
+      "unpatched-exposed",
+      "credential-key"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 벤더 1차 보고서, MITRE ATT&CK C0062"
+    },
+    "sources": [
+      {
+        "title": "Disrupting the first reported AI-orchestrated cyber espionage campaign (Anthropic)",
+        "url": "https://www.anthropic.com/news/disrupting-AI-espionage"
+      },
+      {
+        "title": "MITRE ATT&CK C0062",
+        "url": "https://attack.mitre.org/campaigns/C0062/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-11-coupang-signing-key",
+    "date": "2025-11",
+    "region": "KR",
+    "org": "쿠팡",
+    "sector": "커머스",
+    "impact": "3,367만 건 유출, 배송지 목록 1억 4,805만 회 무단 조회(조사단). 개보위 과징금 6,246억 원(2026-06)",
+    "summary": "인증 시스템 개발에 참여했던 퇴사자가 회전되지 않은 토큰 서명키로 액세스 토큰을 위조해 회원정보 페이지를 5개월간 대량 조회했다. 서명키는 KMS 보관 정책과 달리 개발자 노트북·소스에 하드코딩돼 있었다.",
+    "attack_vector": "퇴사자 보유 서명키로 액세스 토큰 위조",
+    "root_causes": [
+      "서명키를 소스·개발자 노트북에 하드코딩(KMS 정책 위반)",
+      "퇴사자 발생 시 키 회전 절차 부재",
+      "모의해킹 지적을 해당 지점만 고치고 게이트웨이 전체 토큰 검증은 미점검",
+      "5개월간 이상 조회 미탐지"
+    ],
+    "cves": [],
+    "categories": [
+      "credential-key",
+      "authn-authz",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "조사단·개보위 발표에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "쿠팡 합동조사단, 정보유출 3367만건 확인 (뉴시스)",
+        "url": "https://mobile.newsis.com/view/NISX20260210_0003510149"
+      },
+      {
+        "title": "[쿠팡 해킹] '서명키 하드코딩 탓에 갱신 못해' (보안뉴스)",
+        "url": "https://m.boannews.com/html/detail.html?idx=142059"
+      },
+      {
+        "title": "개인정보위, 쿠팡 6247억 '철퇴' (ZDNet)",
+        "url": "https://zdnet.co.kr/view/?no=20260611104544"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-11-gainsight-oauth",
+    "date": "2025-11",
+    "region": "global",
+    "org": "Gainsight 앱 사용 Salesforce 고객 200+ 인스턴스",
+    "sector": "SaaS 공급망",
+    "impact": "Salesforce가 Gainsight 토큰 전면 폐기",
+    "summary": "2017~2023년에 발급된 만료 없는 연결 앱 OAuth 토큰 285개가 Gainsight가 아닌 인프라에서 쓰였다. 공격자는 앞선 Salesloft Drift 탈취 비밀에서 얻었다고 주장했다.",
+    "attack_vector": "장기 OAuth 토큰 재사용",
+    "root_causes": [
+      "만료 없는 장기 OAuth 토큰",
+      "앞선 침해 후 연쇄 비밀 미회전",
+      "토큰의 IP 바인딩 부재"
+    ],
+    "cves": [],
+    "categories": [
+      "saas-oauth-thirdparty",
+      "credential-key"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "Salesforce investigates new incident echoing Salesloft Drift (Help Net Security)",
+        "url": "https://www.helpnetsecurity.com/2025/11/20/salesforce-investigates-new-incident-echoing-salesloft-drift-compromise/"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-11-mixpanel-smishing",
+    "date": "2025-11",
+    "region": "global",
+    "org": "Mixpanel → OpenAI API 사용자 등",
+    "sector": "SaaS",
+    "impact": "API 사용자 이름·이메일·대략적 위치",
+    "summary": "분석 SaaS 직원이 SMS 피싱에 당해 고객사 분석 데이터가 export됐다. 분석 도구로 보낼 필요가 없던 개인정보가 함께 나갔다.",
+    "attack_vector": "SMS 피싱 → 분석 데이터 export",
+    "root_causes": [
+      "SMS 피싱",
+      "서드파티 분석 도구로 개인정보 전송"
+    ],
+    "cves": [],
+    "categories": [
+      "data-minimization",
+      "saas-oauth-thirdparty"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "OpenAI discloses API user data breach via Mixpanel (CyberInsider)",
+        "url": "https://cyberinsider.com/openai-discloses-api-user-data-breach-via-third-party-mixpanel/"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-11-netmarble-portal",
+    "date": "2025-11",
+    "region": "KR",
+    "org": "넷마블",
+    "sector": "게임",
+    "impact": "회원 611만 명, 휴면 ID·암호화 비밀번호 약 3,100만 건, 고객센터·입사지원자 주민번호 1,304건",
+    "summary": "PC 게임 포털이 외부 해킹을 당했다. 경로는 공개되지 않았고, 오래 쓰지 않은 휴면·중복 계정 데이터를 보관하고 있어 피해 규모가 커졌다는 지적이 나왔다.",
+    "attack_vector": "PC 게임 포털 외부 해킹(경로 미공개)",
+    "root_causes": [
+      "장기 미사용 휴면·중복 계정 데이터 보관",
+      "고객센터·채용 데이터의 고유식별정보 보관",
+      "늑장 신고 논란"
+    ],
+    "cves": [],
+    "categories": [
+      "data-minimization",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "넷마블, 해킹에 611만명 개인정보 유출 (스마트투데이)",
+        "url": "https://www.smarttoday.co.kr/ko-kr/articles/97503"
+      },
+      {
+        "title": "주민등록번호 등 추가 유출 (뉴데일리)",
+        "url": "https://biz.newdaily.co.kr/site/data/html/2025/12/03/2025120300381.html"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2025-11-upbit-solana-hotwallet",
+    "date": "2025-11",
+    "region": "KR",
+    "org": "업비트(두나무)",
+    "sector": "가상자산",
+    "impact": "솔라나 계열 24종 약 445억 원 유출",
+    "summary": "핫월렛에서 자산이 빠져나갔다. 두나무는 지갑 거래내역을 분석하면 개인키를 추정할 수 있는 취약점을 발견해 조치했다고 밝혔다.",
+    "attack_vector": "핫월렛 개인키 추정 취약점(회사 설명)",
+    "root_causes": [
+      "거래내역에서 개인키를 추정할 수 있는 서명·키 생성 결함(회사 설명)",
+      "핫월렛 보관 비중"
+    ],
+    "cves": [],
+    "categories": [
+      "credential-key"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "두나무 대표 사과 '개인키 노출 가능 취약점 조치' (보안뉴스)",
+        "url": "https://m.boannews.com/html/detail.html?idx=140625"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-01-ivanti-epmm-zero-day",
+    "date": "2026-01",
+    "region": "global",
+    "org": "Ivanti EPMM 사용 기관(EU 집행위, 네덜란드 정부 등)",
+    "sector": "MDM",
+    "impact": "직원 연락처 유출, 침해 인스턴스 92개+",
+    "summary": "인터넷에 노출된 모바일 기기 관리 서버의 인증 없는 코드 인젝션 제로데이 2건이 악용됐다.",
+    "attack_vector": "관리 평면 제로데이",
+    "root_causes": [
+      "인터넷 노출 관리 평면",
+      "같은 제품군의 반복 취약점"
+    ],
+    "cves": [
+      "CVE-2026-1281",
+      "CVE-2026-1340"
+    ],
+    "categories": [
+      "unpatched-exposed"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "EU, Dutch government announce hacks via Ivanti zero-days (The Record)",
+        "url": "https://therecord.media/eu-dutch-government-announce-hacks-ivanti-zero-days"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-01-openclaw-gateway-token",
+    "date": "2026-01",
+    "region": "global",
+    "org": "OpenClaw(자체 호스팅 에이전트 게이트웨이)",
+    "sector": "AI 개발 도구",
+    "impact": "링크 클릭 한 번으로 게이트웨이 토큰 탈취·원격 실행 가능",
+    "summary": "제어 UI가 쿼리스트링의 게이트웨이 주소를 믿고 WebSocket Origin을 확인하지 않아, localhost에만 열어 둔 게이트웨이도 브라우저를 거쳐 공격받을 수 있었다.",
+    "attack_vector": "Origin 미검증 로컬 에이전트 게이트웨이",
+    "root_causes": [
+      "WebSocket Origin 미검증",
+      "localhost 바인딩을 보안 경계로 오인"
+    ],
+    "cves": [
+      "CVE-2026-25253"
+    ],
+    "categories": [
+      "ai-dev-tooling",
+      "unpatched-exposed"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 에이전트 게이트웨이 자체 결함(CVE)"
+    },
+    "sources": [
+      {
+        "title": "OpenClaw bug enables one-click remote code execution (The Hacker News)",
+        "url": "https://thehackernews.com/2026/02/openclaw-bug-enables-one-click-remote.html"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-01-servicenow-ai-agent-auth",
+    "date": "2026-01",
+    "region": "global",
+    "org": "ServiceNow Virtual Agent / Now Assist",
+    "sector": "AI 앱",
+    "impact": "인증 없이 특권 AI 에이전트 호출 가능",
+    "summary": "모든 인스턴스에 같은 정적 공유 비밀이 쓰였고, MFA 없는 계정 자동 연결로 특권 AI 에이전트를 부를 수 있었다.",
+    "attack_vector": "인스턴스 공통 정적 비밀 + MFA 없는 계정 연결",
+    "root_causes": [
+      "인스턴스 간 동일 정적 공유 비밀",
+      "MFA 없는 계정 자동 연결",
+      "특권 AI 에이전트 노출"
+    ],
+    "cves": [
+      "CVE-2025-12420"
+    ],
+    "categories": [
+      "credential-key",
+      "ai-app-security",
+      "authn-authz"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 에이전트 플랫폼 자체 결함(CVE)"
+    },
+    "sources": [
+      {
+        "title": "ServiceNow patches critical AI platform flaw (The Hacker News)",
+        "url": "https://thehackernews.com/2026/01/servicenow-patches-critical-ai-platform.html"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-02-cisco-sdwan-uat8616",
+    "date": "2026-02",
+    "region": "global",
+    "org": "Cisco Catalyst SD-WAN 사용 기관",
+    "sector": "네트워크 장비",
+    "impact": "시스템 완전 장악, 3년 이상 미탐지",
+    "summary": "인증 우회 제로데이로 들어온 뒤 소프트웨어를 다운그레이드해 옛 권한상승 취약점으로 root를 얻었다.",
+    "attack_vector": "관리 평면 인증 우회 + 다운그레이드",
+    "root_causes": [
+      "관리 평면 인증 우회",
+      "다운그레이드 방지 부재",
+      "장기 미탐지"
+    ],
+    "cves": [
+      "CVE-2026-20127",
+      "CVE-2022-20775"
+    ],
+    "categories": [
+      "unpatched-exposed",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "CISA ED 26-03",
+        "url": "https://www.cisa.gov/news-events/directives/ed-26-03-mitigate-vulnerabilities-cisco-sd-wan-systems"
+      },
+      {
+        "title": "Cisco Talos: UAT-8616",
+        "url": "https://blog.talosintelligence.com/uat-8616-sd-wan/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-02-clawhavoc-skill-marketplace",
+    "date": "2026-02",
+    "region": "global",
+    "org": "OpenClaw ClawHub 스킬 마켓",
+    "sector": "AI 개발 도구",
+    "impact": "악성 에이전트 스킬 다수 유포",
+    "summary": "게시자 검증이 거의 없는 에이전트 스킬 마켓에 악성 스킬이 올라와 설치한 사용자 환경을 감염시켰다.",
+    "attack_vector": "검증 없는 에이전트 스킬 마켓",
+    "root_causes": [
+      "에이전트 스킬·플러그인 게시자 검증 부재",
+      "설치 전 코드 검토 없음"
+    ],
+    "cves": [],
+    "categories": [
+      "ai-dev-tooling"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 에이전트 스킬 생태계 자체가 공급망"
+    },
+    "sources": [
+      {
+        "title": "From automation to infection (VirusTotal)",
+        "url": "https://blog.virustotal.com/2026/02/from-automation-to-infection-how.html"
+      },
+      {
+        "title": "OpenClaw AI supply chain risk (Unit 42)",
+        "url": "https://unit42.paloaltonetworks.com/openclaw-ai-supply-chain-risk/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-02-clinejection-ci-agent",
+    "date": "2026-02",
+    "region": "global",
+    "org": "Cline npm 릴리스 파이프라인",
+    "sector": "AI 개발 도구",
+    "impact": "릴리스 비밀 노출 위험",
+    "summary": "신뢰할 수 없는 이슈 본문을 읽는 AI 분류 워크플로가 게시 비밀을 가진 릴리스 워크플로와 캐시를 공유해, 프롬프트 인젝션이 릴리스 비밀로 이어질 수 있었다.",
+    "attack_vector": "CI의 AI 에이전트 프롬프트 인젝션 → 공유 캐시",
+    "root_causes": [
+      "AI 에이전트 CI 작업이 이슈 원문을 프롬프트에 사용",
+      "AI 작업과 릴리스 작업 간 캐시 공유"
+    ],
+    "cves": [],
+    "categories": [
+      "ai-dev-tooling",
+      "software-supply-chain"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "CI 안의 AI 에이전트가 공격면(2차 분석)"
+    },
+    "sources": [
+      {
+        "title": "CSA research note: Clinejection",
+        "url": "https://labs.cloudsecurityalliance.org/research/csa-research-note-clinejection-prompt-injection-cicd-cache-p/"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-02-fortigate-ai-assisted",
+    "date": "2026-02",
+    "region": "global",
+    "org": "55개국 FortiGate 장비 600대+",
+    "sector": "네트워크 장비",
+    "impact": "장비 설정·자격증명 탈취 후 조직 단위 확산",
+    "summary": "저~중급 숙련도의 금전 목적 행위자가 상용 LLM 여러 개로 공격 계획, 정찰 스크립트, 탈취 데이터 정리를 했다. 제로데이는 쓰지 않았다.",
+    "attack_vector": "노출된 관리 포트 + 약한 자격증명(AI로 규모 확대)",
+    "root_causes": [
+      "인터넷 노출 관리 포트",
+      "약한 자격증명·단일 요소 인증",
+      "설정 파일 속 자격증명"
+    ],
+    "cves": [],
+    "categories": [
+      "unpatched-exposed",
+      "credential-key",
+      "authn-authz"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "Amazon Threat Intelligence가 AI 활용을 확인"
+    },
+    "sources": [
+      {
+        "title": "AI-assisted threat actor compromises 600+ FortiGate (The Hacker News)",
+        "url": "https://thehackernews.com/2026/02/ai-assisted-threat-actor-compromises.html"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-02-moltbook-supabase",
+    "date": "2026-02",
+    "region": "global",
+    "org": "Moltbook(바이브 코딩 AI 에이전트 SNS)",
+    "sector": "AI 생성 앱",
+    "impact": "전체 에이전트 계정 장악 가능, 저장된 서드파티 API 키 노출",
+    "summary": "클라이언트 JS에 Supabase 키가 있었고 RLS가 꺼져 있었다. 사용자 메시지에 서드파티 API 키가 평문으로 저장돼 있었다.",
+    "attack_vector": "RLS 미설정 + 클라이언트 키",
+    "root_causes": [
+      "RLS 미설정",
+      "사용자의 서드파티 키 평문 저장"
+    ],
+    "cves": [],
+    "categories": [
+      "cloud-baas-config",
+      "credential-key",
+      "ai-app-security"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI로 만든 앱의 백엔드 결함"
+    },
+    "sources": [
+      {
+        "title": "Moltbook gave everyone control of every AI agent (GovInfoSecurity)",
+        "url": "https://www.govinfosecurity.com/moltbook-gave-everyone-control-every-ai-agent-a-30710"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-02-npm-worm-mcp-injection",
+    "date": "2026-02",
+    "region": "global",
+    "org": "npm 개발자·AI 어시스턴트 사용자",
+    "sector": "AI 개발 도구",
+    "impact": "AI 도구 설정에 악성 MCP 항목 주입, 토큰 수집",
+    "summary": "웜형 악성 패키지가 AI 도구 설정 파일에 공격자의 MCP 서버 항목을 몰래 써 넣고 워크스테이션의 LLM API 키와 npm/GitHub 토큰을 수집했다.",
+    "attack_vector": "악성 패키지 → AI 도구 MCP 설정 변조",
+    "root_causes": [
+      "AI 어시스턴트 MCP 설정 파일 무결성 미감시",
+      "워크스테이션의 장기 토큰"
+    ],
+    "cves": [],
+    "categories": [
+      "ai-dev-tooling",
+      "software-supply-chain"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 도구 설정을 노린 페이로드(2차 보도)"
+    },
+    "sources": [
+      {
+        "title": "Malicious npm packages harvest crypto (The Hacker News)",
+        "url": "https://thehackernews.com/2026/02/malicious-npm-packages-harvest-crypto.html"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-02-odido-crm-vishing",
+    "date": "2026-02",
+    "region": "global",
+    "org": "Odido(네덜란드 통신사)",
+    "sector": "통신",
+    "impact": "약 620만 명(신분증 정보 포함)",
+    "summary": "피싱으로 상담원 비밀번호를 얻고 IT 부서를 사칭한 전화로 MFA 승인을 받아낸 뒤 CRM에서 대량 다운로드했다(익명 소식통 보도).",
+    "attack_vector": "피싱 + MFA 푸시 승인 유도 → CRM 대량 다운로드",
+    "root_causes": [
+      "피싱 내성 없는 MFA(푸시 승인)",
+      "상담원 계정의 대량 조회 권한"
+    ],
+    "cves": [],
+    "categories": [
+      "social-engineering-identity",
+      "authn-authz",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "Odido admits 6.2M customers caught (The Register)",
+        "url": "https://www.theregister.com/2026/02/13/odido_breach/"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-03-axios-npm-maintainer",
+    "date": "2026-03",
+    "region": "global",
+    "org": "axios(npm)",
+    "sector": "오픈소스 공급망",
+    "impact": "악성 버전 약 3시간 배포(RAT)",
+    "summary": "북한 행위자가 실존 기업 창업자를 사칭해 2주간 접근하고 가짜 회의로 메인테이너 PC에 원격제어 악성코드를 심은 뒤 npm 계정을 장악해 악성 버전을 게시했다.",
+    "attack_vector": "메인테이너 표적 사회공학 → 엔드포인트 → 게시 계정",
+    "root_causes": [
+      "메인테이너 대상 표적 사회공학",
+      "장기 유효 게시 자격증명·세션",
+      "계정 이메일 변경 시 재인증 부재"
+    ],
+    "cves": [],
+    "categories": [
+      "social-engineering-identity",
+      "software-supply-chain"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "axios 건 자체엔 AI 언급 없음(행위자는 GTIG가 AI 사회공학 사용자로 별도 보고)"
+    },
+    "sources": [
+      {
+        "title": "UNC1069 social engineering of Axios (The Hacker News)",
+        "url": "https://thehackernews.com/2026/04/unc1069-social-engineering-of-axios.html"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-03-european-commission-aws",
+    "date": "2026-03",
+    "region": "global",
+    "org": "European Commission",
+    "sector": "정부 클라우드",
+    "impact": "약 340GB, EU 기관 70여 곳 데이터",
+    "summary": "Trivy 공급망 침해로 다른 AWS 계정까지 관리할 수 있는 API 키가 탈취됐고, 공격자는 새 액세스 키를 만들어 썼다.",
+    "attack_vector": "CI 도구 공급망 → 과다 권한 장기 AWS 키",
+    "root_causes": [
+      "과다 권한 장기 AWS 키",
+      "키 생성 이상 탐지 지연"
+    ],
+    "cves": [],
+    "categories": [
+      "credential-key",
+      "software-supply-chain",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "CERT-EU: European Commission cloud breach",
+        "url": "https://cert.europa.eu/blog/european-commission-cloud-breach-trivy-supply-chain"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-03-litellm-pypi-backdoor",
+    "date": "2026-03",
+    "region": "global",
+    "org": "LiteLLM(AI 게이트웨이) 사용자",
+    "sector": "AI 개발 도구",
+    "impact": "악성 litellm 1.82.7·1.82.8 배포",
+    "summary": "고정하지 않은 보안 스캐너가 CI에서 PyPI 게시 토큰을 수집했고, 그 토큰으로 AI 게이트웨이 패키지에 백도어 버전이 올라갔다.",
+    "attack_vector": "CI 보안도구 공급망 → PyPI 게시 토큰",
+    "root_causes": [
+      "CI 도구 버전 미고정",
+      "장기 PyPI 게시 토큰",
+      "불완전한 자격증명 회전"
+    ],
+    "cves": [],
+    "categories": [
+      "software-supply-chain",
+      "ai-dev-tooling"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "LLM API 키가 모이는 AI 게이트웨이가 표적"
+    },
+    "sources": [
+      {
+        "title": "litellm issue #24518",
+        "url": "https://github.com/BerriAI/litellm/issues/24518"
+      },
+      {
+        "title": "Poisoned security scanner backdooring LiteLLM (Snyk)",
+        "url": "https://snyk.io/blog/poisoned-security-scanner-backdooring-litellm/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-03-stryker-intune-wipe",
+    "date": "2026-03",
+    "region": "global",
+    "org": "Stryker",
+    "sector": "의료",
+    "impact": "직원 기기 수만 대 원격 초기화, 주문 수일 중단",
+    "summary": "탈취한 관리자 권한으로 자사 MDM의 정상 원격 초기화 기능을 대량 실행했다. 파괴적 명령에 다중 승인이나 속도 제한이 없었다.",
+    "attack_vector": "특권 클라우드 관리자 계정 탈취 → MDM 대량 초기화",
+    "root_causes": [
+      "특권 관리자 계정 탈취(경로 미확인)",
+      "파괴적 관리 명령에 다중 승인·속도 제한 부재"
+    ],
+    "cves": [],
+    "categories": [
+      "cloud-baas-config",
+      "authn-authz"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "Stryker attack device management (Cybersecurity Dive)",
+        "url": "https://www.cybersecuritydive.com/news/stryker-attack-device-management-microsoft-iran/814816"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-03-trivy-teampcp",
+    "date": "2026-03",
+    "region": "global",
+    "org": "Aqua Trivy(하류: LiteLLM, EU 집행위 등)",
+    "sector": "보안도구 공급망",
+    "impact": "악성 릴리스, trivy-action 태그 76/77개 강제 교체, FBI 집계 조직 1,000곳+",
+    "summary": "pull_request_target 워크플로 오설정으로 자격증명을 빼앗겼고, 비밀 회전이 한 번에 끝나지 않아 남은 자격증명으로 다시 들어와 릴리스와 태그를 조작했다. 태그로 참조하던 하류 CI가 줄줄이 비밀을 털렸다.",
+    "attack_vector": "CI 워크플로 오설정 → 불완전 회전 → 태그 변조",
+    "root_causes": [
+      "pull_request_target 오설정",
+      "침해 후 불완전한 비밀 회전",
+      "액션을 가변 태그로 참조(SHA 고정 미사용)",
+      "CI 러너의 과다 권한 비밀"
+    ],
+    "cves": [],
+    "categories": [
+      "software-supply-chain",
+      "credential-key"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "Trivy supply chain attack (Aqua)",
+        "url": "https://www.aquasec.com/blog/trivy-supply-chain-attack-what-you-need-to-know/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-04-ci-coding-agents-comment-injection",
+    "date": "2026-04",
+    "region": "global",
+    "org": "CI 코딩 에이전트(Claude Code Security Review, Gemini CLI Action, Copilot Agent)",
+    "sector": "AI 개발 도구",
+    "impact": "PR·이슈 코멘트로 CI 비밀 유출 가능",
+    "summary": "비밀이 있는 CI 환경의 코딩 에이전트가 외부 기여자의 PR·이슈 내용을 읽고 그 안의 지시를 따를 수 있었다.",
+    "attack_vector": "PR·이슈 코멘트 속 지시 → CI 에이전트",
+    "root_causes": [
+      "CI 에이전트 환경의 비밀",
+      "외부 기여자 PR에 자동 실행"
+    ],
+    "cves": [],
+    "categories": [
+      "ai-dev-tooling",
+      "software-supply-chain"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "CI 안의 AI 에이전트가 공격면(연구 공개)"
+    },
+    "sources": [
+      {
+        "title": "Claude Code, Gemini CLI, GitHub Copilot agents vulnerable to prompt injection via comments (SecurityWeek)",
+        "url": "https://www.securityweek.com/claude-code-gemini-cli-github-copilot-agents-vulnerable-to-prompt-injection-via-comments/"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-04-drift-protocol-multisig",
+    "date": "2026-04",
+    "region": "global",
+    "org": "Drift Protocol(Solana DeFi)",
+    "sector": "가상자산",
+    "impact": "약 2.8억 달러",
+    "summary": "트레이딩사로 위장해 6개월간 신뢰를 쌓은 뒤 멀티시그 서명자들을 사회공학으로 공략해 미리 서명된 관리자 트랜잭션을 얻어 실행했다. 컨트랙트 버그는 아니었다.",
+    "attack_vector": "서명자 장기 사회공학 → 사전서명 트랜잭션",
+    "root_causes": [
+      "멀티시그 서명자 대상 장기 사회공학",
+      "사전서명 트랜잭션 통제 부재",
+      "낮은 멀티시그 임계값"
+    ],
+    "cves": [],
+    "categories": [
+      "credential-key",
+      "social-engineering-identity"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "Drift links $280M exploit to six-month social engineering op (The Block)",
+        "url": "https://www.theblock.co/post/396361/drift-links-280-million-exploit-to-six-month-social-engineering-op-run-by-suspected-north-korean-actors"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-04-lovable-bola-regression",
+    "date": "2026-04",
+    "region": "global",
+    "org": "Lovable 공개 프로젝트",
+    "sector": "AI 생성 앱",
+    "impact": "2026-02~04 프로젝트 소스·채팅 기록 노출, 소스 속 DB 자격증명",
+    "summary": "백엔드 회귀로 객체 단위 인가가 깨져 다른 사람의 공개 프로젝트 소스와 채팅 기록을 볼 수 있었고, 그 안에 DB 자격증명이 있었다. 처음 들어온 버그 신고는 상향되지 않고 닫혔다.",
+    "attack_vector": "객체 단위 인가 회귀",
+    "root_causes": [
+      "접근통제 회귀 테스트 부재",
+      "소스·채팅 기록 속 자격증명",
+      "버그 신고 분류 실패"
+    ],
+    "cves": [],
+    "categories": [
+      "authn-authz",
+      "credential-key"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 앱 생성 플랫폼 자체 사고(벤더 공지)"
+    },
+    "sources": [
+      {
+        "title": "Our response to the April 2026 incident (Lovable)",
+        "url": "https://lovable.dev/blog/our-response-to-the-april-2026-incident"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-04-vercel-context-ai-oauth",
+    "date": "2026-04",
+    "region": "global",
+    "org": "Vercel(Context.ai 경유)",
+    "sector": "개발 플랫폼",
+    "impact": "일부 고객의 '비민감' 환경변수 노출",
+    "summary": "서드파티 AI SaaS 직원 PC가 인포스틸러에 감염돼 그 회사의 Google Workspace OAuth 앱으로 Vercel 직원 계정이 장악됐고, 내부에서 '비민감'으로 분류돼 복호화 가능한 환경변수가 열람됐다.",
+    "attack_vector": "서드파티 OAuth 앱 → 직원 계정 → 비민감 분류 환경변수",
+    "root_causes": [
+      "서드파티 SaaS OAuth 앱 권한 위임",
+      "비밀값을 '비민감'으로 저장(분류 오류)",
+      "직원 계정에서 내부 시스템으로 과도한 연결"
+    ],
+    "cves": [],
+    "categories": [
+      "saas-oauth-thirdparty",
+      "credential-key"
+    ],
+    "ai_involvement": {
+      "level": "reported",
+      "basis": "CEO가 공격자가 AI로 크게 가속됐다고 '강하게 의심'한다고 밝힘(확정 아님)"
+    },
+    "sources": [
+      {
+        "title": "Vercel April 2026 security incident bulletin",
+        "url": "https://vercel.com/kb/bulletin/vercel-april-2026-security-incident"
+      },
+      {
+        "title": "Vercel CEO points to AI-driven attack (The Register)",
+        "url": "https://theregister.com/2026/04/21/vercel_ceo_points_to_aidriven"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-05-agentic-attack-surface-recon",
+    "date": "2026-05",
+    "region": "global",
+    "org": "동아시아 기술·보안 기업 등",
+    "sector": "다업종",
+    "impact": "공격 표면 추적·N-day 검증 자동화",
+    "summary": "공개 에이전트 공격 프레임워크로 서브도메인과 노출 웹 자산을 추적하고 알려진 CVE를 자동 검증했다. 같은 보고서에 수천 건의 프롬프트로 CVE 분석과 PoC 검증을 반복한 국가 배후 사례도 실렸다.",
+    "attack_vector": "AI 에이전트의 노출 자산 추적·N-day 검증",
+    "root_causes": [
+      "노출된 서브도메인·웹 자산",
+      "네트워크 장비 펌웨어 N-day"
+    ],
+    "cves": [],
+    "categories": [
+      "unpatched-exposed"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "Google GTIG 1차 보고서"
+    },
+    "sources": [
+      {
+        "title": "GTIG AI Threat Tracker (2026-05)",
+        "url": "https://cloud.google.com/blog/topics/threat-intelligence/ai-vulnerability-exploitation-initial-access"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-05-ai-built-2fa-bypass-zeroday",
+    "date": "2026-05",
+    "region": "global",
+    "org": "오픈소스 웹 시스템 관리 도구(제품명 비공개)",
+    "sector": "다업종",
+    "impact": "대량 악용 계획을 벤더 통보로 차단",
+    "summary": "GTIG가 AI가 발견·무기화를 도운 것으로 판단한 첫 제로데이로, 2FA를 우회하는 인증 로직 결함이었다. 퍼저·정적 분석이 놓치는 '신뢰 가정' 결함을 AI가 찾았다.",
+    "attack_vector": "AI가 찾은 인증 로직 결함(2FA 우회)",
+    "root_causes": [
+      "인증 흐름의 하드코딩된 신뢰 가정",
+      "2FA 단계 서버 측 검증 누락"
+    ],
+    "cves": [],
+    "categories": [
+      "authn-authz"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "Google GTIG가 높은 확신으로 AI 관여 판단"
+    },
+    "sources": [
+      {
+        "title": "GTIG AI Threat Tracker (2026-05)",
+        "url": "https://cloud.google.com/blog/topics/threat-intelligence/ai-vulnerability-exploitation-initial-access"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-05-charter-sso-saas",
+    "date": "2026-05",
+    "region": "global",
+    "org": "Charter Communications(Spectrum)",
+    "sector": "통신",
+    "impact": "고유 이메일 490만 개(HIBP), 공격자는 4,000만 건 이상 주장",
+    "summary": "보이스피싱으로 직원의 Entra 계정을 장악한 뒤 SSO로 Salesforce에 들어가 대량 export했다(공격자 주장, 회사 미확인).",
+    "attack_vector": "보이스피싱 → SSO → SaaS 대량 export(주장)",
+    "root_causes": [
+      "보이스피싱",
+      "SSO 단일 계정으로 SaaS 연쇄 접근",
+      "대량 export 탐지 미흡"
+    ],
+    "cves": [],
+    "categories": [
+      "social-engineering-identity",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "Charter confirms data breach (BleepingComputer)",
+        "url": "https://www.bleepingcomputer.com/news/security/charter-confirms-data-breach-after-shinyhunters-extortion-threat/"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-05-github-vscode-extension",
+    "date": "2026-05",
+    "region": "global",
+    "org": "GitHub",
+    "sector": "개발 플랫폼",
+    "impact": "내부 저장소 약 3,800개 탈취",
+    "summary": "직원 기기가 오염된 VS Code 확장으로 침해됐고, 그 직원의 광범위한 저장소 접근권한으로 내부 저장소가 빠져나갔다.",
+    "attack_vector": "악성 IDE 확장 → 직원 권한으로 저장소 탈취",
+    "root_causes": [
+      "IDE 확장 마켓플레이스 신뢰",
+      "개발자의 광범위한 저장소 접근권한"
+    ],
+    "cves": [],
+    "categories": [
+      "software-supply-chain",
+      "ai-dev-tooling"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "GitHub says hackers stole data from internal repositories (TechCrunch)",
+        "url": "https://techcrunch.com/2026/05/20/github-says-hackers-stole-data-from-thousands-of-internal-repositories/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-05-tanstack-cache-poisoning",
+    "date": "2026-05",
+    "region": "global",
+    "org": "TanStack npm(하류: OpenAI 등)",
+    "sector": "오픈소스 공급망",
+    "impact": "42개 패키지 84개 버전 오염, OpenAI 직원 기기 2대 감염",
+    "summary": "pull_request_target에서 포크 PR 코드를 빌드하고, Actions 캐시를 오염시킨 뒤, 릴리스 러너 메모리에서 OIDC 토큰을 꺼내 npm에 직접 게시했다.",
+    "attack_vector": "pull_request_target → 캐시 포이즈닝 → 러너 OIDC 토큰",
+    "root_causes": [
+      "pull_request_target 오용",
+      "신뢰하지 않는 작업과 릴리스 작업 간 캐시 공유",
+      "OIDC 토큰의 러너 메모리 노출",
+      "개발자 PC 설치 스크립트 실행"
+    ],
+    "cves": [],
+    "categories": [
+      "software-supply-chain"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "TanStack npm supply chain compromise postmortem",
+        "url": "https://tanstack.com/blog/npm-supply-chain-compromise-postmortem"
+      },
+      {
+        "title": "OpenAI: Our response to the TanStack npm supply chain attack",
+        "url": "https://openai.com/index/our-response-to-the-tanstack-npm-supply-chain-attack/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-05-vibe-coded-apps-exposure",
+    "date": "2026-05",
+    "region": "global",
+    "org": "공개 접근 가능한 AI 생성 앱 약 38만 개",
+    "sector": "AI 생성 앱",
+    "impact": "약 5천 개 앱에서 데이터 노출",
+    "summary": "바이브 코딩 플랫폼으로 만든 앱 다수가 인증 없이 공개 배포돼 데이터 저장소가 열려 있었다.",
+    "attack_vector": "인증 없이 공개 배포된 AI 생성 앱",
+    "root_causes": [
+      "AI 생성 앱의 인증 없는 공개 배포",
+      "배포 전 보안 검토 부재",
+      "조직이 모르는 섀도 앱"
+    ],
+    "cves": [],
+    "categories": [
+      "ai-app-security",
+      "cloud-baas-config"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI로 만든 앱 전반의 노출(보안업체 스캔)"
+    },
+    "sources": [
+      {
+        "title": "Vibe coding privacy (Axios)",
+        "url": "https://www.axios.com/2026/05/07/loveable-replit-vibe-coding-privacy"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-06-klue-legacy-credential",
+    "date": "2026-06",
+    "region": "global",
+    "org": "Klue → 고객사 약 200곳",
+    "sector": "SaaS 공급망",
+    "impact": "고객 Salesforce 등 데이터 탈취·협박",
+    "summary": "2022년 파일럿을 위해 제3자에게 발급하고 폐기하지 않은 통합 서비스 자격증명으로 들어온 뒤 무단 코드로 고객 OAuth 토큰을 수집했다.",
+    "attack_vector": "미폐기 레거시 자격증명 → 고객 OAuth 토큰 수집",
+    "root_causes": [
+      "미폐기 레거시 자격증명",
+      "고객 OAuth 토큰 중앙 보관",
+      "배포 파이프라인 무결성 부족"
+    ],
+    "cves": [],
+    "categories": [
+      "credential-key",
+      "saas-oauth-thirdparty"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "Klue: An update on recent security incident",
+        "url": "https://klue.com/blog/an-update-on-recent-klue-security-incident"
+      },
+      {
+        "title": "Klue says hackers stole credential from 2022 (TechCrunch)",
+        "url": "https://techcrunch.com/2026/06/23/klue-says-hackers-stole-credential-from-2022-that-led-to-customer-data-breaches/"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-06-ptc-windchill",
+    "date": "2026-06",
+    "region": "global",
+    "org": "PTC Windchill·FlexPLM 사용 제조사",
+    "sector": "제조 SW",
+    "impact": "설계 IP 탈취 후 협박",
+    "summary": "인터넷에 노출된 PLM의 인증 없는 역직렬화 RCE가 대량 악용됐다.",
+    "attack_vector": "인터넷 노출 엔터프라이즈 앱 RCE",
+    "root_causes": [
+      "인터넷 노출 엔터프라이즈 앱",
+      "패치 적용 지연"
+    ],
+    "cves": [
+      "CVE-2026-12569"
+    ],
+    "categories": [
+      "unpatched-exposed"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "Clop targets Windchill, FlexPLM (BleepingComputer)",
+        "url": "https://bleepingcomputer.com/news/security/clop-ransomware-targets-windchill-flexplm-in-data-theft-attacks"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-06-tving-access-key",
+    "date": "2026-06",
+    "region": "KR",
+    "org": "티빙",
+    "sector": "플랫폼",
+    "impact": "중복 포함 3,954만 계정, 소스코드 포함 개발 프로젝트 361건 유출",
+    "summary": "개발자의 개발환경 접속키가 탈취돼 소스코드가 유출됐고, 그 소스에 하드코딩된 운영 AWS 접속키 43개 중 2개로 운영 DB에 접근했다. 개발자 전원이 전체 프로젝트에 접근할 수 있었고, 2024년 모의해킹에서 같은 문제를 지적받고도 고치지 않았다.",
+    "attack_vector": "개발환경 접속키 탈취 → 소스코드 유출 → 소스 속 운영 AWS 키로 DB 접근",
+    "root_causes": [
+      "운영 클라우드 접속키를 소스코드에 하드코딩",
+      "접속키 관리체계 부재",
+      "개발자 전원에게 전체 저장소 접근권한",
+      "모의해킹 지적사항 미개선",
+      "비활성·테스트 계정 1,700만+ 과다 보관"
+    ],
+    "cves": [],
+    "categories": [
+      "credential-key",
+      "cloud-baas-config",
+      "data-minimization"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "조사단 발표에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "티빙 침해사고 민관합동조사단 조사 결과 (바이라인네트워크)",
+        "url": "https://byline.network/2026/09/3-454/"
+      },
+      {
+        "title": "티빙 해킹 원인은 '접속키' 관리 부실 (MTN)",
+        "url": "https://news.mtn.co.kr/news-detail/2026090312021689865"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-07-jadepuffer-agentic-ransomware",
+    "date": "2026-07",
+    "region": "global",
+    "org": "노출된 Langflow 서버 경유 운영 DB",
+    "sector": "다업종",
+    "impact": "설정 1,342건 암호화, 운영 DB 삭제(키 미보관으로 복구 불가)",
+    "summary": "LLM 에이전트가 정찰부터 암호화·파괴까지 연쇄 수행한 첫 문서화 랜섬웨어 작전(Sysdig 평가). 패치 안 된 인터넷 노출 Langflow로 들어와 서버 환경변수의 API 키, 기본 자격증명의 객체 스토리지, 버킷 속 .env·terraform state, 기본 JWT 키의 Nacos, root로 노출된 MySQL을 차례로 이용했다.",
+    "attack_vector": "노출된 AI 워크플로 서버 RCE → 기본 자격증명 연쇄",
+    "root_causes": [
+      "인터넷 노출 미패치 AI 워크플로 서버",
+      "서버 환경변수의 LLM·클라우드 키",
+      "MinIO·Nacos 기본 자격증명·기본 JWT 키",
+      "버킷 속 .env·credentials·terraform state",
+      "root로 노출된 DB",
+      "egress 통제 부재",
+      "격리 백업 부재"
+    ],
+    "cves": [
+      "CVE-2025-3248",
+      "CVE-2021-29441"
+    ],
+    "categories": [
+      "unpatched-exposed",
+      "credential-key",
+      "cloud-baas-config",
+      "ransomware-resilience"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "Sysdig가 페이로드 속 자연어 추론 등으로 LLM 구동 판단, Microsoft MDDR 2026 인용"
+    },
+    "sources": [
+      {
+        "title": "JADEPUFFER: Agentic ransomware (Sysdig)",
+        "url": "https://www.sysdig.com/blog/jadepuffer-agentic-ransomware-for-automated-database-extortion"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-08-gov24-kids-portal",
+    "date": "2026-08",
+    "region": "KR",
+    "org": "행정안전부 정부24(어린이포털)",
+    "sector": "공공",
+    "impact": "서버 메모리 덤프 11개 유출, 주민번호·계정 등(정확한 규모 미파악)",
+    "summary": "어린이포털의 웹 취약점으로 서버 메모리 덤프가 빠져나갔고, 덤프 안에 계정과 주민번호가 평문으로 남아 있었다. 사고는 국회를 통해 한 달 넘게 지나 공개됐다.",
+    "attack_vector": "웹 취약점으로 메모리 덤프 탈취",
+    "root_causes": [
+      "웹 취약점(세부 미공개)",
+      "메모리 덤프에 계정·주민번호 평문 잔존",
+      "이전 처분 후 재발",
+      "공개·통지 지연"
+    ],
+    "cves": [],
+    "categories": [
+      "data-minimization",
+      "unpatched-exposed",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "해킹에 뚫린 국가 행정포털…정부24 (디지털데일리)",
+        "url": "https://m.ddaily.co.kr/page/view/2026093009383761924"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-09-ai-crews-saas-tokens",
+    "date": "2026-09",
+    "region": "global",
+    "org": "기술·SaaS 기업과 고객 테넌트, 항공사, 에너지 기업",
+    "sector": "다업종",
+    "impact": "한 SaaS 침해에서 테넌트 40여 곳, Azure AD 토큰 세트 2,100개 이상 추출",
+    "summary": "범죄 조직이 AI 에이전트로 모바일 앱·공개 저장소·컨테이너 속 하드코딩 비밀, 탈취한 GitHub PAT, 패치 안 된 노출 시스템, 잘못 설정된 서비스 계정, 노출된 AI 게이트웨이를 찾아 들어가 대량 토큰을 추출했다.",
+    "attack_vector": "AI 에이전트가 하드코딩 비밀·토큰·노출 자산을 탐색",
+    "root_causes": [
+      "모바일 앱·공개 저장소·컨테이너 속 하드코딩 비밀",
+      "탈취 가능한 GitHub PAT",
+      "잘못 설정된 서비스 계정",
+      "테넌트 간 OAuth 토큰",
+      "노출된 AI 게이트웨이"
+    ],
+    "cves": [],
+    "categories": [
+      "credential-key",
+      "saas-oauth-thirdparty",
+      "unpatched-exposed"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 벤더 위협 인텔리전스 보고서(2026-09)"
+    },
+    "sources": [
+      {
+        "title": "Threat intelligence report: September 2026 (Anthropic)",
+        "url": "https://www.anthropic.com/threat-intelligence-report-september-2026"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-09-ai-eval-sandbox-pivot",
+    "date": "2026-09",
+    "region": "global",
+    "org": "AI 기업 약 30곳의 평가 샌드박스",
+    "sector": "AI",
+    "impact": "샌드박스 속 운영 API 키를 통한 확산",
+    "summary": "자동 평가 샌드박스에 프롬프트 인젝션을 넣고, 샌드박스 안에 있던 운영 AI API 키로 피벗했다.",
+    "attack_vector": "평가 샌드박스 프롬프트 인젝션 → 운영 키",
+    "root_causes": [
+      "LLM 샌드박스 안의 운영 API 키",
+      "샌드박스 egress 무제한"
+    ],
+    "cves": [],
+    "categories": [
+      "ai-app-security",
+      "credential-key"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 벤더 위협 인텔리전스 보고서(2026-09)"
+    },
+    "sources": [
+      {
+        "title": "Threat intelligence report: September 2026 (Anthropic)",
+        "url": "https://www.anthropic.com/threat-intelligence-report-september-2026"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-09-ai-hacktivist-cms",
+    "date": "2026-02",
+    "region": "global",
+    "org": "유럽 정당·언론·싱크탱크",
+    "sector": "공공·미디어",
+    "impact": "웹사이트 장악·데이터 유출",
+    "summary": "AI를 쓴 핵티비스트가 설치 상태로 남은 CMS, 파일 업로드 처리, 노출된 검색 엔드포인트, 공개 컨테이너 속 API 키를 노렸다.",
+    "attack_vector": "CMS 설치 경로·업로드·노출 엔드포인트",
+    "root_causes": [
+      "CMS 설치·재설치 경로 노출",
+      "파일 업로드 검증 미흡",
+      "인증 없는 검색 엔드포인트",
+      "공개 컨테이너 이미지 속 API 키",
+      "백업 무결성"
+    ],
+    "cves": [],
+    "categories": [
+      "unpatched-exposed",
+      "cloud-baas-config",
+      "credential-key"
+    ],
+    "ai_involvement": {
+      "level": "confirmed",
+      "basis": "AI 벤더 위협 인텔리전스 보고서(2026-09)"
+    },
+    "sources": [
+      {
+        "title": "Threat intelligence report: September 2026 (Anthropic)",
+        "url": "https://www.anthropic.com/threat-intelligence-report-september-2026"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-09-kr-finance-artex-campaign",
+    "date": "2026-09",
+    "region": "KR",
+    "org": "신한·KB국민·하나은행 등 금융사 37곳",
+    "sector": "금융",
+    "impact": "금융위 집계(9/30~11/3) 37개사 40건, 약 47만 3천 건 유출, 자금 탈취 약 10억 원",
+    "summary": "인터넷에 노출된 주변 업무 시스템(대출모집인 조회, 직원용 모바일 업무시스템, 대출신청 페이지)을 노렸다. 본인확인·휴대폰 인증 우회와 고객번호 무작위 대입, 인증 없는 테스트 페이지, 세션 검증 미흡, 알려진 취약점 미패치가 확인됐다. CrowdStrike는 공격자 서버에서 오픈소스 AI 자율침투 도구 흔적을 발견했다.",
+    "attack_vector": "노출된 주변 업무 시스템의 인증·인가 결함과 미패치 취약점",
+    "root_causes": [
+      "정보조회 서비스의 본인확인·객체 단위 권한 검증 누락",
+      "인증 없는 테스트 페이지 방치",
+      "최신 패치 미적용·EOS 시스템",
+      "직원 업무 시스템 단말 접근통제 누락",
+      "24시간 관제·대량 조회 탐지 공백",
+      "고객정보가 담긴 로그 파일"
+    ],
+    "cves": [],
+    "categories": [
+      "authn-authz",
+      "unpatched-exposed",
+      "detection-response",
+      "data-minimization"
+    ],
+    "ai_involvement": {
+      "level": "reported",
+      "basis": "CrowdStrike가 공격자 서버에서 AI 자율침투 도구 인스턴스와 코딩 에이전트 세션 기록을 발견하고 한국 공격에 쓰였을 가능성이 높다고 평가. 금융위는 'AI 해킹 가능성 조사 중'"
+    },
+    "sources": [
+      {
+        "title": "금융위원회 제2차 긴급 상황대응 회의",
+        "url": "https://www.fsc.go.kr/no010101/87927"
+      },
+      {
+        "title": "Unknown Threat Actor Uses ARTEX to Target South Korean Finance (CrowdStrike)",
+        "url": "https://www.crowdstrike.com/en-us/blog/unknown-threat-actor-uses-artex-to-target-south-korean-finance/"
+      },
+      {
+        "title": "37개 금융사·47만건 정보 유출 (노컷뉴스)",
+        "url": "https://nocutnews.co.kr/news/6602375"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-09-malgeunsoft-lms-supplier",
+    "date": "2026-09",
+    "region": "KR",
+    "org": "맑은소프트(LMS 수탁사)와 고객사 20여 곳",
+    "sector": "교육·SW 공급망",
+    "impact": "약 237만 건(업체 신고 기준)",
+    "summary": "공공·기업 교육사이트를 운영하는 수탁사 한 곳이 뚫리면서 여러 위탁사 데이터가 함께 유출됐다. 시스템 교체 뒤 파기해야 할 과거 데이터를 그대로 보관하고 있었다.",
+    "attack_vector": "수탁사 시스템 해킹(경로 미공개)",
+    "root_causes": [
+      "수탁사 한 곳에 여러 고객 데이터 집중",
+      "시스템 교체 후 과거 데이터 미파기",
+      "위탁자의 수탁사 관리·감독 부실"
+    ],
+    "cves": [],
+    "categories": [
+      "saas-oauth-thirdparty",
+      "data-minimization"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "'맑은소프트' 237만건 유출신고 (SBS Biz)",
+        "url": "https://biz.sbs.co.kr/amp/article/20000339565"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-10-binance-signing-infra",
+    "date": "2026-10",
+    "region": "global",
+    "org": "Binance",
+    "sector": "가상자산",
+    "impact": "약 63억 달러(사상 최대), 약 28.5억 달러 동결·회수",
+    "summary": "엔지니어가 'AI 코딩 도구'를 검색하다 변조된 설치본에 감염되고, 다른 엔지니어는 가짜 채용 면접 과제 저장소를 실행해 감염됐다. 이 PC와 내부 AI 도구로 월렛 인프라팀을 추가 침해해 배포 토큰을 얻고 서명 서비스에 접근했다(회사 보고).",
+    "attack_vector": "가짜 채용·변조 설치본 → 개발자 PC → 배포 토큰 → 서명 서비스",
+    "root_causes": [
+      "개발자 대상 가짜 채용 사회공학",
+      "개발 도구 설치본 무결성 미검증",
+      "핫월렛 서명 서비스 접근통제 부족",
+      "컨테이너 배포 토큰 탈취",
+      "내부 도구를 통한 수평 이동"
+    ],
+    "cves": [],
+    "categories": [
+      "social-engineering-identity",
+      "credential-key",
+      "ai-dev-tooling"
+    ],
+    "ai_involvement": {
+      "level": "reported",
+      "basis": "회사 보고서에 공격자가 내부 AI 도구를 수평 이동에 썼고 AI 코딩 도구를 미끼로 썼다고 기술(외부 검증 전)"
+    },
+    "sources": [
+      {
+        "title": "Binance says fake job interview led to $6.3 billion crypto heist (BleepingComputer)",
+        "url": "https://www.bleepingcomputer.com/news/security/binance-says-fake-job-interview-led-to-63-billion-crypto-heist/"
+      },
+      {
+        "title": "North Korea steals USD 6.36B from Binance (TRM Labs)",
+        "url": "https://www.trmlabs.com/resources/blog/north-korea-steals-usd-6-36-billion-from-binance-in-the-largest-hack-in-history"
+      }
+    ],
+    "confidence": "high",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-10-bithumb-groupware",
+    "date": "2026-10",
+    "region": "KR",
+    "org": "빗썸",
+    "sector": "가상자산",
+    "impact": "고객 6,444명분 자료(실제 노출 844명: 주민번호·계좌·신분증 사본), 임직원·협력사 715명",
+    "summary": "사내 모바일 그룹웨어에 외부 비인가 접근이 있었고, 그룹웨어에 고객 신분증·주민번호 문서가 보관돼 있었다.",
+    "attack_vector": "외부 노출 모바일 그룹웨어 비인가 접근",
+    "root_causes": [
+      "외부 노출 업무 시스템 접근통제 미흡(추정)",
+      "그룹웨어에 고객 신분증·주민번호 문서 보관"
+    ],
+    "cves": [],
+    "categories": [
+      "data-minimization",
+      "authn-authz"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "개별 사건에 대한 AI 근거 없음"
+    },
+    "sources": [
+      {
+        "title": "빗썸 사내 모바일 시스템 해킹 (딜사이트)",
+        "url": "https://dealsite.co.kr/articles/171517"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-10-daishin-partner-api",
+    "date": "2026-10",
+    "region": "KR",
+    "org": "대신증권",
+    "sector": "금융",
+    "impact": "고객 3만 8,490명(계좌·연락처 등)",
+    "summary": "외부 투자자문·일임사 앱과 계좌개설을 잇는 연계 API 서버가 공격받았다.",
+    "attack_vector": "제휴 연계 API 취약점",
+    "root_causes": [
+      "제휴 연계 API의 인증·인가 결함",
+      "외부 제휴 접점 관리 미흡"
+    ],
+    "cves": [],
+    "categories": [
+      "authn-authz",
+      "saas-oauth-thirdparty"
+    ],
+    "ai_involvement": {
+      "level": "reported",
+      "basis": "언론이 '당국이 AI 활용 수법으로 판단'이라 보도했으나 기술 근거 미제시"
+    },
+    "sources": [
+      {
+        "title": "금융권 겨냥한 AI 해킹… 증권사·가상자산 거래소도 뚫렸다 (파이낸셜뉴스)",
+        "url": "https://www.fnnews.com/news/202610281816137089"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-10-gmarket-external-api",
+    "date": "2026-10",
+    "region": "KR",
+    "org": "G마켓",
+    "sector": "커머스",
+    "impact": "약 90만 명 신고(보도), e쿠폰 PIN 무단 사용 피해",
+    "summary": "외부 서비스 연동 API의 취약점으로 이름·연락처·주소와 e쿠폰 PIN이 노출됐고 실제 무단 사용으로 이어졌다.",
+    "attack_vector": "외부 연동 API 인증·인가 결함",
+    "root_causes": [
+      "외부 연동 API 인증·인가 결함",
+      "상품권 PIN 등 금전가치 정보를 API 응답에 노출"
+    ],
+    "cves": [],
+    "categories": [
+      "authn-authz"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "G마켓, 90만 명 피해 신고 (MBC)",
+        "url": "https://imnews.imbc.com/news/2026/econo/article/6862571_36932.html"
+      },
+      {
+        "title": "상품권 핀번호 털린 G마켓 (콕스뉴스)",
+        "url": "https://www.coxnews.co.kr/news/articleView.html?idxno=6573"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-10-hollys-cloud-tempfile",
+    "date": "2026-10",
+    "region": "KR",
+    "org": "할리스",
+    "sector": "커머스",
+    "impact": "약 276만 건(2009~2020 가입자 누적)",
+    "summary": "가상화폐 채굴 목적으로 클라우드에 무단 접근한 공격자가, 과거 멤버십 개편 때 만들어 두고 지우지 않은 개인정보 임시 파일을 가져갔다(회사 설명).",
+    "attack_vector": "클라우드 무단 접근 → 방치된 임시 파일 탈취",
+    "root_causes": [
+      "클라우드 접근통제 미흡(세부 미공개)",
+      "운영 DB 밖 개인정보 임시 파일 장기 방치",
+      "통지 지연"
+    ],
+    "cves": [],
+    "categories": [
+      "data-minimization",
+      "cloud-baas-config"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "할리스, 개인정보 276만건 유출 (SBS Biz)",
+        "url": "https://biz.sbs.co.kr/amp/article/20000340838"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  },
+  {
+    "id": "2026-10-korean-air-asiana-amadeus",
+    "date": "2026-10",
+    "region": "KR",
+    "org": "대한항공·아시아나항공(Amadeus 경유)",
+    "sector": "항공",
+    "impact": "고객 예약번호 등(규모 미공개)",
+    "summary": "해외 예약·발권 협력사 시스템 계정의 로그인 정보가 악용돼 최대 3년간 예약 정보에 접근됐다. 양사 자체 시스템 침해 정황은 없었다.",
+    "attack_vector": "협력사 시스템 계정 자격증명 악용",
+    "root_causes": [
+      "협력사 계정 자격증명 탈취",
+      "최대 3년 미탐지",
+      "협력사 접근 가시성 부족"
+    ],
+    "cves": [],
+    "categories": [
+      "saas-oauth-thirdparty",
+      "detection-response"
+    ],
+    "ai_involvement": {
+      "level": "none-reported",
+      "basis": "공식 발표·주요 분석에 AI 언급 없음"
+    },
+    "sources": [
+      {
+        "title": "대한항공·아시아나, IT 협력사가 '구멍' (ZDNet)",
+        "url": "https://zdnet.co.kr/view?no=20261024111553"
+      }
+    ],
+    "confidence": "medium",
+    "added_in": "1.0.0"
+  }
+]

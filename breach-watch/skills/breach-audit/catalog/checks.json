@@ -1,0 +1,2344 @@
+[
+  {
+    "id": "ai-app-security/agent-tool-authorization",
+    "category": "ai-app-security",
+    "title": "에이전트 도구의 권한과 사용자 단위 인가",
+    "severity": "high",
+    "method": "code",
+    "applies_to": [
+      "llm-app",
+      "mcp"
+    ],
+    "why": "ServiceNow는 인증 없이 특권 AI 에이전트를 부를 수 있었고, GitHub MCP 사례는 저장소 전체 권한 토큰이 문제였다.",
+    "how_to_check": [
+      "에이전트에 주는 도구 목록과 각 도구가 쓰는 자격증명을 정리한다. 서비스 공통 관리자 키를 쓰는 도구가 FAIL 후보",
+      "도구 실행 시 '요청한 최종 사용자'의 권한으로 인가하는지(대리 권한) 본다",
+      "삭제·송금·발송·권한 변경 같은 고위험 도구에 사람 확인이 있는지 본다",
+      "에이전트 엔드포인트 자체에 인증이 있는지 본다"
+    ],
+    "pass_criteria": "도구가 최종 사용자 권한으로 동작하고, 고위험 도구에 확인 단계가 있으며, 에이전트 엔드포인트가 인증된다.",
+    "remediation": "도구별 최소 권한 자격증명을 쓰고, 사용자 토큰을 도구까지 전달해 인가하고, 고위험 도구에 확인을 넣는다.",
+    "incidents": [
+      "2026-01-servicenow-ai-agent-auth",
+      "2025-05-github-mcp-toxic-flow"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)@tool\\b|tool\\(\\{|server\\.tool\\(|defineTool|function_call|tool_choice"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs"
+      ]
+    }
+  },
+  {
+    "id": "ai-app-security/ai-generated-app-review",
+    "category": "ai-app-security",
+    "title": "AI로 만든 앱의 배포 전 보안 검토",
+    "severity": "high",
+    "method": "process",
+    "applies_to": [
+      "any"
+    ],
+    "why": "AI 생성 앱 약 38만 개 중 약 5천 개가 데이터를 노출하고 있었고, Lovable·Base44·Moltbook은 인증·RLS 결함이 구조적으로 반복됐다.",
+    "how_to_check": [
+      "조직 구성원이 바이브 코딩 플랫폼(Lovable, Bolt, Replit, Base44, v0 등)으로 만들어 공개 배포한 앱 목록이 있는지 묻는다",
+      "이 저장소가 AI로 대량 생성됐다면 인증·인가·RLS·비밀 관리 항목을 이 카탈로그의 해당 점검으로 먼저 본다",
+      "AI 생성 앱의 배포에 SSO 앞단·보안 검토 단계가 있는지 묻는다"
+    ],
+    "pass_criteria": "AI 생성 앱이 목록화되고, 공개 배포 전에 인증·인가·비밀 검토를 거치며, 내부용은 SSO 뒤에 있다.",
+    "remediation": "섀도 앱을 찾아 목록화하고, 내부용은 SSO 프록시 뒤로 옮기고, 공개 배포 전 체크리스트(이 카탈로그의 authn·cloud 항목)를 의무화한다.",
+    "incidents": [
+      "2026-05-vibe-coded-apps-exposure",
+      "2025-07-base44-auth-bypass",
+      "2025-05-lovable-supabase-rls",
+      "2026-02-moltbook-supabase"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "ai-app-security/llm-keys-and-sandbox-isolation",
+    "category": "ai-app-security",
+    "title": "LLM 키 노출과 코드 실행 샌드박스 격리",
+    "severity": "high",
+    "method": "config",
+    "applies_to": [
+      "llm-app"
+    ],
+    "why": "AI 공격 조직은 노출된 AI 게이트웨이와 샌드박스 속 운영 API 키로 피벗했고, JADEPUFFER는 서버 환경변수의 LLM·클라우드 키를 가장 먼저 수집했다.",
+    "how_to_check": [
+      "LLM 제공자 키가 클라이언트 번들·모바일 앱에 들어가는지 본다(NEXT_PUBLIC_OPENAI 등)",
+      "키가 용도·환경별로 나뉘고 사용 한도(spend limit)가 걸려 있는지 묻는다",
+      "모델이 코드를 실행하는 기능(코드 인터프리터, 에이전트 셸)이 운영 키·내부망에서 격리된 샌드박스에서 도는지, egress가 제한되는지 본다"
+    ],
+    "pass_criteria": "LLM 키가 서버에만 있고 용도별로 나뉘며 한도가 있고, 코드 실행은 운영 자격증명·내부망과 격리된 샌드박스에서 egress 제한과 함께 돈다.",
+    "remediation": "키를 서버 프록시 뒤로 옮기고, 용도별 키와 한도를 두고, 샌드박스에 비밀을 넣지 말고 egress를 막는다.",
+    "incidents": [
+      "2026-09-ai-eval-sandbox-pivot",
+      "2026-09-ai-crews-saas-tokens",
+      "2026-07-jadepuffer-agentic-ransomware"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)(NEXT_PUBLIC|VITE|REACT_APP|EXPO_PUBLIC)_[A-Z_]*(OPENAI|ANTHROPIC|GEMINI|LLM|AI)_[A-Z_]*KEY",
+        "dangerouslyAllowBrowser\\s*:\\s*true"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs",
+        "*.env*"
+      ]
+    }
+  },
+  {
+    "id": "ai-app-security/llm-output-handling",
+    "category": "ai-app-security",
+    "title": "모델 출력의 렌더링·실행",
+    "severity": "high",
+    "method": "code",
+    "applies_to": [
+      "llm-app"
+    ],
+    "why": "EchoLeak는 모델 출력의 이미지·링크 렌더링으로, ForcedLeak는 CSP 허용 도메인으로 데이터를 내보냈다.",
+    "how_to_check": [
+      "모델 출력을 HTML·Markdown으로 렌더링할 때 외부 이미지·링크를 자동으로 불러오는지 본다",
+      "모델 출력을 eval·exec·셸·SQL·파일 경로에 넣는 곳이 있는지 본다",
+      "출력 렌더링에 sanitize(DOMPurify 등)와 CSP가 적용되는지 본다"
+    ],
+    "pass_criteria": "모델 출력의 외부 리소스 자동 로드가 막혀 있고, 출력이 코드·쿼리로 실행되지 않으며, 렌더링이 sanitize된다.",
+    "remediation": "외부 이미지는 프록시·허용 목록으로만 로드하고, 출력 실행 경로를 없애거나 샌드박스에 넣고, sanitize와 CSP를 건다.",
+    "incidents": [
+      "2025-06-echoleak-m365-copilot",
+      "2025-09-forcedleak-agentforce"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "dangerouslySetInnerHTML",
+        "\\beval\\(|\\bexec\\(|subprocess\\.(run|Popen|call)\\([^)]*shell\\s*=\\s*True",
+        "(?i)react-markdown|marked\\(|markdown-it"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs"
+      ]
+    }
+  },
+  {
+    "id": "ai-app-security/untrusted-content-in-agent-context",
+    "category": "ai-app-security",
+    "title": "에이전트가 읽는 외부 콘텐츠(간접 프롬프트 인젝션)",
+    "severity": "critical",
+    "method": "code",
+    "applies_to": [
+      "llm-app",
+      "mcp"
+    ],
+    "why": "EchoLeak(이메일), ForcedLeak(공개 웹 폼), GitHub MCP(이슈 본문), AI 평가 샌드박스가 모두 외부 텍스트 속 지시를 에이전트가 따르게 만들었다.",
+    "how_to_check": [
+      "LLM 호출 지점마다 프롬프트에 들어가는 입력을 분류한다: 사용자 입력 / 외부 콘텐츠(이메일, 웹페이지, 문서, 이슈, 폼, RAG 결과, 도구 출력)",
+      "같은 에이전트에 (1) 비공개 데이터 접근 (2) 외부 콘텐츠 입력 (3) 외부로 보내는 수단(HTTP 요청, 이메일 발송, 링크·이미지 렌더링, 쓰기 도구)이 모두 있는지 본다. 셋이 모이면 FAIL 후보",
+      "외부 콘텐츠를 지시가 아닌 데이터로 구분해 넣는지(구분자·역할 분리), 도구 호출 전 사람 승인이나 정책 검사가 있는지 본다",
+      "프롬프트 인젝션 테스트 케이스가 있는지 본다"
+    ],
+    "pass_criteria": "비공개 데이터·외부 콘텐츠·외부 전송이 한 에이전트에 모이지 않거나, 모일 때 외부 전송에 사람 승인·허용 목록이 걸려 있다.",
+    "remediation": "에이전트를 읽기 전용 단계와 행동 단계로 나누고, 외부 전송 도구에 허용 목록·승인을 걸고, 인젝션 회귀 테스트를 만든다.",
+    "incidents": [
+      "2025-06-echoleak-m365-copilot",
+      "2025-09-forcedleak-agentforce",
+      "2025-05-github-mcp-toxic-flow",
+      "2026-09-ai-eval-sandbox-pivot"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)(chat\\.completions\\.create|messages\\.create|generateText|streamText|ChatOpenAI|ChatAnthropic|invoke\\()",
+        "(?i)(tools|functions)\\s*[:=]\\s*\\["
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs"
+      ]
+    }
+  },
+  {
+    "id": "ai-dev-tooling/ai-suggested-packages-and-skills",
+    "category": "ai-dev-tooling",
+    "title": "AI가 제안한 패키지·에이전트 스킬·플러그인 검증",
+    "severity": "medium",
+    "method": "process",
+    "applies_to": [
+      "any"
+    ],
+    "why": "AI가 환각한 패키지 이름을 공격자가 선점(slopsquatting)했고, 검증 없는 에이전트 스킬 마켓에 악성 스킬이 대량 유포됐다.",
+    "how_to_check": [
+      "최근 추가된 의존성 중 다운로드 수가 매우 적거나 갓 만들어진 패키지가 있는지 lockfile diff로 본다",
+      "저장소의 에이전트 스킬·플러그인·커스텀 명령(.claude/skills, .claude/commands, plugins)이 어디서 왔는지, 안에서 npx·curl로 외부 코드를 받는지 본다",
+      "AI가 제안한 새 의존성을 추가할 때 존재·평판을 확인하는 규칙이 있는지 묻는다"
+    ],
+    "pass_criteria": "새 의존성·스킬은 출처와 평판을 확인한 뒤 들어오고, 스킬 안에서 고정되지 않은 외부 코드를 받지 않는다.",
+    "remediation": "의존성 추가 PR에 패키지 평판 검사(Socket 등)를 붙이고, 스킬·플러그인은 허용 목록으로 관리하고, 스킬 속 npx는 버전을 고정한다.",
+    "incidents": [
+      "2026-02-clawhavoc-skill-marketplace"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        ".claude/skills/*",
+        ".claude/commands/*",
+        "*/.claude/skills/*",
+        "*/.claude/commands/*"
+      ],
+      "patterns": [
+        "npx\\s+(-y\\s+)?[a-z@][\\w@/.-]*(?<!@\\d)(\\s|$)"
+      ],
+      "pattern_files": [
+        "*SKILL.md",
+        ".claude/*",
+        "*/.claude/*"
+      ]
+    }
+  },
+  {
+    "id": "ai-dev-tooling/ci-agents-untrusted-input",
+    "category": "ai-dev-tooling",
+    "title": "CI 안의 AI 에이전트와 외부 입력",
+    "severity": "critical",
+    "method": "config",
+    "applies_to": [
+      "github-actions"
+    ],
+    "why": "Cline 파이프라인(Clinejection)과 CI 코딩 에이전트들은 외부인이 쓴 이슈·PR·코멘트를 읽으면서 비밀이 있는 환경에서 돌았다.",
+    "how_to_check": [
+      "워크플로에서 AI 에이전트 액션(claude-code-action, gemini-cli, copilot, aider, codex 등)을 찾는다",
+      "트리거가 issues, issue_comment, pull_request_target, 외부 기여자 PR인지 본다",
+      "그 작업에 쓰기 토큰·게시 비밀·클라우드 자격증명이 있는지, 릴리스 작업과 캐시를 공유하는지 본다",
+      "외부 기여자 PR에 자동 실행되는지, 메인테이너 승인 후에만 도는지 본다"
+    ],
+    "pass_criteria": "AI 에이전트 작업은 비밀 없는 읽기 전용 토큰으로 돌고, 외부 기여자 입력에는 승인 후에만 실행되며, 릴리스와 캐시를 공유하지 않는다.",
+    "remediation": "AI 에이전트 작업을 비밀 없는 별도 워크플로로 분리하고, 외부 입력 트리거는 라벨·승인 게이트 뒤에 두고, 캐시 키를 분리한다.",
+    "incidents": [
+      "2026-02-clinejection-ci-agent",
+      "2026-04-ci-coding-agents-comment-injection",
+      "2025-08-nx-s1ngularity"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        ".github/workflows/*.yml",
+        ".github/workflows/*.yaml"
+      ],
+      "patterns": [
+        "(?i)(anthropics/claude-code-action|google-github-actions/run-gemini-cli|gemini-cli|aider|openai/codex|copilot)"
+      ],
+      "pattern_files": [
+        "*.yml",
+        "*.yaml"
+      ]
+    }
+  },
+  {
+    "id": "ai-dev-tooling/coding-agent-permissions",
+    "category": "ai-dev-tooling",
+    "title": "코딩 에이전트 권한 설정과 비밀 접근",
+    "severity": "high",
+    "method": "config",
+    "applies_to": [
+      "ai-agent-config",
+      "any"
+    ],
+    "why": "Nx 악성코드는 개발자 PC의 AI 코딩 CLI를 권한 확인 없이 실행시켜 비밀을 찾게 했고, GTIG가 보고한 악성코드도 감염 PC의 AI CLI에 프롬프트를 넣었다.",
+    "how_to_check": [
+      ".claude/settings.json, .cursor/, .codex/, .gemini/ 등 저장소의 에이전트 설정에서 allow 목록이 Bash(*)·전체 허용인지 본다",
+      "스크립트·Makefile·CI에 --dangerously-skip-permissions, --yolo, --trust-all-tools 같은 권한 우회 플래그가 있는지 본다",
+      "에이전트의 .env·~/.aws·~/.ssh·키 파일 읽기를 deny로 막았는지 본다",
+      "개발자 PC에 장기 운영 자격증명이 평문으로 있는지(~/.aws/credentials 장기 키, .npmrc 토큰) 팀 정책을 묻는다"
+    ],
+    "pass_criteria": "에이전트 권한이 필요한 명령으로 좁혀져 있고, 권한 우회 플래그가 없으며, 비밀 파일 읽기가 막혀 있고, 개발 PC에 장기 운영 키가 없다.",
+    "remediation": "allow 목록을 좁히고 비밀 경로를 deny에 넣고, 권한 우회는 격리 컨테이너에서만 쓰고, 개발 PC 자격증명을 SSO 단기 토큰으로 바꾼다.",
+    "incidents": [
+      "2025-08-nx-s1ngularity",
+      "2025-11-ai-malware-promptflux"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "**/.claude/settings.json",
+        "**/.claude/settings.local.json",
+        "**/.cursor/rules",
+        "**/.gemini/settings.json"
+      ],
+      "patterns": [
+        "--dangerously-skip-permissions",
+        "--yolo\\b",
+        "--trust-all-tools",
+        "[\"']Bash\\(\\*\\)[\"']",
+        "[\"']Bash[\"']\\s*[,\\]]"
+      ],
+      "pattern_files": [
+        "*.json",
+        "*.sh",
+        "Makefile",
+        "*.yml",
+        "*.yaml"
+      ]
+    }
+  },
+  {
+    "id": "ai-dev-tooling/mcp-server-allowlist",
+    "category": "ai-dev-tooling",
+    "title": "MCP 서버 허용 목록과 버전 고정",
+    "severity": "high",
+    "method": "config",
+    "applies_to": [
+      "mcp",
+      "ai-agent-config"
+    ],
+    "why": "postmark-mcp는 비공식 MCP 서버가 업데이트로 모든 메일을 몰래 복사했고, 2026년 npm 웜은 AI 도구 설정에 악성 MCP 항목을 써 넣었다. Cursor는 MCP 설정 변경 시 재승인을 하지 않았다.",
+    "how_to_check": [
+      ".mcp.json, .cursor/mcp.json, .vscode/mcp.json, claude_desktop_config.json 등 저장소에 있는 MCP 설정을 모두 읽는다",
+      "각 서버가 공식 게시자(벤더·공식 조직)인지, npx -y pkg / uvx pkg처럼 버전 없이 최신을 받는지 본다",
+      "MCP 서버에 넘기는 환경변수에 넓은 권한 토큰(전체 저장소 PAT, 관리자 키)이 있는지 본다",
+      "MCP 설정 파일 변경이 코드 리뷰(CODEOWNERS) 대상인지 본다"
+    ],
+    "pass_criteria": "MCP 서버가 허용된 게시자의 고정 버전이고, 최소 권한 토큰을 받으며, 설정 변경이 리뷰를 거친다.",
+    "remediation": "MCP 서버를 허용 목록으로 관리하고 버전을 고정하고(@x.y.z), 서버별 최소 권한 토큰을 쓰고, 설정 파일을 CODEOWNERS로 보호한다.",
+    "incidents": [
+      "2025-09-postmark-mcp-malicious",
+      "2026-02-npm-worm-mcp-injection",
+      "2025-08-cursor-mcp-config-trust",
+      "2025-05-github-mcp-toxic-flow"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "**/.mcp.json",
+        "**/mcp.json",
+        "**/.cursor/mcp.json",
+        "**/.vscode/mcp.json",
+        "**/claude_desktop_config.json"
+      ],
+      "patterns": [
+        "[\"']npx[\"']\\s*,\\s*[\"']-y[\"']",
+        "[\"'](npx|uvx|bunx)[\"']",
+        "@latest[\"']"
+      ],
+      "pattern_files": [
+        "*.json"
+      ]
+    }
+  },
+  {
+    "id": "authn-authz/auth-flow-server-verification",
+    "category": "authn-authz",
+    "title": "인증·본인확인 흐름의 서버 측 검증",
+    "severity": "critical",
+    "method": "code",
+    "applies_to": [
+      "web"
+    ],
+    "why": "국내 금융사 침해는 휴대폰 본인확인을 우회했고, GTIG가 확인한 첫 AI 제작 제로데이는 2FA를 건너뛰는 인증 로직 결함이었다. Base44는 비밀이 아닌 app_id만으로 인증을 통과시켰다.",
+    "how_to_check": [
+      "다단계 인증(비밀번호 → OTP/본인확인 → 토큰 발급)에서 각 단계 완료 여부를 서버 세션에 기록하고 다음 단계에서 확인하는지 본다",
+      "클라이언트가 보내는 verified=true, step=2, 본인확인 결과값을 그대로 믿는 곳이 없는지 본다",
+      "본인확인 결과(CI/DI, 휴대폰 인증)가 요청 대상 계정과 서버에서 대조되는지 본다",
+      "소셜 로그인(카카오·구글·애플 등)에서 받은 이메일을 신뢰하기 전에 제공자의 검증 플래그(카카오 is_email_verified·is_email_valid, OIDC email_verified)를 확인하는지 본다. 이메일이 관리자 판정·기존 계정 연결·emailVerifiedAt 설정에 쓰이면 특히 중요하다",
+      "비밀이 아닌 식별자(app_id, 고객번호, 이메일)만으로 토큰·세션을 발급하는 경로가 없는지 본다",
+      "계정 연결·소셜 로그인 연결에 재인증이나 MFA가 필요한지 본다"
+    ],
+    "pass_criteria": "인증 단계 상태가 서버에만 있고, 본인확인 결과·소셜 로그인 이메일 검증 플래그가 대상 계정과 대조되며, 비밀 없는 값으로 세션이 발급되지 않는다.",
+    "remediation": "인증 상태 기계를 서버에 두고, 단계별 토큰을 짧은 수명으로 발급하고, 계정 연결에 재인증을 요구한다.",
+    "incidents": [
+      "2026-09-kr-finance-artex-campaign",
+      "2026-05-ai-built-2fa-bypass-zeroday",
+      "2025-07-base44-auth-bypass",
+      "2026-01-servicenow-ai-agent-auth"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)(body|params|query|req)\\.(verified|isVerified|otpVerified|step|authStep|mfaPassed)\\b",
+        "(?i)skip[_-]?(mfa|otp|2fa|verification)",
+        "(?i)kakao_account|\\[\"email\"\\]|email_verified|is_email_verified"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs"
+      ]
+    }
+  },
+  {
+    "id": "authn-authz/credential-stuffing-defense",
+    "category": "authn-authz",
+    "title": "크리덴셜 스터핑 방어",
+    "severity": "high",
+    "method": "code",
+    "applies_to": [
+      "web"
+    ],
+    "why": "GS리테일은 같은 IP 대역의 대량 로그인을 8개월간 막지 못해 166만 명 정보가 열람됐다.",
+    "how_to_check": [
+      "로그인·회원가입·비밀번호 재설정 요청·인증메일 재발송·본인확인 엔드포인트에 IP·계정·기기 단위 속도 제한이 있는지 본다. 계정 단위 잠금만 있으면 '계정마다 한 번씩' 대입하는 스터핑은 못 막는다(PARTIAL)",
+      "로그인 실패율·동일 IP 다계정 시도를 탐지·차단하는 로직이나 WAF·봇 관리 설정이 있는지 본다",
+      "유출 비밀번호 차단(HIBP k-anonymity 등)이나 위험 기반 추가 인증이 있는지 본다",
+      "한 서비스에서 확인한 공격 IP를 계열 서비스와 공유하는 절차가 있는지 묻는다",
+      "앱 밖(리버스 프록시·CDN·WAF)에서 속도 제한을 건다면 그 설정이 저장소에 있는지, 없으면 MANUAL로 묻는다"
+    ],
+    "pass_criteria": "인증 관련 엔드포인트에 다층 속도 제한과 이상 탐지가 있고, 탐지 시 추가 인증·차단이 걸린다.",
+    "remediation": "로그인에 IP·계정 이중 속도 제한, 봇 관리, 위험 기반 MFA를 붙이고, 차단 목록을 계열 서비스와 공유한다.",
+    "incidents": [
+      "2025-01-gs-retail-credential-stuffing"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)(rate[-_]?limit|throttl|slowapi|express-rate-limit|bucket4j|ratelimiter)"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs",
+        "*.yml",
+        "*.yaml",
+        "*.json",
+        "*.toml",
+        "*.tf",
+        "*.env*",
+        "*.properties",
+        "*.conf",
+        "Dockerfile*",
+        "*.ini",
+        "*.xml"
+      ]
+    }
+  },
+  {
+    "id": "authn-authz/destructive-admin-action-guard",
+    "category": "authn-authz",
+    "title": "파괴적 관리 명령의 다중 승인",
+    "severity": "high",
+    "method": "infra",
+    "applies_to": [
+      "any"
+    ],
+    "why": "Stryker는 탈취된 관리자 권한으로 MDM 원격 초기화가 수만 대에 실행됐다. JADEPUFFER는 운영 DB를 삭제했다.",
+    "how_to_check": [
+      "MDM 일괄 초기화, 클라우드 리소스 대량 삭제, DB drop, 백업 삭제에 다중 관리자 승인·속도 제한이 있는지 묻는다",
+      "IaC에 삭제 방지(deletion_protection, prevent_destroy, termination protection)가 운영 DB·버킷에 켜져 있는지 본다",
+      "앱 관리자 화면의 일괄 삭제·일괄 export 기능에 2인 승인이나 재인증이 있는지 본다"
+    ],
+    "pass_criteria": "파괴적 명령에 다중 승인·재인증·속도 제한이 있고, 운영 데이터 리소스에 삭제 방지가 켜져 있다.",
+    "remediation": "MDM·클라우드의 다중 관리자 승인 기능을 켜고, IaC에 삭제 방지를 걸고, 관리자 화면 일괄 작업에 재인증을 넣는다.",
+    "incidents": [
+      "2026-03-stryker-intune-wipe",
+      "2026-07-jadepuffer-agentic-ransomware"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "deletion_protection\\s*=\\s*false",
+        "skip_final_snapshot\\s*=\\s*true",
+        "force_destroy\\s*=\\s*true"
+      ],
+      "pattern_files": [
+        "*.tf"
+      ]
+    }
+  },
+  {
+    "id": "authn-authz/object-level-authorization",
+    "category": "authn-authz",
+    "title": "객체 단위 인가(IDOR/BOLA)",
+    "severity": "critical",
+    "method": "code",
+    "applies_to": [
+      "web"
+    ],
+    "why": "국내 금융사 연쇄 침해(고객번호 대입), G마켓·대신증권 연계 API, McDonald's 채용 AI(순차 ID), Lovable(인가 회귀)이 모두 '남의 것을 조회할 수 있는' API였다.",
+    "how_to_check": [
+      "id·번호를 경로·쿼리·바디로 받는 API를 찾는다(/users/:id, ?customerNo=, orderId 등)",
+      "각 핸들러가 '요청자가 이 객체의 주인이거나 권한이 있는지'를 서버에서 확인하는지 본다. 로그인 여부만 보는 곳이 FAIL 후보",
+      "외부 제휴·연동용 API가 제휴사 단위가 아니라 고객 단위로 범위를 제한하는지 본다",
+      "순차 숫자 ID를 외부에 노출하는지, 대량 조회에 속도 제한이 있는지 본다",
+      "인가 회귀를 잡는 테스트(다른 사용자 토큰으로 접근 시 403)가 있는지 본다"
+    ],
+    "pass_criteria": "객체를 다루는 모든 API가 서버에서 소유·권한을 확인하고, 이를 검증하는 테스트가 있으며, 대량 조회가 제한된다.",
+    "remediation": "공통 인가 미들웨어·정책 계층으로 소유 확인을 강제하고, 교차 사용자 테스트를 CI에 넣고, 외부 노출 ID를 불투명 값으로 바꾼다.",
+    "incidents": [
+      "2026-09-kr-finance-artex-campaign",
+      "2026-10-gmarket-external-api",
+      "2026-10-daishin-partner-api",
+      "2025-07-mchire-ai-chatbot",
+      "2026-04-lovable-bola-regression"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(params|query|body)\\.(id|userId|user_id|customerNo|customer_id|accountId|orderId)\\b",
+        "@(Get|Post|Put|Delete)Mapping\\([^)]*\\{[a-zA-Z]*[Ii]d\\}",
+        "/<int:[a-z_]*id>"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs"
+      ]
+    }
+  },
+  {
+    "id": "authn-authz/phishing-resistant-mfa-remote-admin",
+    "category": "authn-authz",
+    "title": "원격·관리자 접근의 피싱 내성 MFA",
+    "severity": "high",
+    "method": "infra",
+    "applies_to": [
+      "any"
+    ],
+    "why": "온나라는 인증서 + 비밀번호만으로 원격근무 VPN에 3년간 접속됐고, Odido는 MFA 푸시 승인을 전화로 유도당했다. FortiGate 600대는 단일 요소 인증으로 뚫렸다.",
+    "how_to_check": [
+      "VPN·원격접속·클라우드 콘솔·IdP 관리자·CI/CD·DB 관리 도구에 MFA가 강제되는지 묻는다",
+      "관리자 MFA가 FIDO2·패스키 같은 피싱 내성 방식인지, 푸시면 번호 매칭이 켜져 있는지 묻는다",
+      "OAuth device code 흐름, 기기 등록(join)을 필요한 곳으로 제한했는지 묻는다",
+      "업무 시스템(그룹웨어·모바일 업무앱)이 외부에서 MFA 없이 접근되는지 본다"
+    ],
+    "pass_criteria": "원격·관리자 접근 전부에 MFA가 강제되고, 관리자는 피싱 내성 방식이며, device code·기기 등록이 제한된다.",
+    "remediation": "관리자부터 패스키·보안키로 전환하고, 푸시는 번호 매칭을 켜고, 조건부 접근으로 device code·미등록 기기를 막는다.",
+    "incidents": [
+      "2025-10-gov-onnara-gpki",
+      "2026-02-odido-crm-vishing",
+      "2026-02-fortigate-ai-assisted",
+      "2026-10-bithumb-groupware",
+      "2025-08-ai-vibe-hacking-extortion",
+      "2025-11-ai-orchestrated-espionage"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "cloud-baas-config/exposed-datastores",
+    "category": "cloud-baas-config",
+    "title": "인증 없이 열린 DB·캐시·검색엔진",
+    "severity": "high",
+    "method": "config",
+    "applies_to": [
+      "docker",
+      "k8s",
+      "terraform",
+      "any"
+    ],
+    "why": "JADEPUFFER는 root로 노출된 MySQL과 Nacos를, AI 핵티비스트는 인증 없는 검색 엔드포인트를 노렸다.",
+    "how_to_check": [
+      "compose·k8s에서 DB·Redis·Elasticsearch·OpenSearch·MongoDB·MinIO·Nacos 포트가 호스트 0.0.0.0으로 매핑되는지 본다(\"3306:3306\" 등)",
+      "Redis requirepass, Elasticsearch xpack.security, Mongo 인증이 켜져 있는지 본다",
+      "앱 DB 계정이 root·superuser인지, 최소 권한 계정인지 본다"
+    ],
+    "pass_criteria": "데이터 저장소가 사설망에만 있고 인증이 켜져 있으며 앱은 최소 권한 계정으로 접속한다.",
+    "remediation": "포트 매핑을 127.0.0.1이나 내부 네트워크로 바꾸고, 인증을 켜고, 앱 전용 최소 권한 계정을 만든다.",
+    "incidents": [
+      "2026-07-jadepuffer-agentic-ransomware",
+      "2026-09-ai-hacktivist-cms"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "['\"]?(0\\.0\\.0\\.0:)?(3306|5432|6379|9200|27017|9000|8848|5601):\\d+",
+        "(?i)xpack\\.security\\.enabled\\s*[:=]\\s*false",
+        "(?i)protected-mode\\s+no",
+        "(?i)--requirepass\\s*$"
+      ],
+      "pattern_files": [
+        "*.yml",
+        "*.yaml",
+        "*.conf",
+        "Dockerfile*"
+      ]
+    }
+  },
+  {
+    "id": "cloud-baas-config/firebase-security-rules",
+    "category": "cloud-baas-config",
+    "title": "Firebase 보안 규칙",
+    "severity": "critical",
+    "method": "config",
+    "applies_to": [
+      "firebase"
+    ],
+    "why": "Tea 앱은 인증 없이 열린 Firebase Storage에서 신분증 사진 1.3만 장이 유출됐다.",
+    "how_to_check": [
+      "firestore.rules, storage.rules, database.rules.json을 읽는다",
+      "allow read, write: if true / if request.auth != null(로그인만 하면 전부) / 만료 날짜 규칙(테스트 모드)이 있는지 본다",
+      "각 컬렉션·경로가 request.auth.uid와 문서 소유자를 대조하는지 본다",
+      "규칙 파일이 저장소에 없으면 콘솔 규칙을 확인해야 하니 MANUAL로 둔다"
+    ],
+    "pass_criteria": "모든 경로가 소유자·역할 기준으로 제한되고 공개 경로는 의도된 읽기 전용 데이터뿐이다.",
+    "remediation": "경로별로 uid 대조 규칙을 쓰고, 에뮬레이터 테스트로 규칙을 검증하고, 규칙을 저장소에서 배포한다.",
+    "incidents": [
+      "2025-07-tea-app-firebase"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "**/firestore.rules",
+        "**/storage.rules",
+        "**/database.rules.json"
+      ],
+      "patterns": [
+        "allow\\s+(read|write)[^;]*:\\s*if\\s+true",
+        "request\\.time\\s*<\\s*timestamp\\.date",
+        "['\"]\\.(read|write)['\"]\\s*:\\s*(true|['\"]true['\"])"
+      ],
+      "pattern_files": [
+        "*.rules",
+        "*.json"
+      ]
+    }
+  },
+  {
+    "id": "cloud-baas-config/public-object-storage",
+    "category": "cloud-baas-config",
+    "title": "공개된 객체 스토리지와 그 안의 비밀",
+    "severity": "high",
+    "method": "config",
+    "applies_to": [
+      "aws",
+      "gcp",
+      "terraform",
+      "any"
+    ],
+    "why": "Tea 앱은 공개 버킷으로, JADEPUFFER는 버킷 속 .env·credentials.json·terraform state로 확산했다. 할리스는 클라우드에 방치된 임시 파일을 털렸다.",
+    "how_to_check": [
+      "IaC에서 버킷 ACL public-read, Block Public Access 해제, allUsers/allAuthenticatedUsers 바인딩을 찾는다",
+      "terraform state가 어디 저장되는지(원격 백엔드 암호화·접근 제한) 본다. 저장소에 *.tfstate가 커밋됐는지 본다",
+      "업로드 버킷과 정적 호스팅 버킷이 분리돼 있는지, 사용자 업로드가 공개 URL로 나가는지 본다"
+    ],
+    "pass_criteria": "공개가 의도된 정적 자산 외에는 버킷이 비공개이고, state·백업·비밀 파일이 공개 위치에 없다.",
+    "remediation": "계정 단위 Block Public Access를 켜고, 업로드는 서명 URL로 제공하고, state를 암호화된 원격 백엔드로 옮긴다.",
+    "incidents": [
+      "2025-07-tea-app-firebase",
+      "2026-07-jadepuffer-agentic-ransomware",
+      "2026-10-hollys-cloud-tempfile"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "**/*.tfstate",
+        "**/*.tfstate.backup"
+      ],
+      "patterns": [
+        "acl\\s*=\\s*[\"']public-read",
+        "block_public_(acls|policy)\\s*=\\s*false",
+        "allUsers|allAuthenticatedUsers",
+        "restrict_public_buckets\\s*=\\s*false"
+      ],
+      "pattern_files": [
+        "*.tf",
+        "*.json",
+        "*.yml",
+        "*.yaml"
+      ]
+    }
+  },
+  {
+    "id": "cloud-baas-config/repo-and-environment-least-privilege",
+    "category": "cloud-baas-config",
+    "title": "저장소·개발환경의 최소 권한",
+    "severity": "high",
+    "method": "infra",
+    "applies_to": [
+      "any"
+    ],
+    "why": "티빙은 개발자 전원이 전체 프로젝트에 접근할 수 있어 한 명의 개발환경 키로 소스 361건이 유출됐다. GitHub도 직원 한 명의 권한으로 내부 저장소 3,800개가 털렸다.",
+    "how_to_check": [
+      "Git 조직의 기본 저장소 권한(base permission)과 운영 비밀이 있는 저장소의 접근 범위를 묻는다",
+      "개발·스테이징 환경 자격증명으로 운영에 닿을 수 있는지(같은 계정·같은 키) 본다",
+      "CODEOWNERS·브랜치 보호가 운영 배포 저장소에 있는지 본다"
+    ],
+    "pass_criteria": "저장소 접근이 팀·역할 단위로 제한되고, 개발 환경 자격증명으로 운영에 접근할 수 없으며, 운영 배포 저장소에 보호 규칙이 있다.",
+    "remediation": "조직 기본 권한을 none/read로 낮추고, 운영·개발 클라우드 계정을 분리하고, 브랜치 보호와 CODEOWNERS를 건다.",
+    "incidents": [
+      "2026-06-tving-access-key",
+      "2026-05-github-vscode-extension"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "**/CODEOWNERS"
+      ]
+    }
+  },
+  {
+    "id": "cloud-baas-config/supabase-rls",
+    "category": "cloud-baas-config",
+    "title": "Supabase Row Level Security",
+    "severity": "critical",
+    "method": "config",
+    "applies_to": [
+      "supabase"
+    ],
+    "why": "Lovable로 만든 앱 다수와 Moltbook이 RLS 없이 클라이언트 공개 키만으로 데이터를 읽고 쓰게 열려 있었다.",
+    "how_to_check": [
+      "supabase/migrations의 모든 public 스키마 테이블에 ENABLE ROW LEVEL SECURITY가 있는지 본다",
+      "각 테이블에 정책(CREATE POLICY)이 있고 auth.uid()로 행을 제한하는지, USING (true) 같은 전체 허용이 없는지 본다",
+      "service_role 키가 클라이언트 코드·NEXT_PUBLIC_ 변수에 들어가지 않았는지 본다",
+      "가능하면 anon 키만으로 로컬에서 각 테이블 조회를 시도해 보는 방법을 보고서에 제안한다(운영 대상 시도는 하지 않는다)"
+    ],
+    "pass_criteria": "모든 노출 테이블에 RLS가 켜져 있고 소유자 기준 정책이 있으며, service_role 키가 서버에만 있다.",
+    "remediation": "모든 테이블에 RLS를 켜고 소유자 정책을 쓰고, service_role 키를 교체해 서버로만 옮긴다.",
+    "incidents": [
+      "2025-05-lovable-supabase-rls",
+      "2026-02-moltbook-supabase"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "supabase/migrations/*.sql"
+      ],
+      "patterns": [
+        "(?i)create\\s+table",
+        "(?i)enable\\s+row\\s+level\\s+security",
+        "(?i)using\\s*\\(\\s*true\\s*\\)",
+        "(?i)service_role"
+      ],
+      "pattern_files": [
+        "*.sql",
+        "*.ts",
+        "*.js",
+        "*.tsx",
+        "*.env*"
+      ]
+    }
+  },
+  {
+    "id": "credential-key/default-and-weak-credentials",
+    "category": "credential-key",
+    "title": "기본·약한·테스트 자격증명",
+    "severity": "critical",
+    "method": "config",
+    "applies_to": [
+      "any"
+    ],
+    "why": "JADEPUFFER는 MinIO 기본 계정과 Nacos 기본 JWT 키를, McDonald's 채용 AI는 '123456' 관리자 계정을 통해 뚫렸다. AI 에이전트는 기본 자격증명을 빠짐없이 대입한다.",
+    "how_to_check": [
+      "compose·k8s·IaC·설정 파일에서 기본값을 찾는다: minioadmin, admin/admin, root 빈 비밀번호, postgres/postgres, guest/guest, changeme, Nacos 기본 token.secret.key",
+      "시드·마이그레이션에 운영까지 들어가는 테스트·관리자 계정이 있는지 본다",
+      "비밀번호 정책(최소 길이, 유출 비밀번호 차단)이 관리자 계정에도 적용되는지 본다"
+    ],
+    "pass_criteria": "어느 환경에도 기본·빈·추측 가능한 자격증명이 없고, 테스트 계정은 운영에 생성되지 않는다.",
+    "remediation": "기본값을 비밀 관리자 주입값으로 바꾸고, 운영 시드에서 테스트 계정을 빼고, 관리자 계정에 MFA를 건다.",
+    "incidents": [
+      "2026-07-jadepuffer-agentic-ransomware",
+      "2025-07-mchire-ai-chatbot",
+      "2026-02-fortigate-ai-assisted"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "minioadmin",
+        "(?i)MYSQL_ALLOW_EMPTY_PASSWORD",
+        "(?i)(POSTGRES|MYSQL_ROOT|MONGO_INITDB_ROOT)_PASSWORD\\s*[:=]\\s*['\\\"]?(postgres|root|admin|password|example|changeme)",
+        "(?i)nacos\\.core\\.auth\\.(plugin\\.nacos\\.token\\.secret\\.key|default\\.token\\.secret\\.key)",
+        "(?i)['\\\"](admin|root)['\\\"]\\s*,\\s*['\\\"](admin|root|1234|123456|password)['\\\"]",
+        "(?i)\\bchangeme\\b"
+      ],
+      "pattern_files": [
+        "*.yml",
+        "*.yaml",
+        "*.json",
+        "*.toml",
+        "*.tf",
+        "*.env*",
+        "*.properties",
+        "*.conf",
+        "Dockerfile*",
+        "*.ini",
+        "*.xml",
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs"
+      ]
+    }
+  },
+  {
+    "id": "credential-key/hardcoded-secrets",
+    "category": "credential-key",
+    "title": "소스·클라이언트·이미지에 하드코딩된 비밀",
+    "severity": "critical",
+    "method": "code",
+    "applies_to": [
+      "any"
+    ],
+    "why": "티빙은 소스코드 속 운영 AWS 키 43개로, 쿠팡은 소스·노트북에 박힌 서명키로 뚫렸다. AI 공격 조직은 모바일 앱·공개 저장소·컨테이너 이미지의 하드코딩 비밀을 자동으로 수집한다.",
+    "how_to_check": [
+      "scan 결과와 gitleaks(설치돼 있으면)로 저장소의 비밀 후보를 찾는다. 커밋 이력도 본다(`git log -p`는 범위를 좁혀서)",
+      "프런트엔드 번들·모바일 앱 소스에 들어가는 환경변수(NEXT_PUBLIC_, VITE_, REACT_APP_, EXPO_PUBLIC_)에 비밀이 섞였는지 본다",
+      "Dockerfile의 ENV·ARG·COPY .env로 이미지에 비밀이 구워지는지 본다",
+      ".gitignore에 .env·키 파일이 있는지, 실제로 커밋된 .env가 없는지 본다"
+    ],
+    "pass_criteria": "저장소·이력·클라이언트 번들·이미지에 유효한 비밀이 없고, 비밀은 비밀 관리자나 배포 환경에서 런타임에 주입된다.",
+    "remediation": "찾은 비밀은 즉시 폐기·재발급하고(이력에서 지우는 것만으로는 부족), 비밀 관리자로 옮기고, pre-commit·CI에 비밀 스캐너를 건다.",
+    "incidents": [
+      "2026-06-tving-access-key",
+      "2025-11-coupang-signing-key",
+      "2026-09-ai-crews-saas-tokens",
+      "2026-09-ai-hacktivist-cms",
+      "2026-04-lovable-bola-regression",
+      "2026-02-moltbook-supabase"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "**/.env",
+        "**/.env.*",
+        "**/*.pem",
+        "**/*.p12",
+        "**/*.jks",
+        "**/id_rsa*",
+        "**/credentials.json",
+        "**/service-account*.json"
+      ],
+      "patterns": [
+        "AKIA[0-9A-Z]{16}",
+        "gh[pousr]_[A-Za-z0-9]{30,}",
+        "github_pat_[A-Za-z0-9_]{30,}",
+        "xox[baprs]-[A-Za-z0-9-]{10,}",
+        "sk-(proj-|ant-)?[A-Za-z0-9_-]{20,}",
+        "AIza[0-9A-Za-z_-]{35}",
+        "-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----",
+        "(?i)(api[_-]?key|secret|passwd|password|token)\\s*[:=]\\s*['\"][^'\"\\s]{12,}['\"]",
+        "(?i)(NEXT_PUBLIC|VITE|REACT_APP|EXPO_PUBLIC)_[A-Z_]*(SECRET|PRIVATE|SERVICE_ROLE)"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs",
+        "*.yml",
+        "*.yaml",
+        "*.json",
+        "*.toml",
+        "*.tf",
+        "*.env*",
+        "*.properties",
+        "*.conf",
+        "Dockerfile*",
+        "*.ini",
+        "*.xml"
+      ]
+    }
+  },
+  {
+    "id": "credential-key/high-value-signing-controls",
+    "category": "credential-key",
+    "title": "고액 서명·출금 시스템의 통제",
+    "severity": "critical",
+    "method": "infra",
+    "applies_to": [
+      "crypto"
+    ],
+    "why": "Bybit(블라인드 서명), Drift(사전서명 트랜잭션), 업비트(키 추정 취약점), Binance(서명 서비스 접근)에서 2025~2026년 수십억 달러가 빠져나갔다.",
+    "how_to_check": [
+      "서명자가 지갑 UI가 아닌 독립 수단(하드웨어 지갑 화면, 별도 검증 도구)으로 트랜잭션 내용을 확인하는지 묻는다",
+      "핫월렛 비중·한도, 대량 출금 지연(타임락), 이상 출금 자동 차단이 있는지 묻는다",
+      "서명 서비스에 접근할 수 있는 배포 토큰·계정·네트워크 경로를 코드·IaC에서 찾는다",
+      "키 생성·서명 라이브러리가 검증된 것인지(난수, nonce 재사용 방지) 본다",
+      "사전서명(durable nonce 등) 트랜잭션과 멀티시그 임계값 정책이 있는지 묻는다"
+    ],
+    "pass_criteria": "서명 내용을 독립 검증하고, 핫월렛 한도·타임락·이상 차단이 있고, 서명 서비스 접근이 별도 승인 경로로 제한된다.",
+    "remediation": "블라인드 서명을 금지하고, 고액은 타임락과 다중 승인, 서명 인프라는 일반 배포 파이프라인과 분리한다.",
+    "incidents": [
+      "2025-02-bybit-safe-wallet",
+      "2026-04-drift-protocol-multisig",
+      "2025-11-upbit-solana-hotwallet",
+      "2026-10-binance-signing-infra"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "credential-key/incident-secret-rotation",
+    "category": "credential-key",
+    "title": "침해 후 비밀 일괄 교체",
+    "severity": "high",
+    "method": "process",
+    "applies_to": [
+      "any"
+    ],
+    "why": "Trivy는 비밀 교체가 한 번에 끝나지 않아 남은 자격증명으로 재침투당했고, Gainsight는 앞선 사건에서 털린 토큰이 그대로 쓰였다.",
+    "how_to_check": [
+      "비밀 노출 대응 런북이 있는지, '전체 목록 → 동시 교체 → 옛 값 폐기 확인' 순서인지 묻는다",
+      "비밀이 어디에 쓰이는지(CI, 배포, 서드파티 연동) 목록이 있어 빠짐없이 교체할 수 있는지 본다",
+      "서드파티가 침해를 공지했을 때 그 서드파티에 준 토큰을 교체하는 절차가 있는지 묻는다"
+    ],
+    "pass_criteria": "비밀 교체 런북과 비밀 사용처 목록이 있고, 서드파티 침해 공지도 교체 트리거로 정해져 있다.",
+    "remediation": "비밀 사용처 목록을 만들고, 교체는 '새 값 배포 → 옛 값 폐기 → 옛 값 사용 시도 감시' 순서로 한 번에 한다.",
+    "incidents": [
+      "2026-03-trivy-teampcp",
+      "2025-11-gainsight-oauth",
+      "2026-03-litellm-pypi-backdoor"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "credential-key/long-lived-cloud-keys",
+    "category": "credential-key",
+    "title": "장기 유효·과다 권한 클라우드 키",
+    "severity": "high",
+    "method": "config",
+    "applies_to": [
+      "aws",
+      "gcp",
+      "terraform",
+      "github-actions"
+    ],
+    "why": "EU 집행위는 다른 AWS 계정까지 관리할 수 있는 장기 키를 CI 공급망에서 털렸고, Bybit은 개발자 PC의 클라우드 세션 토큰으로 지갑 UI가 변조됐다.",
+    "how_to_check": [
+      "IaC에서 aws_iam_access_key·서비스 계정 키(google_service_account_key) 생성이 있는지 본다",
+      "CI가 클라우드에 접근할 때 OIDC(역할 위임)를 쓰는지, 장기 키를 secrets에 넣는지 본다",
+      "IAM 정책에 Action \"*\" / Resource \"*\" / AdministratorAccess가 사람·CI·앱에 붙어 있는지 본다",
+      "액세스 키 생성(CreateAccessKey)·권한 변경에 알림이 있는지 묻는다"
+    ],
+    "pass_criteria": "사람·CI는 단기 자격증명(SSO·OIDC)만 쓰고, 앱은 역할로 접근하며, 와일드카드 관리자 권한이 없고, 키 생성에 알림이 있다.",
+    "remediation": "CI를 OIDC로 전환하고, 장기 키를 폐기하고, 정책을 최소 권한으로 좁히고, 키 생성·권한 변경 알림을 건다.",
+    "incidents": [
+      "2026-03-european-commission-aws",
+      "2025-02-bybit-safe-wallet",
+      "2026-06-tving-access-key"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "aws_iam_access_key",
+        "google_service_account_key",
+        "(?i)aws-access-key-id:\\s*\\$\\{\\{\\s*secrets",
+        "[\"']Action[\"']\\s*:\\s*[\"']\\*[\"']",
+        "AdministratorAccess"
+      ],
+      "pattern_files": [
+        "*.tf",
+        "*.yml",
+        "*.yaml",
+        "*.json"
+      ]
+    }
+  },
+  {
+    "id": "credential-key/orphaned-credentials",
+    "category": "credential-key",
+    "title": "퇴사자·협력사·파일럿용으로 발급된 뒤 남은 자격증명",
+    "severity": "high",
+    "method": "process",
+    "applies_to": [
+      "any"
+    ],
+    "why": "Klue는 2022년 파일럿용으로 협력사에 준 자격증명을 폐기하지 않아 고객 200곳의 데이터가 털렸다. 쿠팡은 퇴사자가 본 서명키를 바꾸지 않았다.",
+    "how_to_check": [
+      "API 키·서비스 계정·배포 토큰·SSH 키·OAuth 클라이언트의 목록과 각 소유자·만료일이 있는지 묻는다",
+      "퇴사·이동·협력사 계약 종료 체크리스트에 '본인이 만들었거나 본 키 교체'가 있는지 본다",
+      "90일 이상 쓰지 않은 키를 찾는 절차(클라우드 콘솔·IdP 리포트)가 있는지 묻는다"
+    ],
+    "pass_criteria": "모든 비인간 자격증명에 소유자와 만료가 있고, 인원·계약 변동 시 교체되며, 미사용 키를 정기 정리한다.",
+    "remediation": "비인간 자격증명 대장을 만들고 만료를 강제하고, 오프보딩 체크리스트에 키 교체를 넣는다.",
+    "incidents": [
+      "2026-06-klue-legacy-credential",
+      "2025-11-coupang-signing-key"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "credential-key/plaintext-credential-storage",
+    "category": "credential-key",
+    "title": "평문으로 저장된 계정·비밀번호·키",
+    "severity": "critical",
+    "method": "code",
+    "applies_to": [
+      "any"
+    ],
+    "why": "SKT는 관리망 서버의 평문 계정정보 파일로 수평 이동해 HSS까지 갔다. Moltbook은 사용자의 서드파티 API 키를 평문으로 저장했다.",
+    "how_to_check": [
+      "비밀번호 저장에 bcrypt·scrypt·argon2·PBKDF2가 쓰이는지, MD5·SHA1·평문이 아닌지 본다",
+      "사용자가 맡긴 서드파티 토큰·API 키를 DB에 저장한다면 필드 단위 암호화(KMS 키)를 하는지 본다",
+      "서버·배치 스크립트·운영 문서에 계정·비밀번호를 적은 파일(account.txt, passwords.xlsx, *.kdbx 아님)이 있는지 본다",
+      "주민번호·카드번호·인증키 같은 법정 암호화 대상이 암호화돼 저장되는지 본다"
+    ],
+    "pass_criteria": "비밀번호는 적응형 해시로, 저장 토큰·키·법정 암호화 대상은 KMS 키로 암호화되고, 평문 계정 파일이 없다.",
+    "remediation": "해시 알고리즘을 교체하고(다음 로그인 때 재해시), 저장 토큰을 봉투 암호화하고, 계정 파일을 비밀 관리자·PAM으로 옮긴다.",
+    "incidents": [
+      "2025-04-skt-usim-hss",
+      "2026-02-moltbook-supabase",
+      "2025-08-lguplus-apt-down"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)\\b(md5|sha1)\\s*\\(",
+        "(?i)hashlib\\.(md5|sha1)\\(",
+        "(?i)createHash\\(['\\\"](md5|sha1)",
+        "(?i)password\\s*=\\s*request\\.(form|json|POST)"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs"
+      ]
+    }
+  },
+  {
+    "id": "credential-key/secret-classification-in-platforms",
+    "category": "credential-key",
+    "title": "배포 플랫폼 환경변수의 민감 분류",
+    "severity": "medium",
+    "method": "config",
+    "applies_to": [
+      "any"
+    ],
+    "why": "Vercel 사고에서 '비민감'으로 저장된 환경변수가 복호화 가능한 상태로 열람됐다.",
+    "how_to_check": [
+      "Vercel·Netlify·Render·Railway·GitHub·GitLab 등 배포·CI 플랫폼의 환경변수 중 비밀이 '민감(sensitive/secret/masked)'으로 저장됐는지 묻는다",
+      "IaC로 관리한다면 sensitive 플래그가 켜져 있는지 본다"
+    ],
+    "pass_criteria": "비밀인 환경변수는 모두 플랫폼의 민감 등급으로 저장돼 다시 읽을 수 없다.",
+    "remediation": "비밀을 민감 등급으로 다시 저장하고, 기존 값은 노출됐다고 보고 교체한다.",
+    "incidents": [
+      "2026-04-vercel-context-ai-oauth"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)sensitive\\s*=\\s*false",
+        "(?i)vercel_project_environment_variable"
+      ],
+      "pattern_files": [
+        "*.tf"
+      ]
+    }
+  },
+  {
+    "id": "credential-key/shared-device-and-instance-secrets",
+    "category": "credential-key",
+    "title": "여러 장비·인스턴스가 공유하는 같은 키·인증서",
+    "severity": "high",
+    "method": "code",
+    "applies_to": [
+      "any"
+    ],
+    "why": "KT는 모든 펨토셀이 같은 인증서(유효기간 10년)를 써서 불법 장비가 망에 붙었다. ServiceNow는 모든 인스턴스에 같은 정적 비밀이 쓰였다.",
+    "how_to_check": [
+      "펌웨어·모바일 앱·에이전트·SDK에 들어가는 키·인증서가 기기·고객·인스턴스마다 다른지 본다",
+      "장비·클라이언트 인증서의 유효기간과 폐기(CRL·OCSP) 수단이 있는지 본다",
+      "멀티테넌트 서비스에서 테넌트 간 공통 비밀(웹훅 서명키, 내부 API 키)이 있는지 본다"
+    ],
+    "pass_criteria": "기기·인스턴스·테넌트마다 고유 자격증명이 발급되고, 유효기간이 짧고, 개별 폐기가 가능하다.",
+    "remediation": "장비별 인증서 발급(프로비저닝) 체계를 만들고, 공통 비밀을 테넌트별로 쪼개고, 폐기 수단을 붙인다.",
+    "incidents": [
+      "2025-09-kt-femtocell",
+      "2026-01-servicenow-ai-agent-auth"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "credential-key/signing-key-lifecycle",
+    "category": "credential-key",
+    "title": "토큰 서명키 보관·교체·폐기",
+    "severity": "critical",
+    "method": "code",
+    "applies_to": [
+      "web"
+    ],
+    "why": "쿠팡 퇴사자가 교체되지 않은 서명키로 액세스 토큰을 위조해 5개월간 3,367만 건을 조회했다.",
+    "how_to_check": [
+      "JWT·세션·쿠키 서명키가 어디서 로드되는지 찾는다(소스 상수, 환경변수, KMS/HSM, JWKS)",
+      "토큰에 kid가 있고 검증 쪽이 여러 키를 동시에 받는지(무중단 교체 가능) 본다",
+      "키 교체 주기와 '키를 본 사람이 퇴사·이동하면 교체' 절차가 코드·런북에 있는지 묻는다",
+      "모든 API 게이트웨이·서비스가 같은 방식으로 서명·만료·발급자(iss)·대상(aud)을 검증하는지 본다. 일부 경로만 고친 흔적이 없는지 본다",
+      "HS256 대칭키를 여러 서비스가 나눠 쓰는지 본다(한 곳이 새면 전부 위조 가능)"
+    ],
+    "pass_criteria": "서명키가 KMS·HSM·비밀 관리자에 있고, kid 기반으로 무중단 교체할 수 있고, 교체 절차(정기·인원 변동 시)가 있으며, 모든 진입점이 서명·만료·iss·aud를 검증한다.",
+    "remediation": "서명키를 KMS로 옮기고 비대칭(RS/ES) + JWKS로 바꾸고, 인원 변동을 키 교체 트리거로 정하고, 게이트웨이 단에서 일괄 검증한다.",
+    "incidents": [
+      "2025-11-coupang-signing-key"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)jwt[_-]?(secret|key)",
+        "\\bHS(256|384|512)\\b",
+        "(?i)jsonwebtoken|pyjwt|jose|jjwt",
+        "(?i)verify\\s*=\\s*False|verify_signature['\\\"]?\\s*:\\s*False|algorithms\\s*=\\s*\\[\\s*['\\\"]none"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs",
+        "*.yml",
+        "*.yaml",
+        "*.json",
+        "*.toml",
+        "*.tf",
+        "*.env*",
+        "*.properties",
+        "*.conf",
+        "Dockerfile*",
+        "*.ini",
+        "*.xml"
+      ]
+    }
+  },
+  {
+    "id": "data-minimization/retention-and-disposal",
+    "category": "data-minimization",
+    "title": "탈퇴·휴면·옛 시스템 데이터와 임시 파일 파기",
+    "severity": "high",
+    "method": "code",
+    "applies_to": [
+      "any"
+    ],
+    "why": "티빙(비활성·테스트 계정 1,700만+), 넷마블(휴면 ID 3,100만), 맑은소프트(교체 전 시스템 데이터), 할리스(멤버십 개편 임시 파일), Tea(레거시 버킷)는 지웠어야 할 데이터 때문에 피해가 커졌다.",
+    "how_to_check": [
+      "탈퇴·휴면 처리 코드가 개인정보를 실제로 삭제·분리 보관하는지 본다(플래그만 바꾸는지)",
+      "보존 기간이 지난 데이터를 지우는 배치·TTL·수명 주기 정책이 있는지 본다",
+      "마이그레이션·백필 스크립트가 만든 덤프·CSV·임시 테이블을 지우는 단계가 있는지 본다",
+      "운영 데이터를 개발·테스트 환경에 복사하는지, 복사한다면 가명처리하는지 본다"
+    ],
+    "pass_criteria": "보존 기간이 코드·정책으로 강제되고, 탈퇴·휴면 데이터가 삭제·분리되며, 임시 덤프가 남지 않고, 비운영 환경에 실데이터가 없다.",
+    "remediation": "데이터 유형별 보존 기간을 정해 자동 삭제를 만들고, 임시 덤프는 만료 버킷에만 쓰고, 테스트 데이터는 가명처리한다.",
+    "incidents": [
+      "2026-06-tving-access-key",
+      "2025-11-netmarble-portal",
+      "2026-09-malgeunsoft-lms-supplier",
+      "2026-10-hollys-cloud-tempfile",
+      "2025-07-tea-app-firebase"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "**/*.sql.gz",
+        "**/*dump*.sql",
+        "**/*.csv"
+      ],
+      "patterns": [
+        "(?i)(is_?deleted|deleted_?at|withdrawn|dormant)\\s*[:=]",
+        "(?i)lifecycle_rule|expiration\\s*\\{|\\bttl\\b"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs",
+        "*.tf"
+      ]
+    }
+  },
+  {
+    "id": "data-minimization/sensitive-data-in-logs-and-dumps",
+    "category": "data-minimization",
+    "title": "로그·메모리 덤프·에러 응답 속 개인정보와 비밀",
+    "severity": "high",
+    "method": "code",
+    "applies_to": [
+      "any"
+    ],
+    "why": "정부24는 메모리 덤프 속 평문 주민번호·계정이, 국내 금융사 침해는 고객정보가 담긴 로그 파일이 털렸다.",
+    "how_to_check": [
+      "로깅 코드에서 요청 바디·헤더·사용자 객체 전체를 남기는 곳을 찾는다(logger.info(req.body), print(user))",
+      "로그 마스킹 필터(주민번호·카드번호·전화·토큰)가 있는지 본다",
+      "에러 응답에 스택트레이스·쿼리·내부 값이 나가는지 본다",
+      "힙덤프·코어덤프가 어디 저장되고 누가 접근하는지 본다"
+    ],
+    "pass_criteria": "로그에 개인정보·비밀이 마스킹되고, 에러 응답에 내부 정보가 없으며, 덤프 파일 접근이 제한된다.",
+    "remediation": "공통 로깅 마스킹 필터를 넣고, 요청 전체 로깅을 금지하고, 운영 에러 응답을 일반화하고, 덤프 저장소를 격리한다.",
+    "incidents": [
+      "2026-08-gov24-kids-portal",
+      "2026-09-kr-finance-artex-campaign"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)(log(ger)?\\.(info|debug|warn|error)|console\\.log|print)\\([^)]*(req\\.body|request\\.body|headers|password|token|ssn|jumin|rrn)",
+        "(?i)printStackTrace\\(\\)|traceback\\.format_exc\\(\\)"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs"
+      ]
+    }
+  },
+  {
+    "id": "data-minimization/sensitive-data-in-third-parties-and-tools",
+    "category": "data-minimization",
+    "title": "분석 SDK·협업 도구로 흘러간 민감 데이터",
+    "severity": "medium",
+    "method": "code",
+    "applies_to": [
+      "web",
+      "any"
+    ],
+    "why": "Mixpanel 침해로 보낼 필요가 없던 OpenAI API 사용자 정보가 나갔고, 빗썸은 그룹웨어 속 고객 신분증이, Salesloft Drift는 CRM 케이스 속 비밀값이 털렸다.",
+    "how_to_check": [
+      "analytics·APM·에러 추적 SDK(mixpanel, amplitude, segment, gtag, sentry, datadog) 호출에 이메일·이름·전화 같은 식별 정보를 넘기는지 본다",
+      "Sentry 등에서 sendDefaultPii·요청 바디 수집이 켜져 있는지 본다",
+      "고객 신분증·주민번호를 그룹웨어·메신저·티켓에 첨부하는 업무 관행이 있는지 묻는다",
+      "지원 티켓·CRM에 비밀번호·API 키를 적는 관행이 있는지 묻는다"
+    ],
+    "pass_criteria": "외부 SDK에는 가명 ID만 가고, PII 수집 옵션이 꺼져 있으며, 신분증·비밀값을 협업 도구에 두지 않는다.",
+    "remediation": "SDK 호출을 가명 ID로 바꾸고 PII 수집 옵션을 끄고, 신분증은 전용 보관소로 옮기고, 티켓의 비밀값 탐지를 켠다.",
+    "incidents": [
+      "2025-11-mixpanel-smishing",
+      "2026-10-bithumb-groupware",
+      "2025-08-salesloft-drift-oauth"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)(mixpanel|amplitude|analytics|segment|posthog)\\.(identify|track|people\\.set)\\([^)]*(email|phone|name)",
+        "(?i)sendDefaultPii\\s*:\\s*true|send_default_pii\\s*=\\s*True"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs"
+      ]
+    }
+  },
+  {
+    "id": "detection-response/anomalous-access-alerting",
+    "category": "detection-response",
+    "title": "대량 조회·비정상 접근 탐지와 알림",
+    "severity": "high",
+    "method": "infra",
+    "applies_to": [
+      "any"
+    ],
+    "why": "쿠팡(5개월), GS리테일(8개월), Salesforce 대량 export(UNC6040·Charter), Coinbase 지원 도구 조회, EU 집행위 키 생성이 모두 알림 없이 진행됐다.",
+    "how_to_check": [
+      "개인정보 대량 조회·다운로드·API export에 임계값 알림이 있는지 코드·모니터링 설정에서 본다",
+      "새 액세스 키 생성, 관리자 권한 부여, 새 OAuth 앱 승인, 새 기기 등록에 알림이 있는지 묻는다",
+      "한 토큰·계정이 평소와 다른 IP·지역·양으로 접근할 때 탐지하는지 묻는다",
+      "24시간 관제(자체·위탁)가 있는지 묻는다"
+    ],
+    "pass_criteria": "대량 조회·export·키 생성·권한 변경에 알림이 있고, 알림을 24시간 받아 대응하는 주체가 있다.",
+    "remediation": "개인정보 조회량 기준선과 임계값 알림을 만들고, 클라우드·IdP·SaaS 감사 이벤트를 SIEM 알림으로 연결하고, 관제 주체를 정한다.",
+    "incidents": [
+      "2025-11-coupang-signing-key",
+      "2025-01-gs-retail-credential-stuffing",
+      "2025-06-unc6040-salesforce-vishing",
+      "2026-05-charter-sso-saas",
+      "2025-05-coinbase-insider-bribery",
+      "2026-03-european-commission-aws",
+      "2026-02-cisco-sdwan-uat8616",
+      "2025-10-f5-source-code-theft",
+      "2026-09-kr-finance-artex-campaign"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "detection-response/breach-notification-runbook",
+    "category": "detection-response",
+    "title": "침해 신고·통지 런북과 증거 보존",
+    "severity": "medium",
+    "method": "process",
+    "applies_to": [
+      "any"
+    ],
+    "why": "KT는 감염을 은폐하고 서버 폐기일을 허위 보고했고, LG유플러스는 서버를 재설치해 조사가 막혔다. SKT·디올·할리스·정부24는 통지가 늦었다.",
+    "how_to_check": [
+      "침해사고 대응 런북에 법정 신고 기한이 적혀 있는지 본다: 정보통신망법 침해사고 신고(인지 후 24시간 이내, KISA·과기정통부), 개인정보 유출 신고·통지(인지 후 72시간 이내, 개인정보위·정보주체), 금융권은 금융당국 별도 기준, 해외 상장사는 SEC 8-K(중대성 판단 후 4영업일)",
+      "증거 보존(로그·디스크 이미지 확보 전 서버 폐기·재설치 금지) 단계가 있는지 본다",
+      "사고 지휘자·연락망·외부 포렌식 업체가 정해져 있는지 묻는다",
+      "최근 1년 안에 모의 훈련을 했는지 묻는다"
+    ],
+    "pass_criteria": "런북에 법정 기한·증거 보존·역할이 있고 연 1회 이상 훈련한다.",
+    "remediation": "런북에 신고 기한 표와 증거 보존 체크리스트를 넣고, 연락망을 갱신하고, 연 1회 탁상 훈련을 한다.",
+    "incidents": [
+      "2025-09-kt-femtocell",
+      "2025-08-lguplus-apt-down",
+      "2025-04-skt-usim-hss",
+      "2025-05-luxury-brands-saas-vishing",
+      "2026-08-gov24-kids-portal"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "detection-response/security-log-coverage-and-retention",
+    "category": "detection-response",
+    "title": "보안 로그 범위와 보존 기간",
+    "severity": "high",
+    "method": "config",
+    "applies_to": [
+      "any"
+    ],
+    "why": "KT는 로그를 1~2개월만 보관해 추가 피해를 확인하지 못했고, SKT·온나라·Amadeus는 수년간 몰랐다. 국내법(개인정보 안전성 확보조치 기준)은 접속기록을 1년, 대규모·고유식별정보 처리 시 2년 이상 보관하게 한다.",
+    "how_to_check": [
+      "인증(성공·실패), 권한 변경, 관리자 행위, 개인정보 조회·다운로드, 비밀·키 사용 로그를 남기는지 코드·설정에서 본다",
+      "로그가 앱 서버 밖(중앙 수집, 변경 불가 저장소)으로 가는지 본다",
+      "보존 기간 설정(CloudWatch retention, 버킷 수명 주기, SIEM)이 1년 이상(대상에 따라 2년)인지 본다",
+      "개인정보 접속기록을 월 1회 이상 점검하는지 묻는다"
+    ],
+    "pass_criteria": "보안 이벤트 로그가 중앙의 변경 불가 저장소로 가고 법정 기간 이상 보존되며, 접속기록을 정기 점검한다.",
+    "remediation": "감사 로그 이벤트 목록을 정하고 중앙 수집·불변 저장을 설정하고, 보존 기간을 법정 기준 이상으로 맞추고, 월간 점검을 일정에 넣는다.",
+    "incidents": [
+      "2025-09-kt-femtocell",
+      "2025-04-skt-usim-hss",
+      "2025-10-gov-onnara-gpki",
+      "2026-10-korean-air-asiana-amadeus",
+      "2025-05-luxury-brands-saas-vishing"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "retention_in_days\\s*=\\s*([1-9]|[1-9]\\d|[1-2]\\d\\d|3[0-5]\\d)\\b",
+        "(?i)audit[_-]?log"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs",
+        "*.tf",
+        "*.yml",
+        "*.yaml"
+      ]
+    }
+  },
+  {
+    "id": "ransomware-resilience/isolated-backups-and-restore",
+    "category": "ransomware-resilience",
+    "title": "격리 백업과 복구 시험",
+    "severity": "critical",
+    "method": "infra",
+    "applies_to": [
+      "any"
+    ],
+    "why": "예스24는 오프사이트 백업이 없어 두 달 만에 재감염됐고, SGI서울보증은 완전 복구에 약 6개월이 걸렸다. JADEPUFFER는 운영 DB를 지우고 키를 남기지 않았다.",
+    "how_to_check": [
+      "운영 DB·파일 백업이 운영 계정과 다른 계정·위치에 있고 불변(Object Lock, WORM)인지 묻는다",
+      "운영 관리자 자격증명으로 백업을 지울 수 없는지 묻는다",
+      "최근 6개월 안에 실제 복구 시험을 했는지, 목표 복구 시간(RTO)을 쟀는지 묻는다",
+      "IaC에 백업 보존·Object Lock·교차 계정 복제 설정이 있는지 본다"
+    ],
+    "pass_criteria": "백업이 운영과 분리된 불변 저장소에 있고, 운영 자격증명으로 지울 수 없으며, 정기 복구 시험 기록이 있다.",
+    "remediation": "백업을 별도 계정의 Object Lock 저장소로 복제하고, 백업 삭제 권한을 분리하고, 분기별 복구 시험을 한다.",
+    "incidents": [
+      "2025-06-yes24-ransomware",
+      "2025-07-sgi-seoul-guarantee-ransomware",
+      "2026-07-jadepuffer-agentic-ransomware",
+      "2026-09-ai-hacktivist-cms"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)object_lock|aws_backup_vault_lock|backup_retention_period\\s*=\\s*0|point_in_time_recovery"
+      ],
+      "pattern_files": [
+        "*.tf",
+        "*.yml",
+        "*.yaml"
+      ]
+    }
+  },
+  {
+    "id": "ransomware-resilience/segmentation-and-lateral-movement",
+    "category": "ransomware-resilience",
+    "title": "내부망 분리와 수평 이동 차단",
+    "severity": "high",
+    "method": "infra",
+    "applies_to": [
+      "any"
+    ],
+    "why": "SKT는 관리망에서 HSS까지 수평 이동했고, Asahi는 네트워크 장비 하나로 데이터센터 전체가 동시 암호화됐다. 웰컴저축은행은 서버 분리 덕에 침입 흔적이 없었다.",
+    "how_to_check": [
+      "운영·관리·개발·사무 네트워크가 분리돼 있고 경계에 접근 통제가 있는지 묻는다",
+      "IaC 보안그룹·NetworkPolicy가 서비스 간 필요한 통신만 허용하는지(전체 허용 내부 규칙이 없는지) 본다",
+      "가상화 관리(vCenter·ESXi)·백업 서버·도메인 컨트롤러가 별도 관리망에 있는지 묻는다",
+      "서버에서 외부로 나가는 통신(egress)이 제한되는지 본다"
+    ],
+    "pass_criteria": "네트워크가 역할별로 분리되고, 서비스 간 통신이 최소로 허용되며, 관리 평면이 분리되고, egress가 제한된다.",
+    "remediation": "관리 평면을 별도 망으로 옮기고, 보안그룹·NetworkPolicy를 기본 차단으로 바꾸고, egress 허용 목록을 둔다.",
+    "incidents": [
+      "2025-04-skt-usim-hss",
+      "2025-09-asahi-ransomware",
+      "2025-04-uk-retail-helpdesk"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "kind:\\s*NetworkPolicy",
+        "(?i)egress\\s*\\{[^}]*0\\.0\\.0\\.0/0"
+      ],
+      "pattern_files": [
+        "*.tf",
+        "*.yml",
+        "*.yaml"
+      ]
+    }
+  },
+  {
+    "id": "saas-oauth-thirdparty/connected-app-governance",
+    "category": "saas-oauth-thirdparty",
+    "title": "SaaS 연결 앱·OAuth 권한 관리",
+    "severity": "high",
+    "method": "process",
+    "applies_to": [
+      "any"
+    ],
+    "why": "Salesforce 보이스피싱(UNC6040)은 직원이 공격자의 연결 앱을 승인하게 만들었고, Salesloft Drift·Gainsight·Klue·Context.ai는 연결된 서드파티 하나가 뚫려 수백 고객사로 번졌다.",
+    "how_to_check": [
+      "Salesforce·Google Workspace·M365·Slack·GitHub에 연결된 서드파티 앱·OAuth 권한 목록을 정기적으로 검토하는지 묻는다",
+      "사용자가 새 OAuth 앱을 승인하려면 관리자 승인이 필요한지(사용자 동의 제한) 묻는다",
+      "연결 앱 토큰에 IP 제한·세션 만료가 설정돼 있는지 묻는다",
+      "서드파티가 침해를 공지했을 때 해당 앱 토큰을 즉시 폐기하는 절차가 있는지 묻는다"
+    ],
+    "pass_criteria": "연결 앱 목록을 분기마다 검토하고, 새 앱은 관리자 승인이 필요하며, 토큰에 IP 제한·만료가 있다.",
+    "remediation": "사용자 OAuth 동의를 관리자 승인으로 바꾸고, 미사용 연결 앱을 정리하고, 중요한 연결 앱에 IP 제한을 건다.",
+    "incidents": [
+      "2025-06-unc6040-salesforce-vishing",
+      "2025-08-salesloft-drift-oauth",
+      "2025-11-gainsight-oauth",
+      "2026-06-klue-legacy-credential",
+      "2026-04-vercel-context-ai-oauth",
+      "2025-05-luxury-brands-saas-vishing"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "saas-oauth-thirdparty/stored-customer-token-protection",
+    "category": "saas-oauth-thirdparty",
+    "title": "우리 서비스가 보관하는 고객 OAuth 토큰 보호",
+    "severity": "critical",
+    "method": "code",
+    "applies_to": [
+      "web"
+    ],
+    "why": "Salesloft Drift와 Klue는 고객 연동용 OAuth 토큰을 한곳에 모아 두었다가 함께 털려 고객 수백 곳이 침해됐다.",
+    "how_to_check": [
+      "우리 서비스가 고객의 서드파티 OAuth 토큰·API 키를 저장하는지 확인한다(아니면 N/A)",
+      "토큰이 KMS 봉투 암호화로 저장되는지, 평문·앱 공통 키 암호화인지 본다",
+      "요청하는 scope가 기능에 필요한 최소인지, refresh 토큰 수명·폐기 처리가 있는지 본다",
+      "토큰 사용(어느 IP·어느 서비스에서) 로그와 비정상 사용 탐지가 있는지 본다"
+    ],
+    "pass_criteria": "고객 토큰이 봉투 암호화되고, scope가 최소이며, 사용 로그와 비정상 탐지가 있고, 일괄 폐기 수단이 있다.",
+    "remediation": "토큰을 KMS로 봉투 암호화하고, scope를 줄이고, 토큰 사용 감사 로그와 고객별 일괄 폐기 기능을 만든다.",
+    "incidents": [
+      "2025-08-salesloft-drift-oauth",
+      "2026-06-klue-legacy-credential",
+      "2025-11-gainsight-oauth"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)(refresh_token|access_token)\\s*[:=]",
+        "(?i)(oauth|integration)_?tokens?\\b"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs",
+        "*.sql",
+        "*.prisma"
+      ]
+    }
+  },
+  {
+    "id": "saas-oauth-thirdparty/vendor-and-subcontractor-access",
+    "category": "saas-oauth-thirdparty",
+    "title": "협력사·수탁사 접근 관리",
+    "severity": "high",
+    "method": "process",
+    "applies_to": [
+      "any"
+    ],
+    "why": "LG유플러스(보안 협력사), 맑은소프트(수탁사 한 곳에 20여 고객), 대한항공·아시아나(Amadeus 계정 3년), Coinbase(외주 지원 인력)가 모두 우리 밖의 계정으로 들어왔다.",
+    "how_to_check": [
+      "협력사·수탁사·외주 인력이 접근하는 시스템과 계정 목록이 있는지 묻는다",
+      "협력사 계정에 MFA·IP 제한·접근 기간이 적용되는지 묻는다",
+      "개인정보 처리 위탁 계약에 보안 요건·점검·사고 통지 의무가 있고 실제 점검하는지 묻는다",
+      "외부 연계 API(제휴사·수탁사)가 제휴사별 키와 범위 제한을 쓰는지 코드에서 본다"
+    ],
+    "pass_criteria": "협력사 접근이 목록화되고 MFA·기간·범위가 제한되며, 수탁사를 정기 점검하고, 연계 API가 제휴사별로 분리돼 있다.",
+    "remediation": "협력사 접근을 PAM·전용 IdP 그룹으로 모으고, 접근 기간을 계약과 묶고, 수탁사 연 1회 점검을 한다.",
+    "incidents": [
+      "2025-08-lguplus-apt-down",
+      "2026-09-malgeunsoft-lms-supplier",
+      "2026-10-korean-air-asiana-amadeus",
+      "2026-10-daishin-partner-api",
+      "2025-05-coinbase-insider-bribery"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "social-engineering-identity/developer-targeted-lures",
+    "category": "social-engineering-identity",
+    "title": "개발자 대상 가짜 채용·협업 미끼",
+    "severity": "high",
+    "method": "process",
+    "applies_to": [
+      "any"
+    ],
+    "why": "Binance(가짜 면접 과제 저장소), axios(가짜 창업자·회의), Bybit(악성 프로젝트), 북한 IT 노동자(AI로 만든 가짜 지원자)가 개발자를 노렸다.",
+    "how_to_check": [
+      "외부에서 받은 코드·과제 저장소·설치 파일을 업무 PC에서 실행하지 말라는 규칙과 격리 환경(VM·클라우드 개발환경)이 있는지 묻는다",
+      "운영 접근 권한이 있는 엔지니어의 업무 PC와 개인 활동(구직·커뮤니티)이 분리되는지 묻는다",
+      "원격 채용에서 신원 확인(신분증 대조, 라이브 영상, 장비 수령지 확인)을 하는지 묻는다"
+    ],
+    "pass_criteria": "외부 코드 실행은 격리 환경에서만 하고, 특권 엔지니어 PC가 분리되며, 원격 채용 신원 확인 절차가 있다.",
+    "remediation": "외부 코드용 일회성 개발 환경을 제공하고, 특권 작업은 전용 단말에서만, 채용에 신원 확인 단계를 넣는다.",
+    "incidents": [
+      "2026-10-binance-signing-infra",
+      "2026-03-axios-npm-maintainer",
+      "2025-02-bybit-safe-wallet",
+      "2025-08-dprk-it-workers-ai"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "social-engineering-identity/helpdesk-reset-verification",
+    "category": "social-engineering-identity",
+    "title": "헬프데스크의 비밀번호·MFA 재설정 본인확인",
+    "severity": "critical",
+    "method": "process",
+    "applies_to": [
+      "any"
+    ],
+    "why": "M&S·Co-op, Salesforce 고객사들, 디올·티파니, Odido, Charter가 전화 한 통으로 계정이나 접근권한을 내줬다.",
+    "how_to_check": [
+      "전화·채팅으로 비밀번호·MFA 재설정을 요청받으면 어떤 수단으로 본인확인을 하는지 묻는다(사번·생년월일만이면 FAIL)",
+      "콜백 번호를 요청자가 아니라 사내 디렉터리에서 가져오는지 묻는다",
+      "관리자·특권 계정 재설정에 관리자 승인이나 대면·영상 확인이 추가되는지 묻는다",
+      "고객센터 직원이 '외부 지원팀'에게 SaaS 접근을 허용하거나 원격 지원 도구를 설치하는 것을 금지하는지 묻는다"
+    ],
+    "pass_criteria": "재설정 시 소유 기반 확인(등록된 기기·보안키) 또는 디렉터리 콜백을 하고, 특권 계정은 추가 승인이 필요하며, 외부 지원 요청 대응 규칙이 있다.",
+    "remediation": "헬프데스크 본인확인 절차를 문서화하고(지식 기반 질문 금지), 특권 계정 재설정에 2인 승인을 넣고, 상담원에게 비싱 시나리오 훈련을 한다.",
+    "incidents": [
+      "2025-04-uk-retail-helpdesk",
+      "2025-06-unc6040-salesforce-vishing",
+      "2025-05-luxury-brands-saas-vishing",
+      "2026-02-odido-crm-vishing",
+      "2026-05-charter-sso-saas"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "social-engineering-identity/out-of-band-verification",
+    "category": "social-engineering-identity",
+    "title": "음성·영상 사칭에 대비한 대역 외 확인",
+    "severity": "medium",
+    "method": "process",
+    "applies_to": [
+      "any"
+    ],
+    "why": "AI 음성 복제로 고위 관료를 사칭한 사례가 확인됐고, Drift Protocol은 6개월간 신뢰를 쌓은 위장 상대에게 서명자들이 공략당했다.",
+    "how_to_check": [
+      "송금·결제 변경·권한 부여·서명 요청이 음성·영상·메신저로 오면 미리 등록된 다른 채널로 확인하는 규칙이 있는지 묻는다",
+      "임원 사칭 요청에 쓰는 확인 문구·콜백 절차가 있는지 묻는다"
+    ],
+    "pass_criteria": "고위험 요청은 등록된 별도 채널로 확인하고, 그 절차가 문서화돼 있다.",
+    "remediation": "고위험 요청 유형을 정하고 대역 외 확인을 의무화하고, 딥페이크 사례로 훈련한다.",
+    "incidents": [
+      "2025-07-deepfake-voice-official",
+      "2026-04-drift-protocol-multisig"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "social-engineering-identity/support-tool-data-exposure",
+    "category": "social-engineering-identity",
+    "title": "고객지원·관리 도구의 데이터 노출 범위",
+    "severity": "high",
+    "method": "code",
+    "applies_to": [
+      "web"
+    ],
+    "why": "Coinbase는 매수된 외주 지원 인력이 지원 도구로 고객 신분증까지 빼냈고, Odido·디올은 상담원 계정 하나로 CRM 대량 다운로드가 됐다.",
+    "how_to_check": [
+      "관리자·CS 화면 코드에서 고객 상세 조회가 기본 마스킹인지, 원문 보기에 사유 입력·추가 인증이 있는지 본다",
+      "CS 역할이 볼 수 있는 필드가 역할별로 제한되는지 본다",
+      "관리 도구에 일괄 조회·export 기능이 있으면 한도·승인이 있는지 본다",
+      "관리자 조회 기록(누가 누구를 언제 왜)을 남기는지 본다"
+    ],
+    "pass_criteria": "관리 도구가 기본 마스킹·역할별 필드 제한·조회 사유 기록을 하고, 대량 조회·export에 한도와 승인이 있다.",
+    "remediation": "원문 조회를 사유+재인증 뒤로 옮기고, 역할별 필드 제한을 두고, 1인 일일 조회 한도와 이상 알림을 만든다.",
+    "incidents": [
+      "2025-05-coinbase-insider-bribery",
+      "2026-02-odido-crm-vishing",
+      "2025-05-luxury-brands-saas-vishing"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)\\b(admin|backoffice|support)[/_-]",
+        "(?i)\\bmask(ing|ed)?\\b"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs"
+      ]
+    }
+  },
+  {
+    "id": "software-supply-chain/ci-action-pinning",
+    "category": "software-supply-chain",
+    "title": "CI 액션·도구의 커밋 SHA 고정",
+    "severity": "high",
+    "method": "config",
+    "applies_to": [
+      "github-actions",
+      "gitlab-ci"
+    ],
+    "why": "Trivy 공격자는 trivy-action 태그 77개 중 76개를 악성 커밋으로 옮겼고, 태그로 참조하던 CI(LiteLLM, EU 집행위 등)가 비밀을 털렸다.",
+    "how_to_check": [
+      "uses: owner/action@v1 처럼 태그·브랜치로 참조하는 서드파티 액션을 센다(actions/* 공식 포함 여부는 팀 정책)",
+      "CI에서 curl | sh, latest 이미지, 버전 없는 도구 설치를 찾는다",
+      "Dependabot·Renovate로 SHA 고정 액션을 갱신하는지 본다"
+    ],
+    "pass_criteria": "서드파티 액션이 40자 커밋 SHA로 고정되고, CI 도구 설치가 버전·체크섬 고정이며, 갱신 자동화가 있다.",
+    "remediation": "액션을 SHA로 고정하고(주석에 버전), 도구는 체크섬 검증 후 설치하고, Renovate로 갱신 PR을 받는다.",
+    "incidents": [
+      "2026-03-trivy-teampcp",
+      "2026-03-litellm-pypi-backdoor",
+      "2026-03-european-commission-aws"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "uses:\\s*[\\w.-]+/[\\w./-]+@(v?\\d+(\\.\\d+)*|main|master|latest)\\s*$",
+        "curl[^|\\n]*\\|\\s*(ba)?sh"
+      ],
+      "pattern_files": [
+        "*.yml",
+        "*.yaml"
+      ]
+    }
+  },
+  {
+    "id": "software-supply-chain/ci-token-scope-and-isolation",
+    "category": "software-supply-chain",
+    "title": "CI 토큰 권한과 작업 격리",
+    "severity": "high",
+    "method": "config",
+    "applies_to": [
+      "github-actions",
+      "gitlab-ci"
+    ],
+    "why": "Amazon Q 확장은 CI의 과다 권한 토큰으로 악성 코드가 릴리스에 섞였고, TanStack은 릴리스 러너 메모리의 OIDC 토큰으로 직접 게시됐다.",
+    "how_to_check": [
+      "워크플로·작업에 permissions: 블록이 있고 기본이 read-all/contents: read인지 본다",
+      "id-token: write와 게시 비밀(NPM_TOKEN, PYPI_TOKEN 등)이 릴리스 작업에만 있는지 본다",
+      "릴리스가 보호된 environment(필수 승인자)를 거치는지 본다",
+      "자체 호스팅 러너가 외부 PR 작업과 릴리스 작업에 함께 쓰이는지 본다"
+    ],
+    "pass_criteria": "기본 토큰이 읽기 전용이고, 쓰기·게시 권한은 승인이 필요한 릴리스 작업에만 있으며, 신뢰 수준이 다른 작업은 러너·캐시를 공유하지 않는다.",
+    "remediation": "워크플로 최상단에 permissions: contents: read를 두고, 릴리스를 보호된 environment로 옮기고, 러너를 신뢰 수준별로 분리한다.",
+    "incidents": [
+      "2025-07-amazon-q-vscode-extension",
+      "2026-05-tanstack-cache-poisoning",
+      "2026-02-clinejection-ci-agent"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "permissions:\\s*write-all",
+        "id-token:\\s*write",
+        "secrets\\.(NPM_TOKEN|PYPI_TOKEN|PYPI_API_TOKEN|NODE_AUTH_TOKEN)",
+        "runs-on:\\s*self-hosted"
+      ],
+      "pattern_files": [
+        "*.yml",
+        "*.yaml"
+      ]
+    }
+  },
+  {
+    "id": "software-supply-chain/dependency-pinning-and-cooldown",
+    "category": "software-supply-chain",
+    "title": "의존성 고정과 신규 버전 유예",
+    "severity": "high",
+    "method": "config",
+    "applies_to": [
+      "node",
+      "python",
+      "any"
+    ],
+    "why": "chalk·debug(약 2시간), axios(약 3시간), TanStack(약 20분)처럼 악성 버전은 대개 몇 시간 안에 내려간다. 고정·유예가 있으면 대부분 피한다.",
+    "how_to_check": [
+      "lockfile(package-lock.json, pnpm-lock.yaml, yarn.lock, poetry.lock, uv.lock, requirements 해시)이 커밋돼 있는지 본다",
+      "CI가 npm ci / pnpm install --frozen-lockfile / pip install --require-hashes처럼 lockfile을 강제하는지 본다",
+      "신규 릴리스 유예(pnpm 10.16+ minimumReleaseAge, npm min-release-age, Renovate minimumReleaseAge, uv exclude-newer)가 있는지 본다. 패키지 관리자 버전이 낮아 설정 자체가 없으면 그것도 적는다",
+      "의존성 갱신이 사람 검토를 거치는지(자동 머지 범위) 본다"
+    ],
+    "pass_criteria": "lockfile이 커밋되고 CI가 강제하며, 새 버전은 며칠 유예 후 들어온다.",
+    "remediation": "lockfile을 강제하고, 신규 버전 유예(예: 3~7일)를 설정하고, 자동 머지는 유예를 지난 패치 버전으로 제한한다.",
+    "incidents": [
+      "2025-09-npm-chalk-debug-phishing",
+      "2026-03-axios-npm-maintainer",
+      "2026-05-tanstack-cache-poisoning",
+      "2025-09-shai-hulud-worm"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "**/package.json",
+        "**/package-lock.json",
+        "**/pnpm-lock.yaml",
+        "**/yarn.lock",
+        "**/poetry.lock",
+        "**/uv.lock",
+        "**/requirements*.txt",
+        "**/.npmrc",
+        "**/renovate.json",
+        "**/.github/dependabot.yml"
+      ],
+      "patterns": [
+        "\\bnpm install\\b(?!.*--frozen)",
+        "(?i)minimumReleaseAge|min-release-age|exclude-newer",
+        "--require-hashes|--frozen-lockfile|\\bnpm ci\\b"
+      ],
+      "pattern_files": [
+        "*.yml",
+        "*.yaml",
+        "*.json",
+        "Dockerfile*",
+        "*.sh",
+        ".npmrc",
+        "*.toml"
+      ]
+    }
+  },
+  {
+    "id": "software-supply-chain/frontend-asset-integrity",
+    "category": "software-supply-chain",
+    "title": "프런트엔드 정적 자산 무결성",
+    "severity": "high",
+    "method": "config",
+    "applies_to": [
+      "web"
+    ],
+    "why": "Bybit은 S3에 올라간 지갑 웹 UI의 JS가 바꿔치기돼 14.6억 달러를 잃었다. ForcedLeak는 CSP 허용 목록의 만료 도메인으로 데이터를 내보냈다.",
+    "how_to_check": [
+      "정적 자산 버킷·CDN에 쓰기 권한을 가진 주체(사람·CI·앱)가 누구인지 IaC에서 본다",
+      "외부 CDN 스크립트에 integrity(SRI) 속성이 있는지 본다",
+      "CSP가 있는지, script-src·connect-src·img-src 허용 도메인이 모두 소유·유효한지 본다",
+      "배포 산출물 해시를 기록·검증하는 단계가 있는지 본다"
+    ],
+    "pass_criteria": "정적 자산 쓰기 권한이 배포 파이프라인 하나로 제한되고, 외부 스크립트에 SRI가 있으며, CSP 허용 도메인이 모두 유효하다.",
+    "remediation": "자산 버킷 쓰기를 배포 역할로만 제한하고, SRI와 엄격한 CSP를 적용하고, 허용 도메인을 분기마다 점검한다.",
+    "incidents": [
+      "2025-02-bybit-safe-wallet",
+      "2025-09-forcedleak-agentforce"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "<script[^>]+src=[\"']https?://(?![^\"']*integrity)",
+        "(?i)content-security-policy",
+        "(?i)unsafe-inline|unsafe-eval"
+      ],
+      "pattern_files": [
+        "*.html",
+        "*.tsx",
+        "*.jsx",
+        "*.ts",
+        "*.js",
+        "*.conf",
+        "*.json"
+      ]
+    }
+  },
+  {
+    "id": "software-supply-chain/gha-untrusted-trigger",
+    "category": "software-supply-chain",
+    "title": "GitHub Actions의 신뢰할 수 없는 트리거·입력",
+    "severity": "critical",
+    "method": "config",
+    "applies_to": [
+      "github-actions"
+    ],
+    "why": "Nx, Trivy, TanStack, Shai-Hulud 2차가 모두 pull_request_target이나 PR 제목 같은 외부 입력으로 CI 비밀을 빼앗겼다.",
+    "how_to_check": [
+      ".github/workflows/*.yml에서 on: pull_request_target, workflow_run, issue_comment, issues를 찾는다",
+      "그 워크플로가 PR head를 checkout(ref: github.event.pull_request.head.sha 등)하거나 PR 코드를 빌드·실행하는지 본다",
+      "run: 안에 ${{ github.event.issue.title }}, pull_request.title/body, head_ref, comment.body가 직접 들어가는지 본다(셸 인젝션)",
+      "같은 캐시 키를 신뢰할 수 없는 작업과 릴리스 작업이 공유하는지 본다"
+    ],
+    "pass_criteria": "외부 트리거 워크플로가 PR 코드를 실행하지 않고, 외부 입력은 env로 넘겨 따옴표 처리하며, 릴리스 작업과 캐시를 공유하지 않는다.",
+    "remediation": "pull_request_target을 pull_request로 바꾸거나 비밀 없는 작업으로 분리하고, 외부 입력을 env 변수로 넘기고, 릴리스 캐시를 분리한다. zizmor·actionlint로 CI에서 검사한다.",
+    "incidents": [
+      "2025-08-nx-s1ngularity",
+      "2026-03-trivy-teampcp",
+      "2026-05-tanstack-cache-poisoning",
+      "2025-09-shai-hulud-worm"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        ".github/workflows/*.yml",
+        ".github/workflows/*.yaml"
+      ],
+      "patterns": [
+        "pull_request_target",
+        "workflow_run",
+        "\\$\\{\\{\\s*github\\.event\\.(issue|pull_request|comment|review|head_commit)\\.(title|body|head\\.ref|message)",
+        "\\$\\{\\{\\s*github\\.head_ref",
+        "ref:\\s*\\$\\{\\{\\s*github\\.event\\.pull_request\\.head"
+      ],
+      "pattern_files": [
+        "*.yml",
+        "*.yaml"
+      ]
+    }
+  },
+  {
+    "id": "software-supply-chain/ide-extension-and-installer-integrity",
+    "category": "software-supply-chain",
+    "title": "IDE 확장·개발 도구 설치본 관리",
+    "severity": "high",
+    "method": "process",
+    "applies_to": [
+      "any"
+    ],
+    "why": "GitHub은 오염된 VS Code 확장으로 내부 저장소 3,800개를 털렸고, Binance 엔지니어는 'AI 코딩 도구'를 검색하다 변조된 설치본에 감염됐다.",
+    "how_to_check": [
+      "개발자 PC에 설치 가능한 IDE 확장 허용 목록이나 정책이 있는지 묻는다",
+      "저장소의 .vscode/extensions.json 권장 확장이 공식 게시자인지 본다",
+      "개발 도구를 공식 배포처·패키지 관리자에서 서명 검증 후 설치하는 기준이 있는지 묻는다"
+    ],
+    "pass_criteria": "IDE 확장은 허용 목록으로 관리되고, 개발 도구는 공식 배포처에서 서명 검증 후 설치된다.",
+    "remediation": "IDE 확장 허용 목록(MDM·정책)을 배포하고, 개발 도구 설치 기준을 문서화하고, 개발 PC에 EDR을 둔다.",
+    "incidents": [
+      "2026-05-github-vscode-extension",
+      "2026-10-binance-signing-infra"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "**/.vscode/extensions.json"
+      ]
+    }
+  },
+  {
+    "id": "software-supply-chain/install-scripts",
+    "category": "software-supply-chain",
+    "title": "패키지 install 스크립트 실행 제한",
+    "severity": "high",
+    "method": "config",
+    "applies_to": [
+      "node"
+    ],
+    "why": "Nx와 Shai-Hulud는 postinstall/preinstall 스크립트로 개발자 PC와 CI의 비밀을 수집했다.",
+    "how_to_check": [
+      "패키지 관리자와 버전을 확인한다(package.json packageManager, lockfileVersion, 로컬 `pnpm -v`). pnpm 10 이상은 의존성 install 스크립트를 기본 차단하지만 npm·yarn·pnpm 9 이하는 기본 실행한다",
+      ".npmrc에 ignore-scripts=true가 있는지, pnpm이면 onlyBuiltDependencies(허용 목록)를 쓰는지 본다",
+      "CI 설치 단계가 --ignore-scripts를 쓰는지 본다",
+      "install 스크립트가 꼭 필요한 패키지 목록이 관리되는지 본다"
+    ],
+    "pass_criteria": "install 스크립트가 기본 차단되고 필요한 패키지만 허용 목록으로 실행된다.",
+    "remediation": ".npmrc에 ignore-scripts=true를 두고, pnpm onlyBuiltDependencies나 @lavamoat/allow-scripts로 필요한 것만 허용한다.",
+    "incidents": [
+      "2025-08-nx-s1ngularity",
+      "2025-09-shai-hulud-worm"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "**/.npmrc",
+        "**/pnpm-workspace.yaml"
+      ],
+      "patterns": [
+        "ignore-scripts",
+        "onlyBuiltDependencies"
+      ],
+      "pattern_files": [
+        ".npmrc",
+        "*.yaml",
+        "*.json"
+      ]
+    }
+  },
+  {
+    "id": "software-supply-chain/package-publishing-hardening",
+    "category": "software-supply-chain",
+    "title": "직접 게시하는 패키지의 계정·게시 보호",
+    "severity": "high",
+    "method": "process",
+    "applies_to": [
+      "node",
+      "python"
+    ],
+    "why": "chalk·debug 메인테이너는 TOTP 피싱에, axios 메인테이너는 2주짜리 표적 사회공학에, LiteLLM은 CI에서 털린 게시 토큰에 당했다.",
+    "how_to_check": [
+      "이 저장소가 npm·PyPI 등에 패키지를 게시하는지 확인한다(아니면 N/A)",
+      "게시가 trusted publishing(OIDC) + provenance로 되는지, 장기 게시 토큰을 쓰는지 본다",
+      "메인테이너 계정이 피싱 내성 2FA(보안키·패스키)를 쓰는지, 게시에 2인 승인이 있는지 묻는다",
+      "계정 이메일·2FA 변경 시 재인증과 알림이 있는지 묻는다"
+    ],
+    "pass_criteria": "게시는 trusted publishing으로만, 메인테이너는 보안키 2FA, 장기 게시 토큰이 없다.",
+    "remediation": "trusted publishing으로 전환하고 장기 토큰을 폐기하고, 메인테이너에 보안키를 의무화한다.",
+    "incidents": [
+      "2025-09-npm-chalk-debug-phishing",
+      "2026-03-axios-npm-maintainer",
+      "2026-03-litellm-pypi-backdoor"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "npm publish",
+        "twine upload|pypa/gh-action-pypi-publish",
+        "--provenance"
+      ],
+      "pattern_files": [
+        "*.yml",
+        "*.yaml",
+        "*.json",
+        "*.sh"
+      ]
+    }
+  },
+  {
+    "id": "unpatched-exposed/ai-workflow-server-exposure",
+    "category": "unpatched-exposed",
+    "title": "AI 워크플로·에이전트 서버 노출",
+    "severity": "critical",
+    "method": "config",
+    "applies_to": [
+      "llm-app",
+      "docker",
+      "mcp"
+    ],
+    "why": "JADEPUFFER는 패치 안 된 인터넷 노출 Langflow에서 시작해 운영 DB를 지웠다. 노출된 AI 게이트웨이·에이전트 게이트웨이는 LLM 키와 내부 접근이 모이는 곳이다.",
+    "how_to_check": [
+      "compose·k8s·IaC에서 Langflow, Flowise, n8n, LiteLLM, OpenClaw, Jupyter, Open WebUI, Ollama, Dify 같은 AI 서버를 찾는다",
+      "포트가 0.0.0.0이나 퍼블릭 LB로 열려 있는지, 인증(로그인·API 키·SSO)이 켜져 있는지 본다",
+      "이미지 태그가 latest이거나 알려진 취약 버전(Langflow < 1.3.0 등)인지 본다",
+      "이 서버의 환경변수에 LLM·클라우드 키가 평문으로 들어가는지 본다"
+    ],
+    "pass_criteria": "AI 워크플로 서버가 인터넷에 직접 열려 있지 않거나 인증 뒤에 있고, 버전이 고정·최신이며, 키는 비밀 관리자에서 주입된다.",
+    "remediation": "AI 서버를 사설망·SSO 프록시 뒤로 옮기고, 버전을 고정해 패치하고, 키는 범위를 좁힌 별도 키로 비밀 관리자에서 넣는다.",
+    "incidents": [
+      "2026-07-jadepuffer-agentic-ransomware",
+      "2026-01-openclaw-gateway-token",
+      "2026-09-ai-crews-saas-tokens",
+      "2026-03-litellm-pypi-backdoor"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "(?i)\\b(langflow|flowise|n8nio|litellm|openclaw|jupyter|open-webui|ollama|dify)\\b"
+      ],
+      "pattern_files": [
+        "*.yml",
+        "*.yaml",
+        "*.tf",
+        "Dockerfile*",
+        "*.json"
+      ]
+    }
+  },
+  {
+    "id": "unpatched-exposed/edge-and-enterprise-patch-sla",
+    "category": "unpatched-exposed",
+    "title": "노출된 엣지 장비·엔터프라이즈 앱의 패치 기한",
+    "severity": "critical",
+    "method": "infra",
+    "applies_to": [
+      "any"
+    ],
+    "why": "VPN·방화벽·SharePoint·Oracle EBS·WebLogic·Ivanti·Windchill 같은 노출 제품의 제로데이·N-day가 2025~2026년 대량 침해의 가장 큰 단일 입구였다.",
+    "how_to_check": [
+      "외부에 노출된 VPN·방화벽·MDM·협업·ERP·미들웨어 제품과 버전 목록이 있는지 묻는다",
+      "CISA KEV·KISA 보안공지 등재 취약점의 패치 기한(예: 노출 자산 KEV 72시간 이내)이 정책·런북에 있는지 본다",
+      "Dockerfile·매니페스트에 WebLogic·Tomcat·Struts·Log4j·Spring 등 미들웨어 버전이 있으면 알려진 악용 CVE에 해당하는지 확인한다",
+      "EOL(지원 종료) 장비·소프트웨어가 인터넷에 노출돼 있는지 묻는다"
+    ],
+    "pass_criteria": "노출 제품 목록이 있고, KEV 등재 취약점의 패치 기한이 정해져 지켜지며, EOL 제품이 노출돼 있지 않다.",
+    "remediation": "노출 제품을 KEV 피드와 자동 대조하는 알림을 만들고, 패치가 불가능한 EOL 장비는 노출을 끊거나 교체한다.",
+    "incidents": [
+      "2025-09-lotte-card-weblogic",
+      "2025-03-oracle-cloud-legacy-sso",
+      "2025-07-sharepoint-toolshell",
+      "2025-08-oracle-ebs-cl0p",
+      "2025-09-cisco-asa-arcanedoor",
+      "2026-01-ivanti-epmm-zero-day",
+      "2026-02-cisco-sdwan-uat8616",
+      "2026-06-ptc-windchill",
+      "2025-09-asahi-ransomware",
+      "2025-06-citrixbleed2"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "**/Dockerfile*",
+        "**/pom.xml",
+        "**/build.gradle*"
+      ],
+      "patterns": [
+        "(?i)weblogic",
+        "(?i)log4j[-_]core.{0,20}2\\.(0|1[0-6])\\b",
+        "(?i)struts2?-core",
+        "(?i)FROM\\s+\\S*(tomcat|weblogic|jboss|wildfly)"
+      ],
+      "pattern_files": [
+        "Dockerfile*",
+        "pom.xml",
+        "build.gradle*",
+        "*.yml",
+        "*.yaml"
+      ]
+    }
+  },
+  {
+    "id": "unpatched-exposed/internet-exposure-inventory",
+    "category": "unpatched-exposed",
+    "title": "인터넷 노출 자산과 관리 인터페이스 목록",
+    "severity": "high",
+    "method": "infra",
+    "applies_to": [
+      "any"
+    ],
+    "why": "롯데카드는 패치 대상에서 빠진 서버 1대로, 국내 금융사 연쇄 침해는 잊힌 주변 업무 시스템으로 뚫렸다. AI 정찰은 노출 자산을 사람보다 빨리 전수 조사한다.",
+    "how_to_check": [
+      "IaC(Terraform·CloudFormation·k8s·compose)에서 인터넷에 열리는 리소스를 모은다: 0.0.0.0/0 인바운드, public IP, 퍼블릭 LB, publicly_accessible DB, NodePort/LoadBalancer 서비스",
+      "관리 포트(22, 3389, 3306, 5432, 6379, 9200, 27017, 8080 관리 콘솔, 5601, 15672)가 인터넷에 열려 있는지 본다",
+      "노출 자산 목록(자산 대장)이 저장소나 문서에 있는지, 담당자·패치 책임이 적혀 있는지 묻는다",
+      "도메인·서브도메인 목록(DNS IaC 등)과 실제 서비스가 대응하는지, 쓰지 않는 서브도메인이 남아 있는지 본다"
+    ],
+    "pass_criteria": "관리 포트가 인터넷에 열려 있지 않고(VPN·Bastion·IAP 경유), 노출 자산 목록이 있고 각 항목에 담당자가 있다.",
+    "remediation": "관리 평면을 사설망·IAP 뒤로 옮기고, 노출 자산 대장을 만들어 분기마다 외부 스캔 결과와 대조한다.",
+    "incidents": [
+      "2025-09-lotte-card-weblogic",
+      "2026-09-kr-finance-artex-campaign",
+      "2026-02-fortigate-ai-assisted",
+      "2026-05-agentic-attack-surface-recon",
+      "2025-11-ai-orchestrated-espionage",
+      "2025-08-ai-vibe-hacking-extortion",
+      "2025-09-kt-femtocell"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "files": [
+        "**/*.tf",
+        "**/docker-compose*.yml",
+        "**/compose*.yaml"
+      ],
+      "patterns": [
+        "0\\.0\\.0\\.0/0",
+        "publicly_accessible\\s*=\\s*true",
+        "type:\\s*(LoadBalancer|NodePort)",
+        "associate_public_ip_address\\s*=\\s*true",
+        "::/0"
+      ],
+      "pattern_files": [
+        "*.tf",
+        "*.yml",
+        "*.yaml",
+        "*.json"
+      ]
+    }
+  },
+  {
+    "id": "unpatched-exposed/post-patch-session-and-key-reset",
+    "category": "unpatched-exposed",
+    "title": "패치 후 세션 무효화와 키 교체",
+    "severity": "high",
+    "method": "process",
+    "applies_to": [
+      "any"
+    ],
+    "why": "CitrixBleed 2와 SharePoint ToolShell은 패치만 하고 탈취된 세션 토큰·machineKey를 그대로 둔 곳이 계속 뚫렸다.",
+    "how_to_check": [
+      "엣지 장비·서버 긴급 패치 런북에 '기존 세션 무효화', '서버 키(machineKey·서명키) 교체', '웹셸·지속성 점검'이 있는지 묻는다",
+      "마지막 긴급 패치 때 이 단계를 실제로 했는지 기록을 묻는다"
+    ],
+    "pass_criteria": "긴급 패치 런북에 세션 무효화·키 교체·침해 흔적 점검 단계가 있고 실행 기록이 있다.",
+    "remediation": "패치 런북 끝에 '이미 침해됐다고 가정' 단계를 넣는다: 세션 전부 끊기, 서버 키 교체, 웹셸 탐색.",
+    "incidents": [
+      "2025-06-citrixbleed2",
+      "2025-07-sharepoint-toolshell"
+    ],
+    "added_in": "1.0.0",
+    "status": "active"
+  },
+  {
+    "id": "unpatched-exposed/test-debug-endpoints",
+    "category": "unpatched-exposed",
+    "title": "운영에 남은 테스트·디버그·관리 엔드포인트",
+    "severity": "critical",
+    "method": "code",
+    "applies_to": [
+      "web"
+    ],
+    "why": "국내 금융사 연쇄 침해에서 인증 없는 테스트 페이지가 그대로 입구가 됐다. 정부24는 웹 취약점으로 메모리 덤프가 털렸다.",
+    "how_to_check": [
+      "라우트 정의에서 /test, /debug, /dev, /admin, /internal, /swagger, /api-docs, /actuator, /heapdump, /graphql(introspection) 경로를 찾는다",
+      "각 경로가 운영 빌드에서 비활성화되거나 인증 뒤에 있는지 본다(프로필·환경변수 분기 포함)",
+      "Spring Actuator·springdoc(Swagger UI, /v3/api-docs)·Django DEBUG·Flask debug 등이 운영 프로필에서 꺼져 있거나 인증 뒤에 있는지 본다. API 문서는 공격자에게 전체 엔드포인트 지도가 된다",
+      "힙덤프·메모리 덤프·스택트레이스가 응답으로 나갈 수 있는지 본다"
+    ],
+    "pass_criteria": "테스트·디버그·관리 경로가 운영에서 비활성화되거나 인증·IP 제한 뒤에 있고, 디버그 설정이 운영 프로필에서 꺼져 있다.",
+    "remediation": "운영 빌드에서 테스트 라우트를 제외하고, 관리 경로는 별도 내부 호스트로 분리하고, 디버그·덤프 엔드포인트를 끈다.",
+    "incidents": [
+      "2026-09-kr-finance-artex-campaign",
+      "2026-08-gov24-kids-portal",
+      "2026-09-ai-hacktivist-cms"
+    ],
+    "added_in": "1.0.0",
+    "status": "active",
+    "signals": {
+      "patterns": [
+        "['\"/](test|debug|dev|internal)[-_/]",
+        "(?i)management\\.endpoints\\.web\\.exposure\\.include\\s*[=:]\\s*\\*",
+        "\\bDEBUG\\s*=\\s*True\\b",
+        "app\\.run\\([^)]*debug\\s*=\\s*True",
+        "(?i)heapdump",
+        "(?i)introspection\\s*:\\s*true",
+        "(?i)swagger-ui|api-docs|springdoc"
+      ],
+      "pattern_files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.cjs",
+        "*.py",
+        "*.java",
+        "*.kt",
+        "*.go",
+        "*.rb",
+        "*.php",
+        "*.cs",
+        "*.properties",
+        "*.yml",
+        "*.yaml",
+        "*.env*"
+      ]
+    }
+  }
+]
