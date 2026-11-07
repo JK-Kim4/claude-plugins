@@ -1,6 +1,6 @@
 # breach-watch
 
-최근 실제로 뚫린 경로로 우리 시스템을 점검하는 스킬 2종. 국내·해외 해킹 사고(AI가 관여한 공격 포함)를 근본 원인별로 분류한 **버전 관리 카탈로그**가 중심이다.
+최근 실제로 뚫린 경로로 우리 시스템을 점검하는 스킬 3종. 국내·해외 해킹 사고(AI가 관여한 공격 포함)를 근본 원인별로 분류한 **버전 관리 카탈로그**가 중심이다.
 
 python3 3.9+ 만 있으면 동작한다. 외부 패키지 의존 없음.
 
@@ -9,11 +9,12 @@ python3 3.9+ 만 있으면 동작한다. 외부 패키지 의존 없음.
 /plugin install breach-watch@jongwan-plugins
 ```
 
-## 두 스킬
+## 세 스킬
 
 | 스킬 | 하는 일 | 언제 |
 |---|---|---|
 | `breach-audit` | 카탈로그로 현재 프로젝트를 **읽기 전용** 점검하고 보고서를 남긴다 | "최근 해킹 사례 기준으로 점검해줘", "쿠팡 같은 사고 우리도 당할 수 있어?" |
+| `breach-report` | 점검 보고서(.md)를 한 줄 bullet·쉬운 말·서비스 지도·공격 흐름 그림의 HTML로 만든다. 코드 근거는 접힌 개발자용 칸에만 | "점검 결과 HTML로 줘", "팀에 보여줄 보안 점검 요약" |
 | `breach-update` | 마지막 조사일 이후 사고를 조사해 사건·점검 항목을 추가하고 버전을 올린다 | "해킹 사례 카탈로그 업데이트", "이번 달 침해 사고 반영해줘" |
 
 ## 카탈로그
@@ -64,5 +65,6 @@ python3 3.9+ 만 있으면 동작한다. 외부 패키지 의존 없음.
 
 ```bash
 python3 -m unittest discover -s breach-watch/skills/breach-audit/tests
+python3 -I breach-watch/skills/breach-report/check/check.py <보고서.html>
 python3 breach-watch/skills/breach-audit/scripts/catalog.py validate
 ```

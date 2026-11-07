@@ -80,6 +80,7 @@ python3 <skill>/scripts/catalog.py scan --tags auto [--since X.Y.Z]
 
 - 저장소에 쓰기만 하고 커밋하지 않는다. 공개 저장소면 보고서가 공격 지도가 될 수 있으니 커밋 전에 사용자에게 확인을 받으라고 알린다.
 - 대화 답변은 FAIL 중 critical·high 상위 3개와 보고서 경로만. 나머지는 보고서에 있다고 말한다.
+- 사람이 읽을 문서(HTML)가 필요하면 breach-report 스킬로 같은 이름의 `.html`을 만든다. .md는 다음 점검이 읽는 원본이라 그대로 둔다.
 
 ## 판정할 때 흔한 실수
 

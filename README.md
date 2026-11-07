@@ -12,7 +12,7 @@ jongwan의 Claude Code 플러그인 마켓플레이스. 아홉 개의 플러그�
 | **agent-workflow** | 0.1.0 | 스킬 2 | 에이전트 작업 위생 — 토큰 낭비를 줄이는 규율(token-efficiency), 최신 `origin/develop` 기준 격리 Git worktree 생성과 작업 경로 고정(worktree). |
 | **dlc** | 0.1.0 | 스킬 10 | AI-DLC 방법론의 명시 호출형 생명주기 스킬셋. 라우터(dlc) + 스테이지 9개(init·analyze·intent·practices·requirements·design·plan·build·verify), 프로파일 3개(full·express·bugfix). 산출물·진행 상태를 `docs/dlc/`에 남기고 python3 stdlib 스크립트가 상태 전이·다음 단계 판정·산출물 검사를 맡는다. |
 | **ezpz** | 0.1.0 | 스킬 1 | 이지피지. 조건·규칙·흐름이 실제 화면이나 결과에 어떻게 나타나는지 목업·칸 격자·흐름·시간표 그림으로 한 장면씩 보여 주는 그림책 형식 설명 문서(HTML). 표지에 확인할 것, 마지막 장에 조직이 정할 것. 게시 전 점검 스크립트 포함. |
-| **breach-watch** | 0.1.0 | 스킬 2 | 최근 국내·해외 해킹 사고(AI 관여 포함)를 근본 원인별로 분류한 버전 관리 카탈로그(사건 85·점검 57)로 현재 시스템을 읽기 전용 점검(breach-audit), 새 사고 조사·카탈로그 버전 갱신(breach-update). 증분 점검 지원. |
+| **breach-watch** | 0.2.0 | 스킬 3 | 최근 국내·해외 해킹 사고(AI 관여 포함)를 근본 원인별로 분류한 버전 관리 카탈로그(사건 85·점검 57)로 현재 시스템을 읽기 전용 점검(breach-audit), 쉬운 HTML 보고서 생성(breach-report), 새 사고 조사·카탈로그 버전 갱신(breach-update). 증분 점검 지원. |
 
 ## 구성
 
@@ -59,6 +59,7 @@ claude-plugins/
 │   ├── README.md
 │   └── skills/
 │       ├── breach-audit/           # SKILL.md · catalog/(사건·점검·버전) · scripts/catalog.py · tests/
+│       ├── breach-report/          # SKILL.md · templates/report.html · reference/plain-words.md · check/check.py
 │       └── breach-update/          # SKILL.md · references/(출처·채택 기준·스키마)
 ├── archive/                      # 스킬 이전 버전 보관 — archive/<스킬명>/<교체일>/
 ├── docs/                         # design/(플러그인 설계) · research/ · review/(설계·구현 리뷰 기록)
