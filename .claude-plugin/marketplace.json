@@ -49,6 +49,11 @@
       "name": "breach-watch",
       "source": "./breach-watch",
       "description": "최근 국내·해외 해킹 사고(AI 관여 공격 포함)를 근본 원인별로 분류한 버전 관리 카탈로그로 현재 시스템을 읽기 전용 점검하고(breach-audit), 결과를 중학생도 읽는 쉬운 HTML(한 줄 bullet·서비스 지도·공격 흐름 그림)로 만들고(breach-report), 새 사고를 조사해 카탈로그 버전·변경 이력을 갱신한다(breach-update). 증분 점검 지원. python3 stdlib만 사용."
+    },
+    {
+      "name": "herdr-flow",
+      "source": "./herdr-flow",
+      "description": "Herdr 위에서 오케스트레이터 세션이 계획·지시·대조를, 하위 세션이 구현을 맡는 작업 방식 — 지시서 작성·새 탭 세션 기동(herdr-flow-brief), INBOX 보고 직접 대조(herdr-flow-verify), 세션 인계(herdr-handoff), 공용 규칙·스크립트."
     }
   ]
 }
