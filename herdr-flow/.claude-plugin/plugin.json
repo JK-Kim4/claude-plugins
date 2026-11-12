@@ -1,0 +1,17 @@
+{
+  "name": "herdr-flow",
+  "version": "0.1.0",
+  "description": "Herdr(코딩 에이전트용 터미널 멀티플렉서) 위에서 오케스트레이터 세션이 계획·지시·대조를 맡고 구현은 하위 세션이 하는 작업 방식의 스킬 묶음. 지시서 작성과 새 탭 yolo 세션 기동(herdr-flow-brief), INBOX 보고를 받아 원천으로 직접 대조(herdr-flow-verify), 컨텍스트가 찬 세션 인계(herdr-handoff), 공용 규칙과 기동·전송·컨텍스트 측정·감시·깨우기·정리 스크립트.",
+  "author": {
+    "name": "JK-Kim4"
+  },
+  "keywords": [
+    "herdr",
+    "orchestration",
+    "multi-agent",
+    "handoff",
+    "subagent",
+    "workflow"
+  ],
+  "license": "MIT"
+}
