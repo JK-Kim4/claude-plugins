@@ -22,7 +22,8 @@ Herdr 터미널 멀티플렉서 위에서 여러 Claude Code 세션으로 일하
 | 파일 | 내용 |
 |---|---|
 | `shared/rules.md` | 역할, 세션(새 탭·yolo·이름), 컨텍스트 기준(새 일 50%·하위 60%·오케스트레이터 70%), INBOX 보고, 체크리스트 기록, 직접 대조, 결정·승인(한 메시지에 하나), 지시서, 말투 |
-| `shared/folder-layout.md` | 작업 폴더 구성(HANDOFF·briefs·results·reports/INBOX·notes·backups·checklist·design-review) |
+| `shared/folder-layout.md` | 작업 폴더 구성(plan·decisions·HANDOFF·briefs·results·reports/INBOX·notes·design·checklist·design-review, 백업은 docs 밖) |
+| `shared/templates/` | 작업 폴더 양식 3개: `plan.md`(의도·범위·단계·검증), `decisions.md`(결정 기록, 쌓기만 함), `HANDOFF.md`(상태 한 장) |
 | `scripts/spawn.sh` | 새 탭 + 모델별 기동 + 이름 붙이기 + 준비 대기 |
 | `scripts/send.sh` | 지시 전송, working 확인, 안 먹으면 Enter 한 번 |
 | `scripts/ctx.sh` | 세션별 컨텍스트 %(세션 기록 jsonl 마지막 usage / 1M) |

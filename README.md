@@ -13,7 +13,7 @@ jongwan의 Claude Code 플러그인 마켓플레이스. 열 개의 플러그인�
 | **dlc** | 0.1.0 | 스킬 10 | AI-DLC 방법론의 명시 호출형 생명주기 스킬셋. 라우터(dlc) + 스테이지 9개(init·analyze·intent·practices·requirements·design·plan·build·verify), 프로파일 3개(full·express·bugfix). 산출물·진행 상태를 `docs/dlc/`에 남기고 python3 stdlib 스크립트가 상태 전이·다음 단계 판정·산출물 검사를 맡는다. |
 | **ezpz** | 0.1.0 | 스킬 1 | 이지피지. 조건·규칙·흐름이 실제 화면이나 결과에 어떻게 나타나는지 목업·칸 격자·흐름·시간표 그림으로 한 장면씩 보여 주는 그림책 형식 설명 문서(HTML). 표지에 확인할 것, 마지막 장에 조직이 정할 것. 게시 전 점검 스크립트 포함. |
 | **breach-watch** | 0.2.0 | 스킬 3 | 최근 국내·해외 해킹 사고(AI 관여 포함)를 근본 원인별로 분류한 버전 관리 카탈로그(사건 85·점검 57)로 현재 시스템을 읽기 전용 점검(breach-audit), 쉬운 HTML 보고서 생성(breach-report), 새 사고 조사·카탈로그 버전 갱신(breach-update). 증분 점검 지원. |
-| **herdr-flow** | 0.1.0 | 스킬 3 | Herdr 위에서 오케스트레이터 세션이 계획·지시·대조를, 하위 세션이 구현을 맡는 작업 방식. 지시서 작성·새 탭 yolo 세션 기동(herdr-flow-brief), INBOX 보고를 원천으로 직접 대조(herdr-flow-verify), 컨텍스트가 찬 세션 인계(herdr-handoff). 기동·전송·컨텍스트 측정·감시 스크립트 포함. |
+| **herdr-flow** | 0.2.0 | 스킬 3 | Herdr 위에서 오케스트레이터 세션이 계획·지시·대조를, 하위 세션이 구현을 맡는 작업 방식. 지시서 작성·새 탭 yolo 세션 기동(herdr-flow-brief), INBOX 보고를 원천으로 직접 대조(herdr-flow-verify), 컨텍스트가 찬 세션 인계(herdr-handoff). 기동·전송·컨텍스트 측정·감시 스크립트 포함. |
 
 ## 구성
 
@@ -66,7 +66,7 @@ claude-plugins/
 │   ├── .claude-plugin/plugin.json
 │   ├── README.md
 │   └── skills/
-│       ├── herdr-flow/             # 공용 묶음(SKILL.md 없음) · shared/(rules·folder-layout) · scripts/(spawn·send·ctx·inbox-watch·wake-at·close)
+│       ├── herdr-flow/             # 공용 묶음(SKILL.md 없음) · shared/(rules·folder-layout·templates) · scripts/(spawn·send·ctx·inbox-watch·wake-at·close)
 │       ├── herdr-flow-brief/       # SKILL.md · reference/brief-template.md
 │       ├── herdr-flow-verify/      # SKILL.md
 │       └── herdr-handoff/          # SKILL.md · scripts/context.sh
