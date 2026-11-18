@@ -25,7 +25,7 @@
 | `design/` | 설계 단계 | 설계 과정 산출물(intake·clarify·design·confirm·log 등). 설계가 확정되면 결론은 `plan.md`·`decisions.md`로 올리고 `plan.md`의 「관련 문서」에서 링크한다 |
 | `backups/<작업 폴더 이름>/<YYMMDD>-<일>/` (`docs` 밖) | 하위 세션 | 바꾸기 전 원본(설정 JSON, 대상 목록) |
 | `checklist/` | `work-checklist` 스킬 | `checklist.json`, `checklist.html`, 게시 URL |
-| `design-review/` | 설계 토론 | `BRIEF*.md`, `orch-rN.md`, `<상대>-rN.md`, `consensus.md`, `codex-review.md`, `INBOX.md` |
+| `design-review/` | 설계 토론(`herdr-flow-debate`) | `BRIEF.md`(토론 지시서), `orch-rN.md`·`<상대>-rN.md`(라운드), `consensus.md`(합의), `BRIEF-edit*.md`·`edit-report*.md`(정본 반영), `BRIEF-codex*.md`·`codex-review*.md`(외부 리뷰), `INBOX.md`(토론 세션 보고) |
 
 ## 새로 만들 때
 

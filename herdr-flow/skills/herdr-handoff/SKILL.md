@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # Herdr 세션 핸드오프
 
-`<skills>`는 이 스킬 디렉터리의 부모다(로컬 설치면 `~/.claude/skills`, 플러그인 설치면 `<plugin>/skills`). `herdr-flow/`는 공용 규칙·스크립트만 담은 형제 디렉터리다.
+`<skills>`는 이 스킬 디렉터리의 부모다(로컬 설치면 `~/.claude/skills`, 플러그인 설치면 `<plugin>/skills`). `herdr-flow/`는 진입점 스킬이면서 공용 규칙(`shared/`)·스크립트(`scripts/`)를 담은 형제 디렉터리다.
 
 지금 세션은 컨텍스트가 거의 찬 상태다. 이 스킬을 쓰는 동안에도 컨텍스트를 아껴라. herdr 스킬은 따로 불러오지 않는다. 여기 없는 herdr 명령이 필요할 때만 불러온다.
 

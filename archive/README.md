@@ -23,6 +23,10 @@ archive/<스킬명>/<YYYY-MM-DD>/   교체되기 직전의 스킬 디렉터리 �
 |---|---|---|---|
 | `wiki-lint` | [`wiki-lint/2026-09-13/`](wiki-lint/2026-09-13/) | llm-wiki 0.2.1 | #6 — 깨진 링크에 「외부(위키 밖)」 분류 추가(llm-wiki 0.2.4) |
 | `document-generator` | [`document-generator/2026-11-02/`](document-generator/2026-11-02/) | document-generator 1.5.0 | #11 — 스킬을 `doc-writing`으로 교체(document-generator 2.0.0) |
+| `herdr-flow`(공용 묶음) | [`herdr-flow/2026-11-18/`](herdr-flow/2026-11-18/) | herdr-flow 0.2.0 | 페르소나·체크리스트 기록 주체 변경, 진입점 SKILL.md 추가(herdr-flow 0.3.0) |
+| `herdr-flow-brief` | [`herdr-flow-brief/2026-11-18/`](herdr-flow-brief/2026-11-18/) | herdr-flow 0.2.0 | 모델 대신 페르소나로 세션 기동, 하위 세션은 체크리스트에 쓰지 않음(herdr-flow 0.3.0) |
+| `herdr-flow-verify` | [`herdr-flow-verify/2026-11-18/`](herdr-flow-verify/2026-11-18/) | herdr-flow 0.2.0 | 오케스트레이터가 done 기록, 약속한 후속 예약·운영 세션 화면 확인(herdr-flow 0.3.0) |
+| `herdr-handoff` | [`herdr-handoff/2026-11-18/`](herdr-handoff/2026-11-18/) | herdr-flow 0.2.0 | 공용 디렉터리 설명 문구만 변경(herdr-flow 0.3.0) |
 
 ## 주의
 
