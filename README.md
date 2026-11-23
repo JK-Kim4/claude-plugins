@@ -4,7 +4,7 @@ jongwan의 Claude Code 플러그인 마켓플레이스. 열 개의 플러그인�
 
 | 플러그인 | 버전 | 구성 | 설명 |
 |----------|------|------|------|
-| **document-generator** | 2.0.0 | 스킬 1 | doc-writing 스킬. 서비스 설계 문서 묶음(개요·기능 정의·도메인 정의·ERD·핵심 흐름)과 분석·비교·계획·리뷰·절차 문서를 쉬운 말 규칙·시각 스타일·생성기·검토 단계로 작성. 아티팩트·Notion·docs/ 출력. |
+| **document-generator** | 2.1.0 | 스킬 1 | doc-writing 스킬. 서비스 설계 문서 묶음(개요·기능 정의·도메인 정의·ERD·핵심 흐름)과 분석·비교·계획·리뷰·절차 문서를 쉬운 말 규칙·시각 스타일·생성기·검토 단계로 작성. 아티팩트·Google Docs(Drive, 2026-11-16까지는 Notion)·docs/ 출력. |
 | **pr-reviewer** | 1.1.0 | 스킬 1 | 지정한 GitHub PR을 컨벤션·코드(보안·동시성·로직) 두 축으로 분석해 Pn 룰(P1~P5) 우선순위 라벨을 단 단일 PR Review로 게시. `craft:code-reviewer` 페르소나 연동. 리뷰 기준 컨벤션 레포당 1회 확정·저장. |
 | **architecture-reviewer** | 1.0.0 | 스킬 1 | APoSD·DDD 관점으로 코드의 아키텍처 품질(복잡도·모듈 깊이·정보 은닉·결합도)을 7축 루브릭으로 진단하거나, 제안한 아키텍처 방향을 현 코드 기준으로 검증. 지적마다 P0~P2 + 개선 스케치. |
 | **craft** | 0.2.0 | 에이전트 4 · 스킬 11 | 개발 파이프라인 페르소나 sub agent 4종(verifier·interface-designer·tdd-implementer·code-reviewer)과 오케스트레이션 스킬(triage·diagnosing-bugs·design-it-twice·tdd·implement·test-audit), 마케팅·PM 스킬(marketing-strategy·pm-breakdown·retention-playbook·acquisition-playbook·prd-ticket-writing). |

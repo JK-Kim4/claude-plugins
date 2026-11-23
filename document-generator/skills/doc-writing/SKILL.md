@@ -1,6 +1,6 @@
 ---
 name: doc-writing
-description: Procedure, plain-language rules, visual style, generators, and the review step for documents other people read — service design sets (개요 / 기능 정의 / 도메인 정의 / ERD / 핵심 흐름), analysis, comparison, plan, review, change-report, and procedure pages published as artifacts (and the same structure for Notion or docs/ reports). Load BEFORE writing or restructuring such a document, and when the user asks for a more detailed or easier version of an existing one. Triggers - "문서 만들어줘", "문서로 정리", "아티팩트", "보고서", "설계 문서", "분석 문서", "비교 문서", "상세 버전", "자세하게 문서", "html 문서", "문서 다시 써줘", "문서 다시 만들어", "도메인 문서", "공유용 문서", "기능 정의", "요구사항", "도메인 정의", "ERD", "시퀀스 다이어그램", "개요 문서", "문서 나눠서".
+description: Procedure, plain-language rules, visual style, generators, and the review step for documents other people read — service design sets (개요 / 기능 정의 / 도메인 정의 / ERD / 핵심 흐름), analysis, comparison, plan, review, change-report, and procedure pages published as artifacts (and the same structure for Google Docs in Drive — Notion until 2026-11-16 — or docs/ reports). Load BEFORE writing or restructuring such a document, and when the user asks for a more detailed or easier version of an existing one. Triggers - "문서 만들어줘", "문서로 정리", "아티팩트", "보고서", "설계 문서", "분석 문서", "비교 문서", "상세 버전", "자세하게 문서", "html 문서", "문서 다시 써줘", "문서 다시 만들어", "도메인 문서", "공유용 문서", "기능 정의", "요구사항", "도메인 정의", "ERD", "시퀀스 다이어그램", "개요 문서", "문서 나눠서".
 ---
 
 # Document Writing
@@ -97,33 +97,37 @@ Applies to every type: list items, table rows, cards, questions, checklist entri
 3. Highlight the subject row; state the conclusion in one sentence above the table.
 4. Verify every cell.
 
-## Writing to Notion
+## Writing to Google Docs (Drive)
 
-Same rules, same section names and order by type; only the rendering changes. Use the Notion API (`NOTION_TOKEN` in `~/.claude/trevari-agent-docs/.env`, `Notion-Version: 2022-06-28`; read with `curl --compressed` to a file). Never overwrite a page the user did not ask to replace — create a new page next to it (same parent) when rewriting. A design set becomes five sibling pages under one parent, each linking the others at the top.
+**Document storage change.** Until 2026-11-16 shared documents were written as Notion pages (Notion API, `notion/dump.py`·`notion/publish.py`). On 2026-11-16 the company moved its documents from Notion to Google Drive; write them as Google Docs in Drive and never write to Notion. Old Notion pages map to Drive files in the sheet 「0. 노션 이관 인덱스」 (one tab per cell, column `노션 ID` → `새 위치 링크`).
 
-| HTML block | Notion block |
+Same rules, same section names and order by type; only the rendering changes. Tool: `gog` CLI (company Google account; run outside the sandbox because it reads the keyring). Read a doc with `gog docs cat <id>`; create one with `gog -j docs create "<title>" --parent <folder id> --file <file.md>` (markdown import). Never overwrite a doc the user did not ask to replace — create a new doc next to it (same folder) when rewriting. Ask for the target folder when the user names none. A design set becomes five docs in one folder, each linking the others at the top.
+
+Markdown import (tested 2026-11-23) keeps `#`/`##` headings, `-` lists, and pipe tables; fenced code, `>` quotes, and `<details>` become plain paragraphs.
+
+| HTML block | Google Docs |
 |---|---|
-| h1 | page title (no h1 block in the body) |
-| h2 / h3 | `heading_2` / `heading_3` with the fixed section names |
-| `.lead` | first paragraph |
-| `.cards` | `column_list` of callouts, or a 2-column `table` |
-| footer / 이 문서에 대해 | gray `callout`, one line |
-| `<details>` | `toggle`, title naming its contents |
-| tables | `table` with header row; subject row's first cell in bold |
-| SVG diagram | render to PNG with headless Chrome, upload via `/v1/file_uploads`, `image` block with the caption as the claim |
-| commands | `code` block (language `bash`) inside the step's toggle |
+| h1 | doc title and Heading 1 |
+| h2 / h3 | Heading 2 / Heading 3 with the fixed section names |
+| `.lead` | first bulleted list |
+| `.cards` | a table |
+| footer / 이 문서에 대해 | one plain line under the lead |
+| `<details>` | Docs has no toggle: a last `참고 — …` section, or a second document tab (`gog docs add-tab`) named for its contents |
+| tables | native table with header row; subject row's first cell in bold |
+| SVG diagram | render to PNG with headless Chrome, insert as an image with the claim as the caption line under it |
+| commands | plain lines after the step; monospace with `gog docs format` if the reader copies them |
 
-A diagram image cannot be edited in Notion. Keep the SVG source next to the page's other evidence and say in the footer where it is.
+A diagram image cannot be edited in Google Docs. Keep the SVG source next to the doc's other evidence and say in the footer where it is.
 
-### Density (Notion only)
+### Density (Google Docs; approved for Notion 2026-10-22)
 
-Notion has no letter- or line-spacing control, so density is set by the text itself. The approved default is `examples/notion-default-density.md` (attack-IP check, v3, 2026-10-22). Tools: `notion/dump.py <page_id> <out_dir>`, `notion/publish.py <parent_id> <title> <file.md> [--dry]` (run with `python3 -I`; the Notion call needs the sandbox off).
+The density approved for Notion pages carries over: both are read as plain text with no letter- or line-spacing control from the writer, so density is set by the text itself. The approved default is `examples/notion-default-density.md` (attack-IP check, v3, 2026-10-22).
 
 - Length about the same as the source (rewrites) or a few screens (new pages).
 - One sentence per line; a paragraph is 1–2 sentences.
 - Cells are one short phrase, no line breaks inside a cell.
-- An empty paragraph between blocks and a divider between h2 sections.
-- Sources, check times, and 미확인 lists go in one toggle at the end.
+- An empty line between blocks and a horizontal rule between h2 sections.
+- Sources, check times, and 미확인 lists go in one 참고 section at the end.
 - Rejected on both sides (2026-10-22): v1 at 1.5× the source with 100–138-character paragraphs was "글자가 다닥다닥"; v2 at 0.4× with label-only cells was "너무 생략".
 
 ## Overview → Detailed
